@@ -1,2 +1,1 @@
-Initial Commit 
-Checking branch protection
+Initial Commit
