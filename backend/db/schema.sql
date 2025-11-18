@@ -88,3 +88,11 @@ CREATE INDEX IF NOT EXISTS idx_criteria_trial_id
 
 CREATE INDEX IF NOT EXISTS idx_criteria_type
     ON criteria (type);
+
+CREATE TABLE IF NOT EXISTS ingestion_state (
+    id              SERIAL PRIMARY KEY,
+    job_name        TEXT NOT NULL UNIQUE,
+    page_token      TEXT,
+    processed_count INTEGER NOT NULL DEFAULT 0,
+    last_run_at     TIMESTAMPTZ
+);
