@@ -1,0 +1,74 @@
+{
+  "settings": {
+    "index": {
+      "number_of_shards": 1,
+      "number_of_replicas": 0,
+      "refresh_interval": "1s"
+    },
+    "analysis": {
+      "analyzer": {
+        "english_text": {
+          "type": "standard"
+        }
+      }
+    }
+  },
+  "mappings": {
+    "properties": {
+      "id": { "type": "integer" },
+      "nct_id": { "type": "keyword" },
+      "title": { "type": "text", "analyzer": "english_text" },
+      "brief_summary": { "type": "text", "analyzer": "english_text" },
+      "detailed_description": { "type": "text", "analyzer": "english_text" },
+
+      "conditions": {
+        "type": "text",
+        "analyzer": "english_text",
+        "fields": {
+          "raw": { "type": "keyword" }
+        }
+      },
+      "interventions": {
+        "type": "text",
+        "analyzer": "english_text",
+        "fields": {
+          "raw": { "type": "keyword" }
+        }
+      },
+
+      "study_type": { "type": "keyword" },
+      "phase": { "type": "keyword" },
+      "overall_status": { "type": "keyword" },
+
+      "start_date": {
+        "type": "date",
+        "format": "yyyy-MM-dd||strict_date_optional_time"
+      },
+      "primary_completion_date": {
+        "type": "date",
+        "format": "yyyy-MM-dd||strict_date_optional_time"
+      },
+      "completion_date": {
+        "type": "date",
+        "format": "yyyy-MM-dd||strict_date_optional_time"
+      },
+      "last_updated": {
+        "type": "date",
+        "format": "strict_date_optional_time"
+      },
+
+      "locations": {
+        "type": "nested",
+        "properties": {
+          "facility_name": { "type": "text", "analyzer": "english_text" },
+          "city": { "type": "keyword" },
+          "state": { "type": "keyword" },
+          "country": { "type": "keyword" }
+        }
+      },
+
+      "criteria_inclusion": { "type": "text", "analyzer": "english_text" },
+      "criteria_exclusion": { "type": "text", "analyzer": "english_text" }
+    }
+  }
+}
