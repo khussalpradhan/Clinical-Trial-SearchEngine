@@ -17,21 +17,41 @@ services:
     image: opensearchproject/opensearch:2.15.0
     container_name: ctf_opensearch
     environment:
-      discovery.type: single-node
-      OPENSEARCH_JAVA_OPTS: "-Xms512m -Xmx512m"
-      DISABLE_SECURITY_PLUGIN: "true"
+      - discovery.type=single-node
+      - DISABLE_SECURITY_PLUGIN=true
+      - OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
     ports:
       - "9200:9200"
+
+  backend:
+    build: .
+    container_name: ctf_backend
+    depends_on:
+      - postgres
+      - opensearch
+    environment:
+      # Override .env for inside-container networking
+      POSTGRES_DSN: postgresql://clinical_user:clinical_pass@postgres:5432/clinical_trials
+      OPENSEARCH_HOST: http://opensearch:9200
+      TRIALS_INDEX_NAME: trials_v1
+    ports:
+      - "8000:8000"
+
   pgadmin:
     image: dpage/pgadmin4
     container_name: ctf_pgadmin
+    depends_on:
+      - postgres
     environment:
       PGADMIN_DEFAULT_EMAIL: admin@admin.com
       PGADMIN_DEFAULT_PASSWORD: admin
     ports:
       - "5050:80"
-    depends_on:
-      - postgres
 
 volumes:
   pgdata:
+  opensearch_data:
