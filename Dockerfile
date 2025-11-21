@@ -43,4 +43,4 @@ EXPOSE 8000
 # Once you add an API (e.g., FastAPI in backend/app/main.py),
 # change this to a suitable command, e.g.:
 # CMD ["uvicorn", "backend.app.main:app", "--host", "0.0.0.0", "--port", "8000"]
-CMD ["python"]
+CMD ["uvicorn", "backend.api.main:app", "--host", "0.0.0.0", "--port", "8000"]
