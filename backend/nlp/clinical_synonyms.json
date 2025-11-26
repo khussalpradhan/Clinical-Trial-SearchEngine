@@ -1,0 +1,70 @@
+{
+  "NSCLC": [
+    "Non-small cell lung cancer",
+    "Non-Small Cell Carcinoma of the Lung",
+    "Non-Small Cell Carcinoma of Lung",
+    "Lung Non-Small Cell Carcinoma",
+    "Non-small cell lung cancer (disorder)",
+    "Non-Small Cell Lung Cancer",
+    "NSCLC - Non-small cell lung cancer",
+    "Non-Small Cell Lung Carcinoma",
+    "Non-Small Cell Cancer of the Lung",
+    "Non-Small Cell Cancer of Lung",
+    "NSCLC - Non-Small Cell Lung Cancer",
+    "Non Small Cell Lung Cancer NOS"
+  ],
+  "Breast_Cancer": [
+    "Malignant tumour of breast",
+    "Malignant Tumor of Breast",
+    "Breast cancer",
+    "Malignant neoplasm of breast",
+    "Malignant neoplasm of breast (disorder)",
+    "Malignant tumor of breast",
+    "Malignant Tumor of the Breast",
+    "Malignant Breast Tumor",
+    "Malignant Neoplasm of the Breast",
+    "Malignant Breast Neoplasm",
+    "Malignant Neoplasm of Breast"
+  ],
+  "Heart_Failure": [
+    "Congestive heart failure",
+    "Congestive heart failure (disorder)",
+    "Congestive heart disease",
+    "CCF - Congestive cardiac failure",
+    "Cardiac Failure Congestive",
+    "CHF - Congestive heart failure",
+    "Congestive Heart Failure",
+    "Congestive cardiac failure"
+  ],
+  "EGFR_Gene": [
+    "EGFR",
+    "Epidermal Growth Factor Receptor",
+    "ERBB1",
+    "HER1",
+    "EGFR mutation",
+    "EGFR positive"
+  ],
+  "HER2_Receptor": [
+    "HER2",
+    "HER-2",
+    "ERBB2",
+    "HER-2/neu",
+    "Human Epidermal Growth Factor Receptor 2",
+    "HER2 positive"
+  ],
+  "ALK_Gene": [
+    "ALK",
+    "Anaplastic Lymphoma Kinase",
+    "ALK rearrangement",
+    "ALK positive",
+    "ALK fusion"
+  ],
+  "KRAS_Gene": [
+    "KRAS",
+    "K-Ras",
+    "Ki-Ras",
+    "KRAS mutation",
+    "KRAS G12C",
+    "Kirsten rat sarcoma viral oncogene homolog"
+  ]
+}
