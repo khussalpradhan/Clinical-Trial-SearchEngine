@@ -4,7 +4,16 @@ import time
 import os
 
 # --- CONFIGURATION ---
-API_KEY = "d75d89f7-7280-4e9f-be97-ecebb9773374"  # <--- PASTE YOUR KEY HERE
+# Example (macOS / zsh):
+#   export UMLS_API_KEY="your-real-key-here"
+# The code below reads the key from the environment variable `UMLS_API_KEY`.
+API_KEY = os.environ.get("UMLS_API_KEY")
+if not API_KEY:
+    raise RuntimeError(
+        "Environment variable UMLS_API_KEY is not set.\n"
+        "Set it locally (e.g. `export UMLS_API_KEY=\"...\"`) before running this script."
+    )
+
 BASE_URI = "https://uts-ws.nlm.nih.gov/rest"
 
 # Only fetch these from API (Conditions have many variations)
