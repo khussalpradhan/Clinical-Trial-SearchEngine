@@ -85,3 +85,36 @@ Troubleshooting
 - `psycopg2` connection errors — ensure Postgres is running and `DB_CONFIG` is correct.
 - SQL errors about missing columns — confirm your DB schema matches `backend/db/schema.sql`.
 - If `spacy` import fails, install `spacy` and the English model or allow the parser to run in fallback mode (it will not crash but will be less feature-rich).
+
+Recent Changes (Nov 26, 2025)
+
+- `fetch_synonyms.py`
+  - Replaced hardcoded API key with an environment variable `UMLS_API_KEY`.
+  - Added comments and a clear runtime error if the key is not set to prevent committing secrets.
+
+- `criteria_parser.py`
+  - Restored a clean `CriteriaParser` implementation after the file was corrupted.
+  - Improved regexes and word-boundary matching, added additional biomarker keys (`Creatinine_Level`, `GFR_Level`).
+  - Added a runnable demo block; execute `python3 backend/nlp/criteria_parser.py` to run a quick example.
+
+- `test_real_data.py`
+  - Fixed SQL to use `brief_title` and `eligibility_criteria_raw` (matches `backend/db/schema.sql`).
+  - Updated prints/variables to display `brief_title` and parsed results for each trial.
+
+Quick recap of useful commands
+
+```bash
+# Export UMLS key for the session (macOS / zsh)
+export UMLS_API_KEY="your-real-key-here"
+
+# Run fetch_synonyms (creates backend/nlp/clinical_synonyms.json)
+cd backend
+source .venv/bin/activate
+python3 nlp/fetch_synonyms.py
+
+# Run parser demo
+python3 backend/nlp/criteria_parser.py
+
+# Run DB-backed test
+python3 backend/nlp/test_real_data.py
+```
