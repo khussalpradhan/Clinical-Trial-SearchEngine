@@ -1,70 +1,227 @@
 {
   "NSCLC": [
-    "Non-small cell lung cancer",
     "Non-Small Cell Carcinoma of the Lung",
+    "Non-small cell lung cancer",
+    "Non-Small Cell Lung Cancer",
+    "Non Small Cell Lung Cancer NOS",
+    "Non-Small Cell Cancer of Lung",
     "Non-Small Cell Carcinoma of Lung",
     "Lung Non-Small Cell Carcinoma",
-    "Non-small cell lung cancer (disorder)",
-    "Non-Small Cell Lung Cancer",
-    "NSCLC - Non-small cell lung cancer",
-    "Non-Small Cell Lung Carcinoma",
     "Non-Small Cell Cancer of the Lung",
-    "Non-Small Cell Cancer of Lung",
     "NSCLC - Non-Small Cell Lung Cancer",
-    "Non Small Cell Lung Cancer NOS"
+    "NSCLC - Non-small cell lung cancer",
+    "Non-small cell lung cancer (disorder)",
+    "Non-Small Cell Lung Carcinoma"
   ],
   "Breast_Cancer": [
-    "Malignant tumour of breast",
-    "Malignant Tumor of Breast",
-    "Breast cancer",
-    "Malignant neoplasm of breast",
     "Malignant neoplasm of breast (disorder)",
     "Malignant tumor of breast",
+    "Malignant Breast Neoplasm",
+    "Breast cancer",
     "Malignant Tumor of the Breast",
     "Malignant Breast Tumor",
+    "Malignant Neoplasm of Breast",
+    "Malignant tumour of breast",
     "Malignant Neoplasm of the Breast",
-    "Malignant Breast Neoplasm",
-    "Malignant Neoplasm of Breast"
+    "Malignant Tumor of Breast",
+    "Malignant neoplasm of breast"
   ],
   "Heart_Failure": [
-    "Congestive heart failure",
-    "Congestive heart failure (disorder)",
-    "Congestive heart disease",
-    "CCF - Congestive cardiac failure",
+    "Congestive cardiac failure",
     "Cardiac Failure Congestive",
+    "Congestive heart failure",
+    "CCF - Congestive cardiac failure",
+    "Congestive heart failure (disorder)",
     "CHF - Congestive heart failure",
-    "Congestive Heart Failure",
-    "Congestive cardiac failure"
+    "Congestive heart disease",
+    "Congestive Heart Failure"
+  ],
+  "Chronic_Kidney_Disease": [
+    "ESRF - End stage renal failure",
+    "Chronic Renal Disease",
+    "Chronic Renal Failure",
+    "Chronic renal failure syndrome",
+    "CRF - Chronic Renal Failure",
+    "Chronic renal failure",
+    "Chronic renal failure syndrome (disorder)",
+    "End stage chronic renal failure",
+    "End-stage renal disease (disorder)",
+    "End stage kidney disease",
+    "CRF - Chronic renal failure",
+    "ESCRF - End stage chronic renal failure",
+    "ESRD - End stage renal disease",
+    "End-stage renal disease"
+  ],
+  "Respiratory_Failure": [
+    "Adult Respiratory Distress Syndrome",
+    "Adult respiratory distress syndrome",
+    "Shock lung",
+    "Acute respiratory distress syndrome",
+    "Acute Respiratory Distress Syndrome",
+    "ARDS - Adult respiratory distress syndrome",
+    "DaNang lung",
+    "Acquired respiratory distress syndrome",
+    "Pulmonary capillary leak syndrome",
+    "Acute respiratory distress syndrome (disorder)",
+    "Adult RDS",
+    "Adult hyaline membrane disease",
+    "Vietnam lung",
+    "Congestive atelectasis"
+  ],
+  "Liver_Failure": [
+    "Liver Disorder",
+    "Disorder of liver (disorder)",
+    "Liver disease",
+    "Liver and Intrahepatic Bile Duct Disorder",
+    "Disorder of liver",
+    "LD - Liver disease",
+    "Hepatopathy",
+    "Disease of liver",
+    "Liver Disease",
+    "Hepatic Disorder"
+  ],
+  "Leukemia": [
+    "Leukemia, disease (disorder)",
+    "Blood (Leukemia)",
+    "Leukemia, disease",
+    "Leukaemia, disease",
+    "Leukemia",
+    "Leukaemia",
+    "Leukemia (morphologic abnormality)"
+  ],
+  "Prostate_Cancer": [
+    "Neoplasm of prostate (disorder)",
+    "Neoplasm of the Prostate",
+    "Prostate Neoplasm",
+    "NGP - New growth of prostate",
+    "Neoplasm of Prostate",
+    "Tumour of prostate",
+    "Prostate Tumor",
+    "Tumor of prostate",
+    "Neoplasm of prostate",
+    "Tumor of the Prostate",
+    "Tumor of Prostate"
+  ],
+  "Skin_Cancer": [
+    "Neoplasm of skin (disorder)",
+    "Skin Neoplasm",
+    "Neoplasm of the Skin",
+    "Skin tumour",
+    "Tumor of Skin",
+    "Cutaneous tumor",
+    "Skin Neoplasms",
+    "Tumor of the Skin",
+    "Neoplasm of Skin",
+    "Skin Tumor",
+    "Skin tumor",
+    "Tumour of skin",
+    "Neoplasm of skin",
+    "Cutaneous tumour",
+    "Tumor of skin"
+  ],
+  "Cervical_Cancer": [
+    "Malignant Neoplasm of the Uterine Cervix",
+    "Malignant Neoplasm of the Cervix Uteri",
+    "Malignant tumor of cervix",
+    "Malignant Tumor of the Cervix Uteri",
+    "Malignant Cervix Uteri Tumor",
+    "Malignant Tumor of the Cervix",
+    "Malignant Tumor of Cervix",
+    "Malignant Neoplasm of Cervix Uteri",
+    "Malignant Cervical Neoplasm",
+    "Malignant Tumor of Uterine Cervix",
+    "Malignant Uterine Cervix Tumor",
+    "Cervical cancer",
+    "Malignant Cervix Tumor",
+    "Malignant Neoplasm of Uterine Cervix",
+    "Malignant Cervical Tumor",
+    "Malignant Neoplasm of the Cervix",
+    "Malignant Neoplasm of Cervix",
+    "Malignant neoplasm of cervix",
+    "Malignant Tumor of Cervix Uteri",
+    "Malignant Cervix Neoplasm",
+    "Malignant neoplasm of cervix uteri",
+    "Malignant neoplasm of cervix uteri (disorder)",
+    "Malignant Tumor of the Uterine Cervix",
+    "Malignant tumour of cervix",
+    "Malignant Uterine Cervix Neoplasm",
+    "Malignant Cervix Uteri Neoplasm"
+  ],
+  "Bone_Cancer": [
+    "Osseous Tumor",
+    "Neoplasm of the Bone",
+    "Bone Tumors",
+    "Bone Tumor",
+    "Bone tumor (morphologic abnormality)",
+    "Neoplasm of bone",
+    "Bone Neoplasms",
+    "Tumor of Bone",
+    "Tumor of the Bone",
+    "Osseous Neoplasm",
+    "Neoplasm of bone (disorder)",
+    "Bone Neoplasm",
+    "Bone tumour",
+    "Bone tumor",
+    "Neoplasm of Bone"
   ],
   "EGFR_Gene": [
     "EGFR",
     "Epidermal Growth Factor Receptor",
     "ERBB1",
     "HER1",
-    "EGFR mutation",
-    "EGFR positive"
+    "EGFR mutation"
   ],
   "HER2_Receptor": [
     "HER2",
     "HER-2",
     "ERBB2",
     "HER-2/neu",
-    "Human Epidermal Growth Factor Receptor 2",
     "HER2 positive"
   ],
   "ALK_Gene": [
     "ALK",
     "Anaplastic Lymphoma Kinase",
     "ALK rearrangement",
-    "ALK positive",
-    "ALK fusion"
+    "ALK positive"
   ],
   "KRAS_Gene": [
     "KRAS",
     "K-Ras",
     "Ki-Ras",
     "KRAS mutation",
-    "KRAS G12C",
-    "Kirsten rat sarcoma viral oncogene homolog"
+    "KRAS G12C"
+  ],
+  "Creatinine_Level": [
+    "Creatinine",
+    "Serum Creatinine",
+    "SCr",
+    "sCr"
+  ],
+  "GFR_Level": [
+    "GFR",
+    "eGFR",
+    "Glomerular Filtration Rate",
+    "Creatinine Clearance",
+    "CrCl"
+  ],
+  "Bilirubin_Level": [
+    "Bilirubin",
+    "Total Bilirubin",
+    "Direct Bilirubin",
+    "TBil"
+  ],
+  "AST_Level": [
+    "AST",
+    "Aspartate Aminotransferase",
+    "SGOT"
+  ],
+  "ALT_Level": [
+    "ALT",
+    "Alanine Aminotransferase",
+    "SGPT"
+  ],
+  "PSA_Level": [
+    "PSA",
+    "Prostate Specific Antigen"
   ]
 }
