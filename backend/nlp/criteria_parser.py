@@ -46,7 +46,6 @@ class CriteriaParser:
         min_age = 0
         max_age = 100
 
-        # FIX 1: Look for "years", "yrs", "yo" to avoid lab values like "125 lbs"
         # Regex: (at least/age) + number + (optional space) + (years/yrs/yo)
         min_match = re.search(r"(?:≥|>=|at least|age|>\s*)\s*:?\s*(\d{1,3})\s*(?:years|yrs|y\.o\.|yo)", text)
         
@@ -65,35 +64,36 @@ class CriteriaParser:
             except ValueError:
                 pass
 
-        # FIX 2: Sanity Check - Humans rarely live past 120, and Min shouldn't be > Max
+        # Sanity Check
         if min_age > 120: min_age = 0
         if max_age > 120: max_age = 100
-        
         if min_age > max_age:
-            # If we parsed [18, 10], something is wrong. Trust the Min (18) and reset Max.
             max_age = 100
 
         return [min_age, max_age]
 
     def _extract_gender(self, text):
-        # FIX 3: Word boundaries (\b) to prevent "supplement" matching "men"
-        has_women = re.search(r"\bwomen\b", text)
-        has_men = re.search(r"\bmen\b", text)
+        # FIX: Matches "women" OR "female", and "men" OR "male"
+        # Uses \b to ensure word boundaries
+        has_female = re.search(r"\b(women|female|females)\b", text)
+        has_male = re.search(r"\b(men|male|males)\b", text)
 
-        if has_women and not has_men:
+        if has_female and not has_male:
             return "Female"
-        if has_men and not has_women:
+        if has_male and not has_female:
             return "Male"
+            
         return "All"
 
     def _extract_conditions(self, text):
         found = []
         for condition, terms in self.synonyms.items():
-            if condition.endswith("_Gene") or condition.endswith("_Receptor"):
+            # Skip biomarkers (handled separately)
+            if condition.endswith("_Gene") or condition.endswith("_Receptor") or condition.endswith("_Level"):
                 continue
             
             for term in terms:
-                # FIX 3: Word boundaries for conditions
+                # Word boundaries for conditions
                 pattern = r"\b" + re.escape(term.lower()) + r"\b"
                 if re.search(pattern, text):
                     found.append(condition)
@@ -102,14 +102,22 @@ class CriteriaParser:
 
     def _extract_biomarkers(self, text):
         found = []
-        keys = ["EGFR_Gene", "HER2_Receptor", "ALK_Gene", "KRAS_Gene"]
+        # UPDATED: Full list of supported labs/biomarkers
+        keys = [
+            "EGFR_Gene", "HER2_Receptor", "ALK_Gene", "KRAS_Gene",
+            "Creatinine_Level", "GFR_Level",
+            "Bilirubin_Level", "AST_Level", "ALT_Level", "PSA_Level"
+        ]
+        
         for key in keys:
             terms = self.synonyms.get(key, [])
             for term in terms:
-                # FIX 3: Word boundaries so "walking" != "ALK"
+                # Word boundaries so "walking" != "ALK"
                 pattern = r"\b" + re.escape(term.lower()) + r"\b"
                 if re.search(pattern, text):
-                    clean_name = key.replace("_Gene", "").replace("_Receptor", "")
+                    # Clean the name (remove suffixes)
+                    clean_name = key.replace("_Gene", "").replace("_Receptor", "").replace("_Level", "")
                     found.append(clean_name)
                     break
         return found
+    
