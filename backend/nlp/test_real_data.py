@@ -118,6 +118,10 @@ def test_on_real_data():
         if structured_data.get('biomarkers'):
             print(f"   Biomarkers: {structured_data['biomarkers']}")
             has_data = True
+        
+        if structured_data.get('exclusions'):
+            print(f"   Exclusions: {structured_data['exclusions']}")
+            has_data = True
 
         age = structured_data.get('age_range')
         if age and age != [0, 100]:

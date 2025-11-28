@@ -41,20 +41,21 @@ class CriteriaParser:
             "conditions": self._extract_conditions(text_lower),
             "biomarkers": self._extract_biomarkers(text_lower),
             "ecog": self._extract_ecog(text_lower),
-            "labs": self._extract_labs(text_lower) 
+            "labs": self._extract_labs(text_lower),
+            "exclusions": self._extract_exclusions(text_lower) # <--- NEW [K-205]
         }
 
+    # --- EXISTING METHODS (Age, Gender, Conditions, Biomarkers, ECOG) ---
     def _extract_age(self, text):
-        min_age = 0
-        max_age = 100
+        min_age, max_age = 0, 100
         min_match = re.search(r"(?:≥|>=|at least|age|>\s*)\s*:?\s*(\d{1,3})\s*(?:years|yrs|y\.o\.|yo)", text)
         max_match = re.search(r"(?:≤|<=|up to|younger than)\s*:?\s*(\d{1,3})\s*(?:years|yrs|y\.o\.|yo)", text)
-        if min_match:
+        if min_match: 
             try: min_age = int(min_match.group(1))
-            except ValueError: pass
-        if max_match:
+            except: pass
+        if max_match: 
             try: max_age = int(max_match.group(1))
-            except ValueError: pass
+            except: pass
         if min_age > 120: min_age = 0
         if max_age > 120: max_age = 100
         if min_age > max_age: max_age = 100
@@ -80,7 +81,15 @@ class CriteriaParser:
 
     def _extract_biomarkers(self, text):
         found = []
-        keys = ["EGFR_Gene", "HER2_Receptor", "ALK_Gene", "KRAS_Gene", "Creatinine_Level", "GFR_Level", "Bilirubin_Level", "AST_Level", "ALT_Level", "PSA_Level"]
+        keys = [
+            "EGFR_Gene", "HER2_Receptor", "ALK_Gene", "KRAS_Gene", "BRAF_Gene", "BCR_ABL_Gene", "FLT3_Gene",
+            "ER_Status", "PR_Status", "CD19_Marker",
+            "Creatinine_Level", "GFR_Level",
+            "Bilirubin_Level", "AST_Level", "ALT_Level", "INR_Level",
+            "PSA_Level", "Testosterone_Level",
+            "BNP_Level", "LVEF_Score",
+            "Platelet_Count", "Hemoglobin_Level", "ANC_Level"
+        ]
         for key in keys:
             terms = self.synonyms.get(key, [])
             for term in terms:
@@ -111,47 +120,54 @@ class CriteriaParser:
         return sorted(list(allowed_scores))
 
     def _extract_labs(self, text):
-        """
-        Extracts lab thresholds (e.g., 'Creatinine > 1.5').
-        Returns: { 'Creatinine': { 'operator': '>', 'value': 1.5, 'unit': 'mg/dl' }, ... }
-        """
         labs_found = {}
-        
-        # 1. Define the targets we care about (must match keys in synonyms json)
         lab_targets = ["Creatinine_Level", "GFR_Level", "Bilirubin_Level", "AST_Level", "ALT_Level", "PSA_Level"]
-        
-        # 2. Define the regex for operators and values
-        # Matches: >, <, >=, <=, =, "greater than", "less than"
-        # Followed by a number (integer or decimal)
-        # Followed optionally by units
         op_pattern = r"(>|>=|<|<=|≥|≤|greater than|less than|equals|up to)\s*(\d+(?:\.\d+)?)\s*([a-z/]+)?"
-        
         for lab_key in lab_targets:
-            # Get all synonyms for this lab (e.g., "SCr", "Creatinine")
             terms = self.synonyms.get(lab_key, [])
             clean_name = lab_key.replace("_Level", "")
-            
             for term in terms:
-                # Look for: "Creatinine ... > ... 1.5"
-                # We allow up to 20 characters between the name and the operator (to skip words like "level of")
                 full_pattern = r"\b" + re.escape(term.lower()) + r"\b.{0,20}?" + op_pattern
-                
                 match = re.search(full_pattern, text)
                 if match:
                     raw_op = match.group(1)
                     value = float(match.group(2))
                     unit = match.group(3) if match.group(3) else ""
-                    
-                    # Normalize operator
                     op = raw_op
                     if "greater" in raw_op or ">" in raw_op or "≥" in raw_op: op = ">"
                     elif "less" in raw_op or "<" in raw_op or "≤" in raw_op or "up to" in raw_op: op = "<"
-                    
-                    labs_found[clean_name] = {
-                        "operator": op,
-                        "value": value,
-                        "unit": unit.strip()
-                    }
-                    break # Found one rule for this lab, stop looking
-                    
+                    labs_found[clean_name] = {"operator": op, "value": value, "unit": unit.strip()}
+                    break 
         return labs_found
+
+    #comorbodities
+    def _extract_exclusions(self, text):
+        """
+        Detects common 'Deal Breaker' exclusions.
+        Returns a list of keys found (e.g., ['CNS_Mets', 'Pregnant']).
+        """
+        exclusions = []
+        
+        # 1. Brain Metastases (CNS Mets)
+        # Look for: "brain metastases", "CNS mets", "leptomeningeal disease"
+        if re.search(r"(brain|cns|central nervous system)\s*(metastas|mets|tumor)", text):
+            exclusions.append("CNS_Mets")
+            
+        # 2. HIV / Hepatitis
+        # Look for: "HIV", "Hepatitis B", "Hep C", "HBV", "HCV"
+        if re.search(r"\b(hiv|human immunodeficiency virus|aids)\b", text):
+            exclusions.append("HIV")
+        if re.search(r"\b(hepatitis|hbv|hcv)\b", text):
+            exclusions.append("Hepatitis")
+            
+        # 3. Pregnancy / Lactation
+        # Look for: "pregnant", "lactating", "nursing"
+        if re.search(r"\b(pregnant|pregnancy|lactating|nursing|breastfeeding)\b", text):
+            exclusions.append("Pregnancy")
+            
+        # 4. History of other cancer
+        # Look for: "prior malignancy", "other cancer", "history of malignancy"
+        if re.search(r"(prior|history of|other)\s*(malignan|cancer|tumor)", text):
+            exclusions.append("Prior_Malignancy")
+            
+        return exclusions
