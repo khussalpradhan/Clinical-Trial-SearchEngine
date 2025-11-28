@@ -42,7 +42,9 @@ class CriteriaParser:
             "biomarkers": self._extract_biomarkers(text_lower),
             "ecog": self._extract_ecog(text_lower),
             "labs": self._extract_labs(text_lower),
-            "exclusions": self._extract_exclusions(text_lower) # <--- NEW [K-205]
+            "exclusions": self._extract_exclusions(text_lower),
+            "temporal": self._extract_temporal(text_lower),
+            "lines_of_therapy": self._extract_lines(text_lower)
         }
 
     # --- EXISTING METHODS (Age, Gender, Conditions, Biomarkers, ECOG) ---
@@ -139,6 +141,60 @@ class CriteriaParser:
                     labs_found[clean_name] = {"operator": op, "value": value, "unit": unit.strip()}
                     break 
         return labs_found
+    
+    # NEW: TEMPORAL RULES (WASHOUTS)
+    def _extract_temporal(self, text):
+        """
+        Extracts washout periods. e.g. "At least 28 days since last chemo"
+        Returns: { 'chemo_washout': 28, 'surgery_washout': 14 } (Values in Days)
+        """
+        temporal = {}
+        
+        # Helper to convert weeks/months to days
+        def to_days(val, unit):
+            if "week" in unit: return val * 7
+            if "month" in unit: return val * 30
+            return val
+
+        # Regex for "At least X [days/weeks] since [chemo/surgery]"
+        patterns = [
+            (r"(\d+)\s*(day|week|month)s?.*?since.*?(chemo|treatment|therapy)", "chemo_washout"),
+            (r"(\d+)\s*(day|week|month)s?.*?since.*?(surger|operation)", "surgery_washout")
+        ]
+        
+        for pat, key in patterns:
+            match = re.search(pat, text)
+            if match:
+                value = int(match.group(1))
+                unit = match.group(2)
+                temporal[key] = to_days(value, unit)
+                
+        return temporal
+
+    # NEW: LINES OF THERAPY 
+    def _extract_lines(self, text):
+        """
+        Extracts min/max lines of prior therapy.
+        Returns: { 'min_lines': 0, 'max_lines': 2 }
+        """
+        lines = {'min': 0, 'max': 100}
+        
+        # 1. "Treatment Naive" -> Max lines = 0
+        if re.search(r"\b(treatment|chemo|therapy)\s*(naïve|naive|free)\b", text):
+            lines['max'] = 0
+            return lines
+
+        # 2. "At least 1 prior line" / "Received >= 2 prior regimens"
+        min_match = re.search(r"(?:received|at least|>=)\s*(\d+)\s*(?:prior)?\s*(?:lines|regimens|therapies)", text)
+        if min_match:
+            lines['min'] = int(min_match.group(1))
+
+        # 3. "No more than 2 prior lines" / "Up to 1 prior line"
+        max_match = re.search(r"(?:no more than|up to|<=)\s*(\d+)\s*(?:prior)?\s*(?:lines|regimens|therapies)", text)
+        if max_match:
+            lines['max'] = int(max_match.group(1))
+            
+        return lines
 
     #comorbodities
     def _extract_exclusions(self, text):

@@ -29,7 +29,9 @@ FAKE_PATIENT = {
         "Creatinine": 1.2,
         "Bilirubin": 0.8,
         "AST": 30
-    }
+    },
+    "prior_lines": 3,               
+    "days_since_last_treatment": 10
 }
 
 def test_scoring_engine():
@@ -50,7 +52,7 @@ def test_scoring_engine():
     FROM trials
     WHERE eligibility_criteria_raw IS NOT NULL
     AND eligibility_criteria_raw ILIKE '%non-small cell%'
-    LIMIT 20;
+    LIMIT 100;
     """
     
     cur.execute(query)
