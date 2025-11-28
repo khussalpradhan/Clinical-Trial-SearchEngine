@@ -39,7 +39,8 @@ class CriteriaParser:
             "age_range": self._extract_age(text_lower),
             "gender": self._extract_gender(text_lower),
             "conditions": self._extract_conditions(text_lower),
-            "biomarkers": self._extract_biomarkers(text_lower)
+            "biomarkers": self._extract_biomarkers(text_lower),
+            "ecog": self._extract_ecog(text_lower)  # <--- NEW FIELD [K-202]
         }
 
     def _extract_age(self, text):
@@ -73,8 +74,7 @@ class CriteriaParser:
         return [min_age, max_age]
 
     def _extract_gender(self, text):
-        # FIX: Matches "women" OR "female", and "men" OR "male"
-        # Uses \b to ensure word boundaries
+        # Matches "women" OR "female", and "men" OR "male"
         has_female = re.search(r"\b(women|female|females)\b", text)
         has_male = re.search(r"\b(men|male|males)\b", text)
 
@@ -102,7 +102,7 @@ class CriteriaParser:
 
     def _extract_biomarkers(self, text):
         found = []
-        # UPDATED: Full list of supported labs/biomarkers
+        # Full list of supported labs/biomarkers
         keys = [
             "EGFR_Gene", "HER2_Receptor", "ALK_Gene", "KRAS_Gene",
             "Creatinine_Level", "GFR_Level",
@@ -112,12 +112,42 @@ class CriteriaParser:
         for key in keys:
             terms = self.synonyms.get(key, [])
             for term in terms:
-                # Word boundaries so "walking" != "ALK"
                 pattern = r"\b" + re.escape(term.lower()) + r"\b"
                 if re.search(pattern, text):
-                    # Clean the name (remove suffixes)
                     clean_name = key.replace("_Gene", "").replace("_Receptor", "").replace("_Level", "")
                     found.append(clean_name)
                     break
         return found
-    
+
+    def _extract_ecog(self, text):
+        """
+        Extracts allowed ECOG/WHO/Zubrod scores. 
+        Returns a list of allowed integers, e.g., [0, 1].
+        """
+        allowed_scores = set()
+        
+        # 1. Ranges: "ECOG 0-1", "ECOG 0 to 2", "Zubrod 0-1"
+        range_match = re.search(r"(?:ecog|zubrod|who).*?status.*?(\d)\s*(?:-|to)\s*(\d)", text)
+        if range_match:
+            start = int(range_match.group(1))
+            end = int(range_match.group(2))
+            if start <= end and end <= 5:
+                for i in range(start, end + 1):
+                    allowed_scores.add(i)
+        
+        # 2. Inequalities: "ECOG <= 2", "ECOG < 2"
+        lte_match = re.search(r"(?:ecog|zubrod|who).*?(?:≤|<=|up to|less than).*?(\d)", text)
+        if lte_match:
+            limit = int(lte_match.group(1))
+            if limit <= 5:
+                for i in range(0, limit + 1):
+                    allowed_scores.add(i)
+
+        # 3. Explicit Lists: "ECOG 0 or 1"
+        if not allowed_scores:
+            simple_match = re.search(r"(?:ecog|zubrod|who).*?(\d)(?:\s*or\s*|\s*,\s*)(\d)", text)
+            if simple_match:
+                allowed_scores.add(int(simple_match.group(1)))
+                allowed_scores.add(int(simple_match.group(2)))
+
+        return sorted(list(allowed_scores))
