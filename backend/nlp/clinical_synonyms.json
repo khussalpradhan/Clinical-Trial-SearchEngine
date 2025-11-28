@@ -1,168 +1,168 @@
 {
   "NSCLC": [
-    "Non-Small Cell Carcinoma of the Lung",
-    "Non-small cell lung cancer",
-    "Non-Small Cell Lung Cancer",
-    "Non Small Cell Lung Cancer NOS",
-    "Non-Small Cell Cancer of Lung",
-    "Non-Small Cell Carcinoma of Lung",
-    "Lung Non-Small Cell Carcinoma",
-    "Non-Small Cell Cancer of the Lung",
-    "NSCLC - Non-Small Cell Lung Cancer",
     "NSCLC - Non-small cell lung cancer",
-    "Non-small cell lung cancer (disorder)",
-    "Non-Small Cell Lung Carcinoma"
+    "Non-Small Cell Lung Cancer",
+    "Non-Small Cell Cancer of Lung",
+    "Non-Small Cell Carcinoma of the Lung",
+    "Non Small Cell Lung Cancer NOS",
+    "Non-small cell lung cancer",
+    "NSCLC - Non-Small Cell Lung Cancer",
+    "Lung Non-Small Cell Carcinoma",
+    "Non-Small Cell Carcinoma of Lung",
+    "Non-Small Cell Cancer of the Lung",
+    "Non-Small Cell Lung Carcinoma",
+    "Non-small cell lung cancer (disorder)"
   ],
   "Breast_Cancer": [
-    "Malignant neoplasm of breast (disorder)",
-    "Malignant tumor of breast",
-    "Malignant Breast Neoplasm",
-    "Breast cancer",
-    "Malignant Tumor of the Breast",
-    "Malignant Breast Tumor",
-    "Malignant Neoplasm of Breast",
+    "Malignant Tumor of Breast",
     "Malignant tumour of breast",
     "Malignant Neoplasm of the Breast",
-    "Malignant Tumor of Breast",
-    "Malignant neoplasm of breast"
+    "Malignant neoplasm of breast",
+    "Malignant Breast Tumor",
+    "Malignant Neoplasm of Breast",
+    "Malignant Breast Neoplasm",
+    "Malignant Tumor of the Breast",
+    "Malignant neoplasm of breast (disorder)",
+    "Breast cancer",
+    "Malignant tumor of breast"
   ],
   "Heart_Failure": [
-    "Congestive cardiac failure",
     "Cardiac Failure Congestive",
-    "Congestive heart failure",
-    "CCF - Congestive cardiac failure",
-    "Congestive heart failure (disorder)",
     "CHF - Congestive heart failure",
+    "CCF - Congestive cardiac failure",
+    "Congestive Heart Failure",
     "Congestive heart disease",
-    "Congestive Heart Failure"
+    "Congestive heart failure (disorder)",
+    "Congestive cardiac failure",
+    "Congestive heart failure"
   ],
   "Chronic_Kidney_Disease": [
     "ESRF - End stage renal failure",
-    "Chronic Renal Disease",
-    "Chronic Renal Failure",
-    "Chronic renal failure syndrome",
-    "CRF - Chronic Renal Failure",
-    "Chronic renal failure",
-    "Chronic renal failure syndrome (disorder)",
-    "End stage chronic renal failure",
     "End-stage renal disease (disorder)",
+    "End-stage renal disease",
     "End stage kidney disease",
-    "CRF - Chronic renal failure",
-    "ESCRF - End stage chronic renal failure",
+    "Chronic renal failure syndrome (disorder)",
     "ESRD - End stage renal disease",
-    "End-stage renal disease"
+    "CRF - Chronic renal failure",
+    "Chronic renal failure syndrome",
+    "Chronic renal failure",
+    "Chronic Renal Failure",
+    "ESCRF - End stage chronic renal failure",
+    "CRF - Chronic Renal Failure",
+    "Chronic Renal Disease",
+    "End stage chronic renal failure"
   ],
   "Respiratory_Failure": [
-    "Adult Respiratory Distress Syndrome",
-    "Adult respiratory distress syndrome",
-    "Shock lung",
-    "Acute respiratory distress syndrome",
-    "Acute Respiratory Distress Syndrome",
-    "ARDS - Adult respiratory distress syndrome",
     "DaNang lung",
-    "Acquired respiratory distress syndrome",
-    "Pulmonary capillary leak syndrome",
+    "ARDS - Adult respiratory distress syndrome",
+    "Acute respiratory distress syndrome",
     "Acute respiratory distress syndrome (disorder)",
-    "Adult RDS",
+    "Congestive atelectasis",
+    "Pulmonary capillary leak syndrome",
     "Adult hyaline membrane disease",
+    "Adult RDS",
     "Vietnam lung",
-    "Congestive atelectasis"
+    "Shock lung",
+    "Acquired respiratory distress syndrome",
+    "Adult Respiratory Distress Syndrome",
+    "Acute Respiratory Distress Syndrome",
+    "Adult respiratory distress syndrome"
   ],
   "Liver_Failure": [
-    "Liver Disorder",
-    "Disorder of liver (disorder)",
-    "Liver disease",
-    "Liver and Intrahepatic Bile Duct Disorder",
-    "Disorder of liver",
-    "LD - Liver disease",
-    "Hepatopathy",
-    "Disease of liver",
     "Liver Disease",
-    "Hepatic Disorder"
+    "Disorder of liver",
+    "Hepatopathy",
+    "Liver Disorder",
+    "Hepatic Disorder",
+    "LD - Liver disease",
+    "Disease of liver",
+    "Liver disease",
+    "Disorder of liver (disorder)",
+    "Liver and Intrahepatic Bile Duct Disorder"
   ],
   "Leukemia": [
-    "Leukemia, disease (disorder)",
-    "Blood (Leukemia)",
-    "Leukemia, disease",
-    "Leukaemia, disease",
-    "Leukemia",
     "Leukaemia",
-    "Leukemia (morphologic abnormality)"
+    "Leukemia, disease (disorder)",
+    "Leukemia",
+    "Blood (Leukemia)",
+    "Leukemia (morphologic abnormality)",
+    "Leukaemia, disease",
+    "Leukemia, disease"
   ],
   "Prostate_Cancer": [
-    "Neoplasm of prostate (disorder)",
-    "Neoplasm of the Prostate",
-    "Prostate Neoplasm",
-    "NGP - New growth of prostate",
     "Neoplasm of Prostate",
-    "Tumour of prostate",
-    "Prostate Tumor",
-    "Tumor of prostate",
+    "Tumor of Prostate",
     "Neoplasm of prostate",
     "Tumor of the Prostate",
-    "Tumor of Prostate"
+    "Prostate Tumor",
+    "Tumour of prostate",
+    "NGP - New growth of prostate",
+    "Tumor of prostate",
+    "Neoplasm of prostate (disorder)",
+    "Neoplasm of the Prostate",
+    "Prostate Neoplasm"
   ],
   "Skin_Cancer": [
-    "Neoplasm of skin (disorder)",
-    "Skin Neoplasm",
-    "Neoplasm of the Skin",
-    "Skin tumour",
-    "Tumor of Skin",
-    "Cutaneous tumor",
-    "Skin Neoplasms",
     "Tumor of the Skin",
-    "Neoplasm of Skin",
-    "Skin Tumor",
-    "Skin tumor",
-    "Tumour of skin",
-    "Neoplasm of skin",
+    "Tumor of skin",
+    "Cutaneous tumor",
     "Cutaneous tumour",
-    "Tumor of skin"
+    "Neoplasm of skin",
+    "Neoplasm of skin (disorder)",
+    "Skin tumor",
+    "Skin Neoplasms",
+    "Skin Neoplasm",
+    "Skin Tumor",
+    "Neoplasm of Skin",
+    "Tumor of Skin",
+    "Neoplasm of the Skin",
+    "Tumour of skin",
+    "Skin tumour"
   ],
   "Cervical_Cancer": [
-    "Malignant Neoplasm of the Uterine Cervix",
-    "Malignant Neoplasm of the Cervix Uteri",
-    "Malignant tumor of cervix",
     "Malignant Tumor of the Cervix Uteri",
-    "Malignant Cervix Uteri Tumor",
-    "Malignant Tumor of the Cervix",
-    "Malignant Tumor of Cervix",
-    "Malignant Neoplasm of Cervix Uteri",
-    "Malignant Cervical Neoplasm",
-    "Malignant Tumor of Uterine Cervix",
-    "Malignant Uterine Cervix Tumor",
-    "Cervical cancer",
-    "Malignant Cervix Tumor",
-    "Malignant Neoplasm of Uterine Cervix",
-    "Malignant Cervical Tumor",
-    "Malignant Neoplasm of the Cervix",
-    "Malignant Neoplasm of Cervix",
-    "Malignant neoplasm of cervix",
     "Malignant Tumor of Cervix Uteri",
-    "Malignant Cervix Neoplasm",
     "Malignant neoplasm of cervix uteri",
-    "Malignant neoplasm of cervix uteri (disorder)",
-    "Malignant Tumor of the Uterine Cervix",
-    "Malignant tumour of cervix",
+    "Malignant Uterine Cervix Tumor",
+    "Malignant Cervical Tumor",
+    "Malignant Neoplasm of Cervix Uteri",
+    "Malignant neoplasm of cervix",
     "Malignant Uterine Cervix Neoplasm",
-    "Malignant Cervix Uteri Neoplasm"
+    "Malignant Tumor of the Uterine Cervix",
+    "Malignant Neoplasm of the Cervix",
+    "Malignant Cervix Tumor",
+    "Malignant Tumor of Uterine Cervix",
+    "Malignant Cervix Uteri Neoplasm",
+    "Malignant tumor of cervix",
+    "Malignant Tumor of Cervix",
+    "Malignant Cervix Neoplasm",
+    "Malignant Cervix Uteri Tumor",
+    "Malignant Neoplasm of Cervix",
+    "Malignant Tumor of the Cervix",
+    "Malignant Neoplasm of the Cervix Uteri",
+    "Cervical cancer",
+    "Malignant tumour of cervix",
+    "Malignant Neoplasm of the Uterine Cervix",
+    "Malignant Neoplasm of Uterine Cervix",
+    "Malignant Cervical Neoplasm",
+    "Malignant neoplasm of cervix uteri (disorder)"
   ],
   "Bone_Cancer": [
-    "Osseous Tumor",
+    "Neoplasm of bone",
+    "Bone tumour",
     "Neoplasm of the Bone",
-    "Bone Tumors",
     "Bone Tumor",
     "Bone tumor (morphologic abnormality)",
-    "Neoplasm of bone",
-    "Bone Neoplasms",
-    "Tumor of Bone",
-    "Tumor of the Bone",
+    "Osseous Tumor",
     "Osseous Neoplasm",
-    "Neoplasm of bone (disorder)",
-    "Bone Neoplasm",
-    "Bone tumour",
     "Bone tumor",
-    "Neoplasm of Bone"
+    "Tumor of Bone",
+    "Bone Neoplasms",
+    "Tumor of the Bone",
+    "Neoplasm of bone (disorder)",
+    "Bone Tumors",
+    "Neoplasm of Bone",
+    "Bone Neoplasm"
   ],
   "EGFR_Gene": [
     "EGFR",
@@ -170,13 +170,6 @@
     "ERBB1",
     "HER1",
     "EGFR mutation"
-  ],
-  "HER2_Receptor": [
-    "HER2",
-    "HER-2",
-    "ERBB2",
-    "HER-2/neu",
-    "HER2 positive"
   ],
   "ALK_Gene": [
     "ALK",
@@ -190,6 +183,43 @@
     "Ki-Ras",
     "KRAS mutation",
     "KRAS G12C"
+  ],
+  "BRAF_Gene": [
+    "BRAF",
+    "BRAF V600E",
+    "BRAF mutation"
+  ],
+  "BCR_ABL_Gene": [
+    "BCR-ABL",
+    "Philadelphia Chromosome",
+    "BCR/ABL"
+  ],
+  "FLT3_Gene": [
+    "FLT3",
+    "FLT3-ITD",
+    "FLT3 mutation"
+  ],
+  "HER2_Receptor": [
+    "HER2",
+    "HER-2",
+    "ERBB2",
+    "HER-2/neu",
+    "HER2 positive"
+  ],
+  "ER_Status": [
+    "ER",
+    "Estrogen Receptor",
+    "Estrogen Receptor Positive"
+  ],
+  "PR_Status": [
+    "PR",
+    "Progesterone Receptor",
+    "Progesterone Receptor Positive"
+  ],
+  "CD19_Marker": [
+    "CD19",
+    "Cluster of Differentiation 19",
+    "CD19 positive"
   ],
   "Creatinine_Level": [
     "Creatinine",
@@ -220,8 +250,42 @@
     "Alanine Aminotransferase",
     "SGPT"
   ],
+  "INR_Level": [
+    "INR",
+    "International Normalized Ratio",
+    "Prothrombin Time"
+  ],
   "PSA_Level": [
     "PSA",
     "Prostate Specific Antigen"
+  ],
+  "Testosterone_Level": [
+    "Testosterone",
+    "Serum Testosterone"
+  ],
+  "BNP_Level": [
+    "BNP",
+    "NT-proBNP",
+    "B-type Natriuretic Peptide"
+  ],
+  "LVEF_Score": [
+    "LVEF",
+    "Ejection Fraction",
+    "Left Ventricular Ejection Fraction"
+  ],
+  "Platelet_Count": [
+    "Platelets",
+    "Platelet count",
+    "PLT"
+  ],
+  "Hemoglobin_Level": [
+    "Hemoglobin",
+    "Hgb",
+    "Hb"
+  ],
+  "ANC_Level": [
+    "ANC",
+    "Absolute Neutrophil Count",
+    "Neutrophils"
   ]
 }

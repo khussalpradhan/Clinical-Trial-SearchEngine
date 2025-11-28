@@ -39,24 +39,47 @@ API_TARGETS = {
 }
 
 # --- EXPANDED BIOMARKER/LAB LIST ---
+# --- EXPANDED BIOMARKER/LAB LIST (FINAL COMPLETE VERSION) ---
+# --- EXPANDED BIOMARKER/LAB LIST (DOCTOR VERIFIED) ---
 MANUAL_BIOMARKERS = {
-    # Cancer Genetics
+    # --- Cancer Genetics (Lung, Skin, Leukemia) ---
     "EGFR_Gene": ["EGFR", "Epidermal Growth Factor Receptor", "ERBB1", "HER1", "EGFR mutation"],
-    "HER2_Receptor": ["HER2", "HER-2", "ERBB2", "HER-2/neu", "HER2 positive"],
     "ALK_Gene": ["ALK", "Anaplastic Lymphoma Kinase", "ALK rearrangement", "ALK positive"],
     "KRAS_Gene": ["KRAS", "K-Ras", "Ki-Ras", "KRAS mutation", "KRAS G12C"],
+    "BRAF_Gene": ["BRAF", "BRAF V600E", "BRAF mutation"],
+    "BCR_ABL_Gene": ["BCR-ABL", "Philadelphia Chromosome", "BCR/ABL"],
+    "FLT3_Gene": ["FLT3", "FLT3-ITD", "FLT3 mutation"], # NEW (Leukemia)
 
-    # Kidney Labs
+    # --- Breast Cancer Hormones (Critical) ---
+    "HER2_Receptor": ["HER2", "HER-2", "ERBB2", "HER-2/neu", "HER2 positive"],
+    "ER_Status": ["ER", "Estrogen Receptor", "Estrogen Receptor Positive"], # NEW
+    "PR_Status": ["PR", "Progesterone Receptor", "Progesterone Receptor Positive"], # NEW
+
+    # --- Immunotherapy Markers (Leukemia/Lymphoma) ---
+    "CD19_Marker": ["CD19", "Cluster of Differentiation 19", "CD19 positive"], # NEW (CAR-T)
+
+    # --- Kidney Labs ---
     "Creatinine_Level": ["Creatinine", "Serum Creatinine", "SCr", "sCr"],
     "GFR_Level": ["GFR", "eGFR", "Glomerular Filtration Rate", "Creatinine Clearance", "CrCl"],
 
-    # Liver Labs (NEW)
+    # --- Liver Labs ---
     "Bilirubin_Level": ["Bilirubin", "Total Bilirubin", "Direct Bilirubin", "TBil"],
     "AST_Level": ["AST", "Aspartate Aminotransferase", "SGOT"],
     "ALT_Level": ["ALT", "Alanine Aminotransferase", "SGPT"],
-    
-    # Prostate Labs (NEW)
-    "PSA_Level": ["PSA", "Prostate Specific Antigen"]
+    "INR_Level": ["INR", "International Normalized Ratio", "Prothrombin Time"], # NEW (Critical for Liver Failure)
+
+    # --- Prostate Labs ---
+    "PSA_Level": ["PSA", "Prostate Specific Antigen"],
+    "Testosterone_Level": ["Testosterone", "Serum Testosterone"], # NEW
+
+    # --- Heart Failure Labs ---
+    "BNP_Level": ["BNP", "NT-proBNP", "B-type Natriuretic Peptide"],
+    "LVEF_Score": ["LVEF", "Ejection Fraction", "Left Ventricular Ejection Fraction"],
+
+    # --- General Safety (Hematology) ---
+    "Platelet_Count": ["Platelets", "Platelet count", "PLT"],
+    "Hemoglobin_Level": ["Hemoglobin", "Hgb", "Hb"],
+    "ANC_Level": ["ANC", "Absolute Neutrophil Count", "Neutrophils"] # NEW (Critical for Chemo Safety)
 }
 
 def get_synonyms(cui, api_key):
