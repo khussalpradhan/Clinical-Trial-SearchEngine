@@ -40,7 +40,7 @@ class FeasibilityScorer:
         if trial_conditions:
             common = patient_conditions.intersection(trial_conditions)
             if common:
-                score += 30
+                score += 40
                 reasons.append(f" Condition Match: {list(common)}")
             else:
                 # Soft Fail: If trial specifies a disease and patient doesn't have it
@@ -53,7 +53,7 @@ class FeasibilityScorer:
         
         common_bios = patient_bios.intersection(trial_bios)
         if common_bios:
-            score += 20
+            score += 25
             reasons.append(f" Biomarker Match: {list(common_bios)}")
 
         # 4. ECOG CHECK
@@ -61,7 +61,7 @@ class FeasibilityScorer:
         if trial_data['ecog'] and 'ecog' in patient_profile:
             patient_ecog = patient_profile['ecog']
             if patient_ecog in trial_data['ecog']:
-                score += 10
+                score += 15
                 reasons.append(f" ECOG {patient_ecog} is allowed")
             else:
                 is_feasible = False
@@ -103,9 +103,12 @@ class FeasibilityScorer:
 
         p_gender = patient_profile.get('gender')
         t_gender = trial_data['gender']
-        if p_gender and t_gender != "All" and p_gender != t_gender:
-            is_feasible = False
-            reasons.append(f" Gender Mismatch: Patient {p_gender} vs Trial {t_gender}")
+        if p_gender and t_gender != "All": 
+            if p_gender == t_gender:
+                score += 5
+            else:
+                is_feasible = False
+                reasons.append(f"Gender Mismatch: Patient {p_gender} vs Trial {t_gender}")
         
         # 7. TEMPORAL WASHOUTS
         p_washout = patient_profile.get('days_since_last_treatment')
