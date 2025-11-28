@@ -1,47 +1,65 @@
 # NLP Feasibility Engine (backend/nlp)
 
-This module contains the NLP and scoring logic used by the Clinical Trial Search Engine. It parses unstructured eligibility criteria, extracts clinical entities, and computes a feasibility score (0–100) for a given patient profile.
+This module houses the core intelligence of the Clinical Trial Search Engine. It is responsible for parsing unstructured eligibility criteria, extracting clinical entities, and calculating a match score (0-100) for a specific patient.
 
 ## Key Files
 
-- `criteria_parser.py` — NLP extraction engine (regex + optional spaCy). Extracts: conditions, biomarkers, lab thresholds, demographics (age/gender), hard exclusions, temporal rules, and treatment-history constraints.
-- `feasibility_scorer.py` — Scoring logic that compares a `patient_profile` with parsed trial data and returns a score and reasons.
-- `fetch_synonyms.py` — Hybrid ingestion script that fetches synonyms from UMLS for configured CUIs and merges with manually curated biomarker/lab synonyms. Generates `clinical_synonyms.json`.
-- `clinical_synonyms.json` — Generated dictionary used by the parser for matching.
-- `test_real_data.py` — Integration runner that pulls trials from local Postgres and runs the parser.
-- `test_scorer.py` — Runner that creates fake patient profiles and scores them against real trials.
+### 1. Core Logic
+- **`criteria_parser.py`**: The NLP engine. Uses regex and spaCy to extract specific clinical data:
+  - **Conditions:** (NSCLC, Breast Cancer, Heart Failure, Chronic Kidney Disease, Respiratory Failure, Liver Failure, Leukemia, Prostate Cancer, Skin Cancer, Cervical Cancer, Bone Cancer)
+  - **Biomarkers/Genetics:** (EGFR, HER2, ALK, KRAS, BRAF, BCR-ABL, FLT3, CD19, ER_Status, PR_Status)
+  - **Lab Values:** (Creatinine, GFR, Bilirubin, AST, ALT, INR, PSA, Testosterone, BNP, LVEF, Platelets, Hemoglobin, ANC)
+  - **Demographics:** (Age Range [Min/Max], Gender [Male/Female/All])
+  - **Hard Exclusions:** (CNS Metastases, HIV, Hepatitis B/C, Pregnancy/Lactation, Prior Malignancy)
+  - **Temporal Rules:** (Washout periods for chemotherapy or surgery in days/weeks)
+  - **Treatment History:** (Min/Max allowed Lines of Therapy, Treatment Naïve status)
 
----
+- **`feasibility_scorer.py`**: The judgment engine. Compares a Patient Profile against the parsed trial data to calculate a score based on weighted logic:
+  - **Hard Exclusions:** (Score = 0 if patient has a banned condition like Pregnancy or CNS Mets)
+  - **Condition Match:** (+30 points if the trial explicitly treats the patient's disease)
+  - **Biomarker Match:** (+20 points if patient matches a required genomic marker like EGFR or HER2)
+  - **ECOG Status:** (+10 points if patient's ECOG score is within the trial's allowed range)
+  - **Lines of Therapy:** (+10 points if patient's prior history fits the trial's specific window, e.g. 2nd Line)
+  - **Lab Thresholds:** (+5 points per passed lab value, e.g. Creatinine < 1.5)
+  - **Age/Gender:** (+5 points for demographic fit)
+  - **Washout Periods:** (+5 points if patient clears required washout days)
 
-## API Documentation
+- **`__init__.py`**: The API entry point. Exposes the `rank_trials(patient, trials)` function for the backend to use.
 
-### Main function (example)
+### 2. Data & Setup
+- **`fetch_synonyms.py`**: A hybrid ingestion script. It fetches synonyms from the UMLS API for the 11 targeted conditions and injects the manually curated list of biomarkers/labs. Generates `clinical_synonyms.json`.
+- **`clinical_synonyms.json`**: The "Gold Standard" dictionary used by the parser for entity recognition.
 
-Import guideline (when used from the backend package):
+### 3. Testing
+- **`test_real_data.py`**: Integration test. Connects to the local Dockerized Postgres DB, pulls real trials via SQL `ILIKE` queries, and verifies that the parser correctly extracts entities from raw text.
+- **`test_scorer.py`**: Unit test for the scoring logic. Creates "Fake Patients" (e.g., Stage IV NSCLC, ECOG 1, Creatinine 1.2) and scores them against real trials to verify ranking accuracy.
 
-```python
-from backend.nlp import rank_trials  # if exposed by package __init__
-```
+##  API Documentation
 
-### Example: `patient_profile` (python)
+### Main Function: `rank_trials(patient_profile, trials_list)`
+
+Imports: `from backend.nlp import rank_trials`
+
+#### 1. Input: `patient_profile` (Dictionary)
+This dictionary represents the patient's clinical state. All fields are optional but recommended for better scoring.
 
 ```python
 patient_profile = {
     # Demographics
-    "age": 65,
-    "gender": "Female",
-
+    "age": 65,                  # int: Age in years
+    "gender": "Female",         # str: "Male" or "Female"
+    
     # Clinical Status
-    "ecog": 1,
-    "conditions": ["NSCLC"],
-
+    "ecog": 1,                  # int: ECOG Performance Status (0-5)
+    "conditions": ["NSCLC"],    # list[str]: Diagnosed conditions (must match dictionary keys)
+    
     # Genetics / Biomarkers
-    "biomarkers": ["EGFR", "HER2"],
-
-    # Lab Values
+    "biomarkers": ["EGFR", "HER2"], # list[str]: Positive biomarkers
+    
+    # Lab Values (Dictionary of value per lab)
     "labs": {
-        "Creatinine": 1.2,
-        "GFR": 45,
+        "Creatinine": 1.2,      # float: mg/dL
+        "GFR": 45,              # float: mL/min
         "Bilirubin": 0.8,
         "AST": 35,
         "ALT": 40,
@@ -49,103 +67,20 @@ patient_profile = {
         "Hemoglobin": 11.0,
         "PSA": 2.5
     },
-
+    
     # Treatment History
-    "prior_lines": 1,
-    "days_since_last_treatment": 30
+    "prior_lines": 1,           # int: Number of prior systemic therapy lines
+    "days_since_last_treatment": 30 # int: Days since last chemo/surgery (for washout checks)
 }
 ```
-
 ---
+## 🛠 Prerequisites
 
-## Prerequisites
+1. **Python 3.8+** (Recommended to use the project's virtual environment).
+2. **Postgres Database**: You must have the Docker container running and populated with data (`backend/db/scrape_clinical_trials.py` must have been run).
+3. **UMLS API Key**: Required to regenerate the dictionary.
 
-1. Python 3.8+ (use a virtualenv for isolation).
-2. Postgres database populated with the schema in `backend/db/schema.sql` (if you plan to run `test_real_data.py` / `test_scorer.py`).
-3. UMLS API key (only required if you will run `fetch_synonyms.py`).
-
-### Environment variables
-
-Export your UMLS API key (macOS / zsh example):
-
+### Environment Variables
+You need a UMLS (NLM) API key to run `fetch_synonyms.py`.
 ```bash
 export UMLS_API_KEY="your-real-key-here"
-```
-
-(You can add that line to `~/.zshrc` to persist across sessions.)
-
----
-
-## Setup & Install
-
-From the `backend` directory:
-
-```bash
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-```
-
-Optional: install spaCy and the small English model for richer parsing:
-
-```bash
-pip install spacy
-python -m spacy download en_core_web_sm
-```
-
----
-
-## Running the scripts
-
-- Fetch synonyms (writes `backend/nlp/clinical_synonyms.json`):
-
-```bash
-# ensure UMLS_API_KEY is set in your environment
-python3 nlp/fetch_synonyms.py
-```
-
-- Parser demo (runs a small example):
-
-```bash
-python3 backend/nlp/criteria_parser.py
-```
-
-- Run the scorer test (ensure DB credentials in `test_scorer.py` or environment are correct):
-
-```bash
-python3 backend/nlp/test_scorer.py
-```
-
-- Run the real-data integration parser:
-
-```bash
-python3 backend/nlp/test_real_data.py
-```
-
----
-
-## Recent Changes (Nov 26–27, 2025)
-
-- `fetch_synonyms.py`: removed hardcoded UMLS key and now reads `UMLS_API_KEY` from the environment; added clear error message when missing.
-- `criteria_parser.py`: restored clean implementation; improved regexes and word-boundary matching; added demo `__main__` block for quick checks.
-- `feasibility_scorer.py`: made imports robust for script vs package usage; (previously broken by relative imports when executed directly).
-- `test_real_data.py` / `test_scorer.py`: updated SQL to use `brief_title` and `eligibility_criteria_raw` matching `backend/db/schema.sql`.
-- `backend/nlp/README.md`: rewritten and cleaned to remove erroneous code fences and provide clear run instructions.
-
----
-
-## Troubleshooting
-
-- If `fetch_synonyms.py` errors with `Environment variable UMLS_API_KEY is not set.`, export the key then re-run.
-- If `psycopg2` connection errors appear, verify Postgres is running and DB credentials are correct.
-- If parsing returns empty conditions/biomarkers, make sure `backend/nlp/clinical_synonyms.json` exists (run `fetch_synonyms.py`) and contains the expected keys.
-
----
-
-If you'd like, I can:
-
-- Add `.env` auto-loading to `fetch_synonyms.py` (via `python-dotenv`) so you can use a local `.env` file.
-- Make `test_scorer.py` read DB credentials from environment variables rather than hard-coded `DB_CONFIG`.
-- Add unit tests for `CriteriaParser` and `FeasibilityScorer`.
-
-Tell me which of these you'd like next.
