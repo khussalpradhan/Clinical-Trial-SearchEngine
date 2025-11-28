@@ -20,3 +20,6 @@ python -m backend.search.init_index
 
 Index psql data into opensearch
 python -m backend.search.reindex_from_postgres --chunk-size 1000
+
+Creating embeddings
+python -m backend.search.build_faiss_index
