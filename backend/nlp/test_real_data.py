@@ -106,6 +106,10 @@ def test_on_real_data():
         if structured_data.get('conditions'):
             print(f"   Conditions: {structured_data['conditions']}")
             has_data = True
+        
+        if structured_data.get('ecog'):
+            print(f"   ECOG:       {structured_data['ecog']}")
+            has_data = True
             
         if structured_data.get('biomarkers'):
             print(f"   Biomarkers: {structured_data['biomarkers']}")
