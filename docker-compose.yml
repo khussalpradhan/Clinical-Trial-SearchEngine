@@ -26,6 +26,8 @@ services:
         hard: -1
     ports:
       - "9200:9200"
+    volumes:
+      - opensearch_data:/usr/share/opensearch/data   # <- persist OpenSearch data
 
   backend:
     build: .
@@ -38,8 +40,11 @@ services:
       POSTGRES_DSN: postgresql://clinical_user:clinical_pass@postgres:5432/clinical_trials
       OPENSEARCH_HOST: http://opensearch:9200
       TRIALS_INDEX_NAME: trials_v1
+      PYTHONUNBUFFERED: "1"
     ports:
       - "8000:8000"
+    volumes:
+      - ./data:/app/data                              # <- persist FAISS index (trials_faiss.*)
 
   pgadmin:
     image: dpage/pgadmin4
