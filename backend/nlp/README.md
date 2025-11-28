@@ -16,12 +16,13 @@ This module houses the core intelligence of the Clinical Trial Search Engine. It
 
 - **`feasibility_scorer.py`**: The judgment engine. Compares a Patient Profile against the parsed trial data to calculate a score based on weighted logic:
   - **Hard Exclusions:** (Score = 0 if patient has a banned condition like Pregnancy or CNS Mets)
-  - **Condition Match:** (+30 points if the trial explicitly treats the patient's disease)
-  - **Biomarker Match:** (+20 points if patient matches a required genomic marker like EGFR or HER2)
-  - **ECOG Status:** (+10 points if patient's ECOG score is within the trial's allowed range)
+  - **Condition Match:** (+40 points if the trial explicitly treats the patient's disease)
+  - **Biomarker Match:** (+25 points if patient matches a required genomic marker like EGFR or HER2)
+  - **ECOG Status:** (+15 points if patient's ECOG score is within the trial's allowed range)
   - **Lines of Therapy:** (+10 points if patient's prior history fits the trial's specific window, e.g. 2nd Line)
-  - **Lab Thresholds:** (+5 points per passed lab value, e.g. Creatinine < 1.5)
-  - **Age/Gender:** (+5 points for demographic fit)
+  - **Lab Thresholds:** (+10 points per passed lab value, e.g. Creatinine < 1.5)
+  - **Age:** (+5 points for demographic fit)
+  - **Gender:** (+5 points for demographic fit)
   - **Washout Periods:** (+5 points if patient clears required washout days)
 
 - **`__init__.py`**: The API entry point. Exposes the `rank_trials(patient, trials)` function for the backend to use.
