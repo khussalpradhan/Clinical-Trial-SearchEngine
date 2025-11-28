@@ -78,7 +78,7 @@ def test_on_real_data():
         eligibility_criteria_raw ILIKE '%osteosarcoma%'
     )
     ORDER BY RANDOM()
-    LIMIT 50; 
+    LIMIT 100; 
     """
     # Increased LIMIT to 10 to give you a better chance of seeing variety
     
@@ -106,9 +106,21 @@ def test_on_real_data():
         if structured_data.get('conditions'):
             print(f"   Conditions: {structured_data['conditions']}")
             has_data = True
+        
+        if structured_data.get('ecog'):
+            print(f"   ECOG:       {structured_data['ecog']}")
+            has_data = True
+        
+        if structured_data.get('labs'):
+            print(f"   Labs:       {structured_data['labs']}")
+            has_data = True
             
         if structured_data.get('biomarkers'):
             print(f"   Biomarkers: {structured_data['biomarkers']}")
+            has_data = True
+        
+        if structured_data.get('exclusions'):
+            print(f"   Exclusions: {structured_data['exclusions']}")
             has_data = True
 
         age = structured_data.get('age_range')
