@@ -47,22 +47,40 @@ def test_on_real_data():
         print(f"Failed to count rows: {e}")
         return
 
-    # --- TARGETED SEARCH ---
-    print("Fetching targeted trials (NSCLC, Breast Cancer, Heart Failure)...", flush=True)
+    # --- UPDATED QUERY: SEARCH FOR ALL 11 CONDITIONS ---
+    print("Fetching trials for ALL supported diseases...", flush=True)
     
-    # Keyword search to validate disease detection logic
     query = """
     SELECT nct_id, brief_title, eligibility_criteria_raw
     FROM trials
     WHERE eligibility_criteria_raw IS NOT NULL
     AND (
+        -- Original Scope
         eligibility_criteria_raw ILIKE '%non-small cell%' OR 
         eligibility_criteria_raw ILIKE '%breast cancer%' OR
-        eligibility_criteria_raw ILIKE '%heart failure%'
+        eligibility_criteria_raw ILIKE '%heart failure%' OR
+        
+        -- Kidney
+        eligibility_criteria_raw ILIKE '%chronic kidney%' OR
+        eligibility_criteria_raw ILIKE '%renal failure%' OR
+        
+        -- Organ Failures
+        eligibility_criteria_raw ILIKE '%liver failure%' OR
+        eligibility_criteria_raw ILIKE '%respiratory failure%' OR
+        
+        -- New Cancers
+        eligibility_criteria_raw ILIKE '%leukemia%' OR 
+        eligibility_criteria_raw ILIKE '%prostate cancer%' OR
+        eligibility_criteria_raw ILIKE '%skin cancer%' OR
+        eligibility_criteria_raw ILIKE '%melanoma%' OR
+        eligibility_criteria_raw ILIKE '%cervical cancer%' OR
+        eligibility_criteria_raw ILIKE '%bone cancer%' OR
+        eligibility_criteria_raw ILIKE '%osteosarcoma%'
     )
     ORDER BY RANDOM()
-    LIMIT 5;
+    LIMIT 50; 
     """
+    # Increased LIMIT to 10 to give you a better chance of seeing variety
     
     try:
         cur.execute(query)
