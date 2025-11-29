@@ -1,9 +1,13 @@
+import logging
+
 try:
     # Prefer absolute import when module is executed directly (script context)
     from criteria_parser import CriteriaParser
 except Exception:
     # Fallback to package-relative import when used as a package
     from .criteria_parser import CriteriaParser
+
+logger = logging.getLogger(__name__)
 
 class FeasibilityScorer:
     def __init__(self):
@@ -21,6 +25,16 @@ class FeasibilityScorer:
         """
         # 1. Parse the trial text
         trial_data = self.parser.parse(trial_criteria_text)
+        logger.debug(
+            "Parsed criteria summary: conditions=%s biomarkers=%s ecog=%s labs=%s lines=%s temporal=%s exclusions=%s",
+            trial_data.get('conditions'),
+            trial_data.get('biomarkers'),
+            trial_data.get('ecog'),
+            list(trial_data.get('labs', {}).keys()) if trial_data else None,
+            trial_data.get('lines_of_therapy') if trial_data else None,
+            trial_data.get('temporal') if trial_data else None,
+            trial_data.get('exclusions'),
+        )
         
         score = 0
         reasons = []
@@ -33,6 +47,7 @@ class FeasibilityScorer:
         
         for exclusion in parsed_exclusions:
             if exclusion in patient_conditions:
+                logger.info("Hard exclusion hit: %s", exclusion)
                 return self._compile_result(0, False, [f" Hard Exclusion: Patient has '{exclusion}'"], trial_data)
 
         # 2. CONDITION MATCHING (Must treat the right disease)
@@ -152,6 +167,11 @@ class FeasibilityScorer:
         # If infeasible, force score to 0 so it drops to the bottom
         final_score = min(score, 100) if is_feasible else 0
         
+        logger.debug(
+            "Feasibility result: score=%s final_score=%s feasible=%s reasons=%s",
+            score, final_score, is_feasible, reasons
+        )
+
         return {
             "score": final_score,
             "is_feasible": is_feasible,
