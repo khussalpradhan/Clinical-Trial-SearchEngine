@@ -27,9 +27,8 @@ class FeasibilityScorer:
         # 1. Parse the trial text
         trial_data = self.parser.parse(trial_criteria_text)
         logger.debug(
-            "Parsed criteria summary: conditions=%s biomarkers=%s ecog=%s labs=%s lines=%s temporal=%s exclusions=%s",
+            "Parsed criteria: conditions=%s biomarkers=%s ecog=%s labs=%s lines=%s temporal=%s exclusions=%s",
             trial_data.get('conditions'),
-            trial_data.get('history'),
             trial_data.get('biomarkers'),
             trial_data.get('ecog'),
             list(trial_data.get('labs', {}).keys()) if trial_data else None,
@@ -155,7 +154,7 @@ class FeasibilityScorer:
                 else:
                    
                     lab_failures += 1
-                    #is_feasible = False
+                    is_feasible = False
                     reasons.append(f" Lab Failed: {lab_name} {val} NOT {op} {threshold}")
         
         score += min(lab_points, 15)
