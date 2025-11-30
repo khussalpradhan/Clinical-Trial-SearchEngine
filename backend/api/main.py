@@ -17,6 +17,7 @@ from backend.search.vector_search import get_vector_search
 from backend.search.build_faiss_index import build_faiss_index
 from backend.nlp import FeasibilityScorer
 from backend.nlp.condition_normalizer import get_condition_normalizer
+from backend.nlp.biomarker_normalizer import get_biomarker_normalizer
 
 # -----------------------------
 # OpenSearch client
@@ -261,6 +262,26 @@ def build_profile_query_text(profile: PatientProfile) -> str:
 
     # We could also add selective labs if desired, but this is already rich
     return ". ".join(parts)
+
+
+def _expand_condition_synonyms_for_query(normalized_conditions: List[str], max_terms: int = 8, max_per_condition: int = 3) -> List[str]:
+    try:
+        normalizer = get_condition_normalizer()
+    except Exception:
+        return []
+
+    expanded: List[str] = []
+    seen = set()
+    for key in normalized_conditions:
+        terms = normalizer.get_all_synonyms(key)[: max_per_condition]
+        for t in terms:
+            tl = t.lower().strip()
+            if tl and tl not in seen and len(expanded) < max_terms:
+                expanded.append(t)
+                seen.add(tl)
+        if len(expanded) >= max_terms:
+            break
+    return expanded
 
 
 # -----------------------------
@@ -769,6 +790,7 @@ def rank_trials(body: RankRequest):
 
     
     normalized_conditions = []
+    normalized_biomarkers = []
     if body.profile.conditions:
         try:
             normalizer = get_condition_normalizer()
@@ -777,12 +799,28 @@ def rank_trials(body: RankRequest):
             logger.warning(f"Condition normalization failed: {e}, using original conditions")
             normalized_conditions = body.profile.conditions
 
+    # Normalize biomarkers for feasibility scoring (keep originals for BM25 text)
+    if body.profile.biomarkers:
+        try:
+            bnorm = get_biomarker_normalizer()
+            normalized_biomarkers = bnorm.normalize_list(body.profile.biomarkers)
+        except Exception as e:
+            logger.warning(f"Biomarker normalization failed: {e}, using original biomarkers")
+            normalized_biomarkers = body.profile.biomarkers
+
     
     q_text = build_profile_query_text(body.profile)
+    # small query expansion with synonyms to boost BM25 recall
+    if normalized_conditions:
+        extra_terms = _expand_condition_synonyms_for_query(normalized_conditions)
+        if extra_terms:
+            q_text = f"{q_text}. Related terms: " + ", ".join(extra_terms)
     
     
     if normalized_conditions:
         body.profile.conditions = normalized_conditions
+    if normalized_biomarkers:
+        body.profile.biomarkers = normalized_biomarkers
 
     # Always search over a candidate pool of 100 docs for /rank,
     # but only return the top 20 to clients.
