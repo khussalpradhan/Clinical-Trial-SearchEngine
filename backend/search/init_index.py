@@ -18,7 +18,7 @@ def create_index():
     body = json.loads(mapping_path.read_text())
 
     client.indices.create(index=TRIALS_INDEX_NAME, body=body)
-    print(f"✅ Created index '{TRIALS_INDEX_NAME}'.")
+    print(f"Created index '{TRIALS_INDEX_NAME}'.")
 
 if __name__ == "__main__":
     create_index()
