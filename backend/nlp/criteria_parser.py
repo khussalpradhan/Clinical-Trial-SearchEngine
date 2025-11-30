@@ -34,15 +34,39 @@ class CriteriaParser:
             return {}
 
         text_lower = criteria_text.lower()
+        if "exclusion criteria" in text_lower:
+            parts = text_lower.split("exclusion criteria", 1)
+            inclusion_text = parts[0]
+            exclusion_text = parts[1]
+        elif "exclusions" in text_lower:
+            parts = text_lower.split("exclusions", 1)
+            inclusion_text = parts[0]
+            exclusion_text = parts[1]
+        else:
+            # Fallback
+            inclusion_text = text_lower
+            exclusion_text = ""
+
+        
+        parsed_conditions = self._extract_conditions(inclusion_text)
+        parsed_exclusions = self._extract_exclusions(text_lower) + self._extract_conditions(exclusion_text)
+        
+    
+        final_conditions = [c for c in parsed_conditions if c not in parsed_exclusions]
 
         return {
-            "age_range": self._extract_age(text_lower),
-            "gender": self._extract_gender(text_lower),
-            "conditions": self._extract_conditions(text_lower),
+            # passing inclusion text to condition extractor
+            "conditions": self._extract_conditions(inclusion_text),
+            
+            
             "biomarkers": self._extract_biomarkers(text_lower),
             "ecog": self._extract_ecog(text_lower),
             "labs": self._extract_labs(text_lower),
-            "exclusions": self._extract_exclusions(text_lower),
+        
+            "exclusions": self._extract_exclusions(text_lower) + self._extract_conditions(exclusion_text),
+            
+            "age_range": self._extract_age(text_lower),
+            "gender": self._extract_gender(text_lower),
             "temporal": self._extract_temporal(text_lower),
             "lines_of_therapy": self._extract_lines(text_lower)
         }

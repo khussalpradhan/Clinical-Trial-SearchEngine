@@ -68,7 +68,14 @@
       },
 
       "criteria_inclusion": { "type": "text", "analyzer": "english_text" },
-      "criteria_exclusion": { "type": "text", "analyzer": "english_text" }
+      "criteria_exclusion": { "type": "text", "analyzer": "english_text" },
+      "eligibility_criteria_raw": { "type": "text", "analyzer": "english_text"},
+
+      "min_age_years": { "type": "float" },
+      "max_age_years": { "type": "float" },
+      "sex": { "type": "keyword" },
+      "healthy_volunteers": { "type": "boolean" },
+      "enrollment": { "type": "integer" }
     }
   }
 }

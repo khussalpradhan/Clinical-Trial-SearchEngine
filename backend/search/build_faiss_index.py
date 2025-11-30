@@ -48,7 +48,11 @@ def _fetch_trials() -> List[dict]:
                     detailed_description,
                     conditions,
                     interventions,
-                    eligibility_criteria_raw
+                    eligibility_criteria_raw,
+                    min_age_years,
+                    max_age_years,
+                    sex,
+                    healthy_volunteers
                 FROM trials
                 """
             )
@@ -68,21 +72,45 @@ def _build_document_text(row: dict) -> str:
 
     conditions = row.get("conditions") or []
     if isinstance(conditions, list):
-        parts.append("; ".join(conditions))
+        parts.append("Conditions: " + ", ".join(conditions))
     elif conditions:
         parts.append(str(conditions))
 
     interventions = row.get("interventions") or []
     if isinstance(interventions, list):
-        parts.append("; ".join(interventions))
+        parts.append("Interventions: " + ", ".join(interventions))
     elif interventions:
         parts.append(str(interventions))
+    
+    #Structured Demographics
+    sex = row.get("sex")
+    if sex:
+        parts.append(f"Sex: {sex}")
 
-    criteria = row.get("eligibility_criteria_raw") or ""
-    parts.append(criteria)
+    min_age = row.get("min_age_years")
+    max_age = row.get("max_age_years")
+    if min_age is not None or max_age is not None:
+        # natural language string like "Age: 18 to 99 years"
+        age_str = f"Age: {min_age if min_age else 0} to {max_age if max_age else 'N/A'} years"
+        parts.append(age_str)
 
+    healthy = row.get("healthy_volunteers")
+    if healthy is not None:
+        parts.append(f"Healthy Volunteers: {'Allowed' if healthy else 'No'}")
+
+    raw_text = row.get("eligibility_criteria_raw") or ""
+    inclusion_text = raw_text
+    
+    # Heuristic: Split at the first mention of "Exclusion"
+    if "Exclusion Criteria" in raw_text:
+        inclusion_text = raw_text.split("Exclusion Criteria", 1)[0]
+    elif "EXCLUSION CRITERIA" in raw_text: # Fallback for lower case
+        inclusion_text = raw_text.split("Exclusion", 1)[0]
+        
+    parts.append(inclusion_text)
+
+    # Join and clean
     text = ". ".join(p for p in parts if p)
-    # normalize whitespace
     return " ".join(text.split())
 
 
@@ -148,7 +176,7 @@ def build_faiss_index(batch_size: int = 128) -> None:
         json.dump(meta, f)
 
     print(f"Wrote metadata to {FAISS_META_PATH}", flush=True)
-    print("✅ FAISS build done.", flush=True)
+    print("FAISS build done.", flush=True)
 
 
 

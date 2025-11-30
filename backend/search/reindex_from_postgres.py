@@ -47,7 +47,13 @@ def fetch_trials_stream(conn) -> psycopg2.extras.RealDictCursor:
             start_date,
             primary_completion_date,
             completion_date,
-            last_updated
+            last_updated,
+            eligibility_criteria_raw,
+            min_age_years,
+            max_age_years,
+            sex,
+            healthy_volunteers,
+            enrollment_target
         FROM trials
         ORDER BY id;
         """
@@ -140,6 +146,12 @@ def build_doc(
         "locations": locations,
         "criteria_inclusion": " ".join(incl) if incl else None,
         "criteria_exclusion": " ".join(excl) if excl else None,
+        "eligibility_criteria_raw": trial_row.get("eligibility_criteria_raw"),
+        "min_age_years": trial_row.get("min_age_years"),
+        "max_age_years": trial_row.get("max_age_years"),
+        "sex": trial_row.get("sex"),
+        "healthy_volunteers": trial_row.get("healthy_volunteers"),
+        "enrollment": trial_row.get("enrollment_target")
     }
     return doc
 
@@ -189,7 +201,7 @@ def reindex(chunk_size: int = 1000, refresh: bool = True):
             request_timeout=300,
         )
 
-        print(f"✅ Reindex complete. Successfully indexed: {success}")
+        print(f"Reindex complete. Successfully indexed: {success}")
         if errors:
             print("⚠ Some errors occurred during bulk indexing:")
             print(errors)
