@@ -72,7 +72,6 @@ temp/
 *.tmp
 
 # Raw API dumps or downloaded data
-data/
 raw_data/
 
 # Local admin tools
