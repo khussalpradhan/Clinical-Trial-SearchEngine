@@ -93,7 +93,7 @@ class PatientProfile(BaseModel):
     biomarkers: List[str] = []
     history: List[str] = []
 
-    labs: Dict[str, float] = {}
+    labs: Dict[str, Optional[float]] = {} 
 
     prior_lines: Optional[int] = None
     days_since_last_treatment: Optional[int] = None
