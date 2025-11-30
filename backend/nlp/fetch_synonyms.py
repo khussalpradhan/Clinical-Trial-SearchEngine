@@ -185,16 +185,36 @@ API_TARGETS = {
 # Covers all major biomarkers, genetic markers, and lab values used in clinical trials
 MANUAL_BIOMARKERS = {
     # === CANCER GENETICS (Driver Mutations) ===
-    "EGFR_Gene": ["EGFR", "Epidermal Growth Factor Receptor", "ERBB1", "HER1", "EGFR mutation", "EGFR positive"],
-    "ALK_Gene": ["ALK", "Anaplastic Lymphoma Kinase", "ALK rearrangement", "ALK positive", "ALK fusion"],
+    "EGFR_Gene": [
+        "EGFR", "Epidermal Growth Factor Receptor", "ERBB1", "HER1",
+        "EGFR mutation", "EGFR positive",
+        "Exon 19 deletion", "Ex19del", "Del19", "L858R", "T790M"
+    ],
+    "ALK_Gene": [
+        "ALK", "Anaplastic Lymphoma Kinase", "ALK rearrangement", "ALK positive", "ALK fusion",
+        "EML4-ALK"
+    ],
     "ROS1_Gene": ["ROS1", "ROS1 rearrangement", "ROS1 positive", "ROS1 fusion"],
-    "KRAS_Gene": ["KRAS", "K-Ras", "Ki-Ras", "KRAS mutation", "KRAS G12C", "KRAS G12D"],
+    "KRAS_Gene": [
+        "KRAS", "K-Ras", "Ki-Ras", "KRAS mutation",
+        "KRAS G12C", "KRAS G12D", "KRAS G12S", "KRAS G12V",
+        "p.G12C", "c.34G>T"
+    ],
     "NRAS_Gene": ["NRAS", "N-Ras", "NRAS mutation"],
-    "BRAF_Gene": ["BRAF", "BRAF V600E", "BRAF mutation", "BRAF V600K"],
-    "PIK3CA_Gene": ["PIK3CA", "PIK3CA mutation"],
-    "MET_Gene": ["MET", "MET exon 14", "MET amplification", "c-MET"],
-    "RET_Gene": ["RET", "RET fusion", "RET rearrangement"],
-    "NTRK_Gene": ["NTRK", "NTRK fusion", "TRK fusion", "NTRK1", "NTRK2", "NTRK3"],
+    "BRAF_Gene": [
+        "BRAF", "BRAF V600E", "BRAF mutation", "BRAF V600K",
+        "p.V600E", "p.V600K", "c.1799T>A"
+    ],
+    "PIK3CA_Gene": ["PIK3CA", "PIK3CA mutation", "H1047R"],
+    "MET_Gene": [
+        "MET", "MET exon 14", "MET amplification", "c-MET",
+        "MET exon 14 skipping", "METex14", "Exon 14 skipping"
+    ],
+    "RET_Gene": ["RET", "RET fusion", "RET rearrangement", "RET fusion positive"],
+    "NTRK_Gene": [
+        "NTRK", "NTRK fusion", "TRK fusion", "NTRK1", "NTRK2", "NTRK3",
+        "ETV6-NTRK3"
+    ],
     
     # === HEMATOLOGIC CANCER MARKERS ===
     "BCR_ABL_Gene": ["BCR-ABL", "Philadelphia Chromosome", "BCR/ABL", "BCR-ABL1"],
@@ -325,6 +345,28 @@ MANUAL_BIOMARKERS = {
     "Folate_Level": ["Folate", "Folic Acid"],
 }
 
+# Manual disease synonyms to augment UMLS results (high-impact subtypes/aliases)
+MANUAL_DISEASE_SYNONYMS = {
+    "Breast_Cancer": [
+        "Triple negative breast cancer", "TNBC",
+        "HER2-positive breast cancer", "HER2+ breast cancer",
+        "ER-positive breast cancer", "ER+/PR+ breast cancer",
+        "Luminal A", "Luminal B"
+    ],
+    "NSCLC": [
+        "EGFR-mutant NSCLC", "ALK-positive NSCLC", "ROS1-positive NSCLC",
+        "KRAS G12C NSCLC", "PD-L1 high NSCLC"
+    ],
+    "Liver_Cancer": ["Hepatocellular carcinoma", "HCC"],
+    "Kidney_Cancer": ["Renal cell carcinoma", "RCC", "Clear cell RCC"],
+    "Glioblastoma": ["GBM", "Glioblastoma multiforme"],
+    "Head_Neck_Cancer": [
+        "Head and neck squamous cell carcinoma", "HNSCC"
+    ],
+    "Colorectal_Cancer": ["CRC", "Colorectal carcinoma"],
+    "Ovarian_Cancer": ["High-grade serous ovarian cancer", "HGSOC"],
+}
+
 def get_synonyms(cui, api_key):
     uri = f"{BASE_URI}/content/current/CUI/{cui}/atoms"
     params = {
@@ -356,7 +398,10 @@ if __name__ == "__main__":
     for name, cui in API_TARGETS.items():
         print(f"   Searching API for: {name}...")
         syns = get_synonyms(cui, API_KEY)
-        output_data[name] = syns
+        # Merge with manual disease synonyms (if any)
+        manual = MANUAL_DISEASE_SYNONYMS.get(name, [])
+        merged = list({*(syns or []), *manual})
+        output_data[name] = merged
         print(f"   Found {len(syns)} terms.")
         time.sleep(0.2) 
 
