@@ -7,3 +7,5 @@ uvicorn[standard]
 numpy
 sentence-transformers
 faiss-cpu
+ranx
+pandas
