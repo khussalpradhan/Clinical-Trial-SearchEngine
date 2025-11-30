@@ -2,6 +2,7 @@
 
 from .criteria_parser import CriteriaParser
 from .feasibility_scorer import FeasibilityScorer
+from .condition_normalizer import ConditionNormalizer, get_condition_normalizer
 
 # Initialize singleton instances to save memory
 # (Loading spaCy takes time, so we only want to do it once)

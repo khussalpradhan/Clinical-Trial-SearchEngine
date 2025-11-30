@@ -79,30 +79,33 @@ class FeasibilityScorer:
         structured_conditions = set(db_conditions)
         all_trial_indications = parsed_conditions.union(structured_conditions)
         
-
-        
         if not patient_conditions:
-             score += 5
+            
+            score += 5
+            reasons.append(" No patient conditions provided - relevance unclear")
         else:
-            # Check for overlap
+            # Check for overlap with fuzzy matching
             patient_cond_lower = {c.lower() for c in patient_conditions}
             trial_cond_lower = {c.lower() for c in all_trial_indications}
             
-            # fuzzy intersection logic:
+            # Fuzzy intersection logic
             match_found = False
             matched_names = []
             
             for p_cond in patient_cond_lower:
                 for t_cond in trial_cond_lower:
+        
                     if p_cond in t_cond or t_cond in p_cond:
                         match_found = True
                         matched_names.append(t_cond)
+            
             if match_found:
                 score += 40
                 reasons.append(f" Condition Match: {list(set(matched_names))}")
             else:
-                score+=8
-                reasons.append(f"Maybe Related Condition, Trial is for {list(all_trial_indications)[:3]}")
+               
+                score += 0
+                reasons.append(f" Condition Mismatch: Patient has {list(patient_conditions)}, Trial is for {list(all_trial_indications)[:3]}")
 
         # 3. BIOMARKER MATCHING (High Reward) 
         patient_bios = set(patient_profile.get('biomarkers', []))
@@ -126,7 +129,8 @@ class FeasibilityScorer:
                     reasons.append(f" ECOG {patient_ecog} excluded (Trial needs: {trial_data['ecog']})")
 
         #5. LAB THRESHOLDS (The Math) 
-        lab_points=0
+        lab_points = 0
+        lab_failures = 0
         patient_labs = patient_profile.get('labs', {})
         trial_labs = trial_data.get('labs', {})
         
@@ -149,9 +153,15 @@ class FeasibilityScorer:
                     lab_points += 5
                     reasons.append(f" Lab Passed: {lab_name} {val} {op} {threshold}")
                 else:
+                   
+                    lab_failures += 1
                     #is_feasible = False
                     reasons.append(f" Lab Failed: {lab_name} {val} NOT {op} {threshold}")
-        score += min(lab_points,15)
+        
+        score += min(lab_points, 15)
+        
+        if lab_failures > 0:
+            reasons.append(f" {lab_failures} critical lab(s) failed - patient ineligible")
 
         # 6. AGE & GENDER 
         p_age = patient_profile.get('age')
@@ -183,7 +193,8 @@ class FeasibilityScorer:
         
         # 7. TEMPORAL WASHOUTS
         p_washout = patient_profile.get('days_since_last_treatment')
-        t_washout = trial_data['temporal'].get('chemo_washout')
+        temporal = trial_data.get('temporal', {})
+        t_washout = temporal.get('chemo_washout') if temporal else None
         
         if p_washout is not None and t_washout is not None:
             if p_washout >= t_washout:
@@ -195,9 +206,9 @@ class FeasibilityScorer:
 
         # 8. LINES OF THERAPY
         p_lines = patient_profile.get('prior_lines')
-        lines_rule = trial_data['lines_of_therapy']
+        lines_rule = trial_data.get('lines_of_therapy', {'min': 0, 'max': 999})
         
-        if p_lines is not None:
+        if p_lines is not None and lines_rule:
             if lines_rule['min'] <= p_lines <= lines_rule['max']:
                 score += 10
                 reasons.append(f"Lines of Therapy: {p_lines} (Allowed: {lines_rule['min']}-{lines_rule['max']})")

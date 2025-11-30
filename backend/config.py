@@ -13,8 +13,9 @@ POSTGRES_DSN = os.getenv(
 OPENSEARCH_HOST = os.getenv("OPENSEARCH_HOST", "http://localhost:9200")
 TRIALS_INDEX_NAME = os.getenv("TRIALS_INDEX_NAME", "trials_v1")
 
+
 EMBEDDING_MODEL_NAME = os.getenv(
-    "EMBEDDING_MODEL_NAME", "sentence-transformers/all-MiniLM-L6-v2"
+    "EMBEDDING_MODEL_NAME", "pritamdeka/S-PubMedBert-MS-MARCO"
 )
 EMBEDDINGS_DIR = os.getenv("EMBEDDINGS_DIR", "data")
 FAISS_INDEX_PATH = os.getenv(

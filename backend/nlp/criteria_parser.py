@@ -34,25 +34,19 @@ class CriteriaParser:
             return {}
 
         text_lower = criteria_text.lower()
-        if "exclusion criteria" in text_lower:
-            parts = text_lower.split("exclusion criteria", 1)
-            inclusion_text = parts[0]
-            exclusion_text = parts[1]
-        elif "exclusions" in text_lower:
-            parts = text_lower.split("exclusions", 1)
-            inclusion_text = parts[0]
-            exclusion_text = parts[1]
+        
+        # regex-based splitting for inclusion/exclusion
+        exclusion_match = re.search(r'(?i)(exclusion\s+criteria\s*:?|exclusions\s*:)', text_lower)
+        if exclusion_match:
+            split_pos = exclusion_match.start()
+            inclusion_text = text_lower[:split_pos]
+            exclusion_text = text_lower[split_pos:]
         else:
-            # Fallback
             inclusion_text = text_lower
             exclusion_text = ""
 
-        
+        # Extract conditions from inclusion only
         parsed_conditions = self._extract_conditions(inclusion_text)
-        parsed_exclusions = self._extract_exclusions(text_lower) + self._extract_conditions(exclusion_text)
-        
-    
-        final_conditions = [c for c in parsed_conditions if c not in parsed_exclusions]
 
         return {
             # passing inclusion text to condition extractor
@@ -107,23 +101,20 @@ class CriteriaParser:
 
     def _extract_biomarkers(self, text):
         found = []
-        keys = [
-            "EGFR_Gene", "HER2_Receptor", "ALK_Gene", "KRAS_Gene", "BRAF_Gene", "BCR_ABL_Gene", "FLT3_Gene",
-            "ER_Status", "PR_Status", "CD19_Marker",
-            "Creatinine_Level", "GFR_Level",
-            "Bilirubin_Level", "AST_Level", "ALT_Level", "INR_Level",
-            "PSA_Level", "Testosterone_Level",
-            "BNP_Level", "LVEF_Score",
-            "Platelet_Count", "Hemoglobin_Level", "ANC_Level"
-        ]
-        for key in keys:
-            terms = self.synonyms.get(key, [])
-            for term in terms:
-                pattern = r"\b" + re.escape(term.lower()) + r"\b"
-                if re.search(pattern, text):
-                    clean_name = key.replace("_Gene", "").replace("_Receptor", "").replace("_Level", "")
-                    found.append(clean_name)
-                    break
+        
+        # Include genes, receptors, markers, and mutation status
+        for key in self.synonyms.keys():
+            # Skip disease conditions - only want biomarkers
+            if any(suffix in key for suffix in ["_Gene", "_Receptor", "_Marker", "_Status", "_Mutation", "_Score"]):
+                terms = self.synonyms.get(key, [])
+                for term in terms:
+                    pattern = r"\b" + re.escape(term.lower()) + r"\b"
+                    if re.search(pattern, text):
+        
+                        clean_name = key.replace("_Gene", "").replace("_Receptor", "").replace("_Marker", "").replace("_Status", "").replace("_Mutation", "").replace("_Score", "")
+                        if clean_name not in found:  # Avoid duplicates
+                            found.append(clean_name)
+                        break
         return found
 
     def _extract_ecog(self, text):
@@ -147,23 +138,28 @@ class CriteriaParser:
 
     def _extract_labs(self, text):
         labs_found = {}
-        lab_targets = ["Creatinine_Level", "GFR_Level", "Bilirubin_Level", "AST_Level", "ALT_Level", "PSA_Level"]
-        op_pattern = r"(>|>=|<|<=|≥|≤|greater than|less than|equals|up to)\s*(\d+(?:\.\d+)?)\s*([a-z/]+)?"
-        for lab_key in lab_targets:
-            terms = self.synonyms.get(lab_key, [])
-            clean_name = lab_key.replace("_Level", "")
-            for term in terms:
-                full_pattern = r"\b" + re.escape(term.lower()) + r"\b.{0,20}?" + op_pattern
-                match = re.search(full_pattern, text)
-                if match:
-                    raw_op = match.group(1)
-                    value = float(match.group(2))
-                    unit = match.group(3) if match.group(3) else ""
-                    op = raw_op
-                    if "greater" in raw_op or ">" in raw_op or "≥" in raw_op: op = ">"
-                    elif "less" in raw_op or "<" in raw_op or "≤" in raw_op or "up to" in raw_op: op = "<"
-                    labs_found[clean_name] = {"operator": op, "value": value, "unit": unit.strip()}
-                    break 
+        op_pattern = r"(>|>=|<|<=|≥|≤|greater than|less than|equals|up to)\s*(\d+(?:\.\d+)?)\s*([a-z/%µ]+)?"
+        
+        # Dynamically check all lab keys from comprehensive synonym dictionary
+        for lab_key in self.synonyms.keys():
+            # Only process keys that look like lab values
+            if "_Level" in lab_key or "_Count" in lab_key:
+                terms = self.synonyms.get(lab_key, [])
+                clean_name = lab_key.replace("_Level", "").replace("_Count", "")
+                for term in terms:
+                    full_pattern = r"\b" + re.escape(term.lower()) + r"\b.{0,30}?" + op_pattern
+                    match = re.search(full_pattern, text)
+                    if match:
+                        raw_op = match.group(1)
+                        value = float(match.group(2))
+                        unit = match.group(3) if match.group(3) else ""
+                        # Normalize operators
+                        op = raw_op
+                        if "greater" in raw_op or ">" in raw_op or "≥" in raw_op: op = ">"
+                        elif "less" in raw_op or "<" in raw_op or "≤" in raw_op or "up to" in raw_op: op = "<"
+                        elif "equals" in raw_op or "=" in raw_op: op = "="
+                        labs_found[clean_name] = {"operator": op, "value": value, "unit": unit.strip()}
+                        break 
         return labs_found
     
     # NEW: TEMPORAL RULES (WASHOUTS)
@@ -229,25 +225,53 @@ class CriteriaParser:
         exclusions = []
         
         # 1. Brain Metastases (CNS Mets)
-        # Look for: "brain metastases", "CNS mets", "leptomeningeal disease"
-        if re.search(r"(brain|cns|central nervous system)\s*(metastas|mets|tumor)", text):
+        if re.search(r"(brain|cns|central nervous system)\s*(metastas|mets|tumor|disease)", text):
             exclusions.append("CNS_Mets")
             
         # 2. HIV / Hepatitis
-        # Look for: "HIV", "Hepatitis B", "Hep C", "HBV", "HCV"
         if re.search(r"\b(hiv|human immunodeficiency virus|aids)\b", text):
             exclusions.append("HIV")
-        if re.search(r"\b(hepatitis|hbv|hcv)\b", text):
+        if re.search(r"\b(hepatitis|hbv|hcv|hepatitis b|hepatitis c)\b", text):
             exclusions.append("Hepatitis")
             
         # 3. Pregnancy / Lactation
-        # Look for: "pregnant", "lactating", "nursing"
-        if re.search(r"\b(pregnant|pregnancy|lactating|nursing|breastfeeding)\b", text):
+        if re.search(r"\b(pregnant|pregnancy|lactating|nursing|breastfeeding|childbearing potential)\b", text):
             exclusions.append("Pregnancy")
             
         # 4. History of other cancer
-        # Look for: "prior malignancy", "other cancer", "history of malignancy"
-        if re.search(r"(prior|history of|other)\s*(malignan|cancer|tumor)", text):
+        if re.search(r"(prior|history of|other|second|concurrent)\s*(primary )?(malignan|cancer|tumor|neoplasm)", text):
             exclusions.append("Prior_Malignancy")
+        
+        # 5. Cardiac dysfunction
+        if re.search(r"(cardiac|heart|myocardial)\s*(dysfunction|failure|insufficiency|infarction|disease)", text):
+            exclusions.append("Cardiac_Dysfunction")
+        if re.search(r"\b(nyha class|ejection fraction|lvef)\b", text):
+            exclusions.append("Cardiac_Dysfunction")
+            
+        # 6. Organ failure/dysfunction
+        if re.search(r"(renal|kidney)\s*(failure|insufficiency|dysfunction|impairment)", text):
+            exclusions.append("Renal_Dysfunction")
+        if re.search(r"(hepatic|liver)\s*(failure|insufficiency|dysfunction|cirrhosis|impairment)", text):
+            exclusions.append("Hepatic_Dysfunction")
+        if re.search(r"(pulmonary|respiratory|lung)\s*(failure|insufficiency|dysfunction)", text):
+            exclusions.append("Pulmonary_Dysfunction")
+            
+        # 7. Autoimmune/Inflammatory diseases
+        if re.search(r"\b(autoimmune|lupus|rheumatoid arthritis|crohn|colitis|inflammatory bowel)\b", text):
+            exclusions.append("Autoimmune_Disease")
+            
+        # 8. Active infections
+        if re.search(r"(active|uncontrolled|ongoing)\s*(infection|sepsis|abscess)", text):
+            exclusions.append("Active_Infection")
+        
+        # 9. Bleeding disorders
+        if re.search(r"(bleeding|coagulation|clotting)\s*(disorder|diathesis|abnormality)", text):
+            exclusions.append("Bleeding_Disorder")
+        if re.search(r"\b(hemophilia|von willebrand)\b", text):
+            exclusions.append("Bleeding_Disorder")
+            
+        # 10. Seizure disorders
+        if re.search(r"\b(seizure|epilepsy|convulsion)\b", text):
+            exclusions.append("Seizure_Disorder")
             
         return exclusions
