@@ -41,8 +41,14 @@ class VectorSearch:
         with open(FAISS_META_PATH, "r", encoding="utf-8") as f:
             meta = json.load(f)
         self._nct_ids = meta["nct_ids"]
-
-        self._model = SentenceTransformer(EMBEDDING_MODEL_NAME)
+        
+        
+        model_name = meta.get("model_name", EMBEDDING_MODEL_NAME)
+        
+        if "S-PubMedBert-MS-MARCO" not in model_name:
+            model_name = "pritamdeka/S-PubMedBert-MS-MARCO"
+        
+        self._model = SentenceTransformer(model_name)
         self._loaded = True
 
     @property

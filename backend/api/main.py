@@ -16,6 +16,7 @@ from backend.search.init_index import create_index
 from backend.search.vector_search import get_vector_search
 from backend.search.build_faiss_index import build_faiss_index
 from backend.nlp import FeasibilityScorer
+from backend.nlp.condition_normalizer import get_condition_normalizer
 
 # -----------------------------
 # OpenSearch client
@@ -276,23 +277,13 @@ def health():
     
 #normalise condition input
 def normalize_condition_input(user_text: str) -> str:
-    """Maps user text to internal canonical keys."""
-    if not user_text: return ""
-    text = user_text.lower().strip()
-    mapping = {
-        "lung cancer": "NSCLC", "nsclc": "NSCLC", "non-small cell lung cancer": "NSCLC",
-        "breast cancer": "Breast_Cancer",
-        "heart failure": "Heart_Failure", "chf": "Heart_Failure",
-        "kidney disease": "Chronic_Kidney_Disease", "ckd": "Chronic_Kidney_Disease", "renal failure": "Chronic_Kidney_Disease",
-        "liver failure": "Liver_Failure", "cirrhosis": "Liver_Failure",
-        "leukemia": "Leukemia", "blood cancer": "Leukemia", "aml": "Leukemia",
-        "prostate cancer": "Prostate_Cancer",
-        "skin cancer": "Skin_Cancer", "melanoma": "Skin_Cancer",
-        "cervical cancer": "Cervical_Cancer",
-        "bone cancer": "Bone_Cancer"
-    }
-    # Return mapped key or Title Case original (e.g. "Diabetes")
-    return mapping.get(text, user_text.title())
+    """
+    Maps user text to internal canonical keys 
+    """
+    normalizer = get_condition_normalizer()
+    normalized = normalizer.normalize(user_text)
+    # If no match found, return original text in Title Case
+    return normalized if normalized else user_text.title()
 
 
 def _normalize_scores(values: List[float]) -> dict[str, float]:
@@ -569,7 +560,8 @@ def _search_trials_internal(
             dense_norm = float(dense_norm_by_id.get(hit.nct_id, 0.0))
             hybrid = bm25_weight * bm25_norm + (1.0 - bm25_weight) * dense_norm
             hit.score = hybrid
-            hit.retrieval_score_raw = hybrid
+            # Keep original BM25 for feasibility scoring normalization
+            # (retrieval_score_raw is already set to BM25 score at line 517)
 
         # sort by hybrid score desc
         hits.sort(key=lambda h: h.score, reverse=True)
@@ -669,7 +661,10 @@ def dense_only_fallback(
                 locations=locations,
                 score=score,
                 retrieval_score_raw=raw_dense,
-                eligibility_criteria_raw=src.get("eligibility_criteria_raw")
+                eligibility_criteria_raw=src.get("eligibility_criteria_raw"),
+                min_age_years=src.get("min_age_years"),
+                max_age_years=src.get("max_age_years"),
+                sex=src.get("sex")
             )
         )
         criteria_by_id[nct] = _build_criteria_text(src)
@@ -772,12 +767,22 @@ def rank_trials(body: RankRequest):
       requested page/size from that candidate set.
     """
 
+    
+    normalized_conditions = []
     if body.profile.conditions:
-        raw_condition = body.profile.conditions[0]
-        canonical_condition = normalize_condition_input(raw_condition)
-        body.profile.conditions = [canonical_condition]
+        try:
+            normalizer = get_condition_normalizer()
+            normalized_conditions = normalizer.normalize_list(body.profile.conditions)
+        except Exception as e:
+            logger.warning(f"Condition normalization failed: {e}, using original conditions")
+            normalized_conditions = body.profile.conditions
 
+    
     q_text = build_profile_query_text(body.profile)
+    
+    
+    if normalized_conditions:
+        body.profile.conditions = normalized_conditions
 
     # Always search over a candidate pool of 100 docs for /rank,
     # but only return the top 20 to clients.
