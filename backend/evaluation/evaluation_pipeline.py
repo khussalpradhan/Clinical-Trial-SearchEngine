@@ -2,6 +2,7 @@ import json
 import csv
 from ranx import Qrels, Run, evaluate
 from backend.api.main import rank_trials, RankRequest, PatientProfile
+from backend.evaluation.custom_metrics import  compute_all_feasibility_metrics
 
 
 # --------------------------------------------------------
@@ -69,32 +70,58 @@ def sanitize_profile_json(profile_json):
 # --------------------------------------------------------
 # Build run using your ranker
 # --------------------------------------------------------
+# def build_run(queries):
+#     run = {}
+#     for qid, profile_json in queries.items():
+#         profile_json = sanitize_profile_json(profile_json)
+
+#         profile = PatientProfile(**profile_json)
+#         request = RankRequest(profile=profile)
+#         result = rank_trials(request)
+
+#         run[qid] = {
+#             hit.nct_id: float(hit.score)
+#             for hit in result.hits
+#         }
+#     return run
+
+
+
 def build_run(queries):
     run = {}
+    hit_metadata = {}
+
     for qid, profile_json in queries.items():
         profile_json = sanitize_profile_json(profile_json)
-
         profile = PatientProfile(**profile_json)
         request = RankRequest(profile=profile)
         result = rank_trials(request)
 
-        run[qid] = {
-            hit.nct_id: float(hit.score)
-            for hit in result.hits
-        }
-    return run
+        run[qid] = {}
+        hit_metadata[qid] = {}
 
+        for hit in result.hits:
+            run[qid][hit.nct_id] = float(hit.score)
+
+            # store feasibility metadata
+            hit_metadata[qid][hit.nct_id] = {
+                "feasibility_score": float(hit.feasibility_score or 0.0),
+                "is_feasible": bool(hit.is_feasible),
+            }
+
+    return run, hit_metadata
 
 # --------------------------------------------------------
 # Main evaluation
 # --------------------------------------------------------
 queries = load_queries_csv("./backend/evaluation/converted_queries_using_openai.csv")
 qrels = load_qrels_tsv("./backend/evaluation/qrels_trec.tsv")
-run = build_run(queries)
+run, hit_metadata = build_run(queries)
 
 results = evaluate(
     qrels=Qrels.from_dict(qrels),
     run=Run.from_dict(run),
+    
     # metrics=["mrr@10", "ndcg@10", "recall@100"]
     metrics = [
     # ranking metrics
@@ -110,8 +137,19 @@ results = evaluate(
     "hit_rate@1", "hit_rate@5", "hit_rate@10",
     "f1@5", "f1@10", "f1@20",
     "bpref",
-]
+   ]
+
+        
+    # custom_metrics=get_custom_metrics(hit_metadata)
 
 )
 
+
+
+feasibility_results = compute_all_feasibility_metrics(qrels, run, hit_metadata)
+
+print("\nRanking Metrics (Ranx):")
 print(results)
+
+print("\nFeasibility Metrics:")
+print(feasibility_results)
