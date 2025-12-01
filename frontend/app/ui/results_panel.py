@@ -1,8 +1,15 @@
 import streamlit as st
+import sys
+from pathlib import Path
+
+project_root = Path(__file__).parents[3].resolve()  # app/ui/ -> frontend/
+if str(project_root) not in sys.path:
+    sys.path.append(str(project_root))
+    
+from api_clients.trial_api import get_trial_details
 
 def render_results(results):
     if not results:
-        st.info("No results yet.")
         return
 
     for idx, trial in enumerate(results):
@@ -13,7 +20,7 @@ def render_results(results):
 
         # Card container
         with st.container():
-            # Background using markdown (no div wraps the button)
+            # Background using markdown
             st.markdown(
                 """
                 <style>
@@ -29,7 +36,6 @@ def render_results(results):
                 unsafe_allow_html=True,
             )
 
-            # Card content inside a sub-container
             card = st.container()
             with card:
                 st.markdown(
@@ -44,11 +50,19 @@ def render_results(results):
                     unsafe_allow_html=True,
                 )
 
-                # Button is inside the same container — visually INSIDE the card
+                # Fetch fresh trial details on click
                 if st.button("View Details", key=f"view_{idx}"):
-                    st.session_state.selected_trial = trial
-                    st.session_state.page = "trial"
-                    st.rerun()
+                    nct_id = trial.get("nct_id")
+                    if nct_id:
+                        with st.spinner(f"Fetching trial details for {nct_id}…"):
+                            details = get_trial_details(nct_id)
+                            if details:
+                                st.session_state.selected_trial = details
+                                st.session_state.page = "trial"
+                                st.rerun()
+                            else:
+                                st.error("Could not fetch trial details from backend.")
+                    else:
+                        st.error("Invalid NCT ID.")
 
-                # Close the box
                 st.markdown("</div>", unsafe_allow_html=True)
