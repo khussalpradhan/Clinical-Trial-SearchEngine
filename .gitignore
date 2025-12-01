@@ -73,7 +73,6 @@ temp/
 
 # Raw API dumps or downloaded data
 raw_data/
-data/
 
 # Local admin tools
 pgadmin/
