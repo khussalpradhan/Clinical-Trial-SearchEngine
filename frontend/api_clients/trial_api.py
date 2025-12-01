@@ -1,10 +1,7 @@
 import os
 import requests
 
-# API URL (change via env var if needed)
 API_BASE_URL = os.getenv("API_BASE_URL", "http://localhost:8000")
-
-# Toggle debug logs (set DEBUG_API=1 in env if needed)
 DEBUG = os.getenv("DEBUG_API", "0") == "1"
 
 def log_debug(*args):
@@ -12,9 +9,7 @@ def log_debug(*args):
         print("[TRIAL_API DEBUG]", *args)
 
 def rank_trials(payload):
-    """
-    Send the payload to backend /rank endpoint and return parsed JSON on success.
-    """
+
     url = f"{API_BASE_URL}/rank"
 
     try:
@@ -23,30 +18,27 @@ def rank_trials(payload):
 
         response = requests.post(url, json=payload, timeout=15)
 
-        # Raise for 4xx/5xx errors
         response.raise_for_status()
 
-        # Try to parse response
         try:
             return response.json()
         except ValueError:
-            print("Error: Backend did not return valid JSON.")
-            print("Raw response:", response.text)
+            print("Error: Backend returned non-JSON.")
+            print("Raw:", response.text)
             return None
 
     except requests.Timeout:
-        print("Error: Request to backend timed out.")
+        print("Error: Backend timed out.")
         return None
 
     except requests.ConnectionError:
-        print(f"Error: Could not connect to backend at {url}.")
-        print("Hint: Is the backend running? Did you expose port 8000?")
+        print(f"Error: Could not connect to backend at {url}. Is it running?")
         return None
 
     except requests.HTTPError as e:
-        print(f"HTTP error from backend: {e}")
-        print("Status code:", response.status_code)
-        print("Response text:", response.text)
+        print(f"Backend error: {e}")
+        print("Status:", response.status_code)
+        print("Response:", response.text)
         return None
 
     except requests.RequestException as e:
