@@ -143,8 +143,6 @@ if st.session_state.page == "trial":
     # ============================================
     # TITLE & OFFICIAL TITLE
     # ============================================
-    st.markdown("<div class='trial-container'>", unsafe_allow_html=True)
-    st.markdown(f"<div class='trial-title'>{trial.get('title','Untitled')}</div>", unsafe_allow_html=True)
     st.markdown(f"<div class='trial-official-title'>{trial.get('official_title','')}</div>", unsafe_allow_html=True)
 
     # ============================================
