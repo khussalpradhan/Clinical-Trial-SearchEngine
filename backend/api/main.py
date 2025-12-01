@@ -145,9 +145,7 @@ def build_query(
                         "detailed_description",
                         "conditions^2",
                         "interventions",
-                        "criteria_inclusion",
-                        "criteria_exclusion",
-                        "eligibility_criteria_raw"
+                        "criteria_inclusion_clean^2"
                     ],
                     "type": "best_fields",
                     # Looser, works for both short + long queries

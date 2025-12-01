@@ -128,6 +128,22 @@ def build_doc(
             }
         )
 
+    #inclusion-only text from eligibility_criteria_raw using regex logic from FAISS
+    import re
+    raw_text = trial_row.get("eligibility_criteria_raw") or ""
+    inclusion_text = raw_text
+    if raw_text:
+        match = re.search(r'(?i)exclusion\s+criteria\s*:?', raw_text)
+        if match:
+            inclusion_text = raw_text[:match.start()].strip()
+        incl_match = re.search(r'(?i)inclusion\s+criteria\s*:?([\s\S]*?)(?=exclusion\s+criteria|$)', raw_text)
+        if incl_match:
+            inclusion_text = incl_match.group(1).strip()
+        if inclusion_text:
+            inclusion_text = inclusion_text[:1000]
+    else:
+        inclusion_text = None
+
     doc = {
         "id": trial_row["id"],
         "nct_id": trial_row["nct_id"],
@@ -146,6 +162,7 @@ def build_doc(
         "locations": locations,
         "criteria_inclusion": " ".join(incl) if incl else None,
         "criteria_exclusion": " ".join(excl) if excl else None,
+        "criteria_inclusion_clean": inclusion_text,
         "eligibility_criteria_raw": trial_row.get("eligibility_criteria_raw"),
         "min_age_years": trial_row.get("min_age_years"),
         "max_age_years": trial_row.get("max_age_years"),
