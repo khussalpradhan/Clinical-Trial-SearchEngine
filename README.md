@@ -300,7 +300,7 @@ MIT (or your preferred license)
 - Khussal
 - Shashank
 - Kritika 
-- Aashta
+- Aastha
 
 ---
 
