@@ -6,9 +6,9 @@ This module houses the core intelligence of the Clinical Trial Search Engine. It
 
 ### 1. Core Logic
 - **`criteria_parser.py`**: The NLP engine. Uses regex and spaCy to extract specific clinical data:
-  - **Conditions:** (NSCLC, Breast Cancer, Heart Failure, Chronic Kidney Disease, Respiratory Failure, Liver Failure, Leukemia, Prostate Cancer, Skin Cancer, Cervical Cancer, Bone Cancer)
-  - **Biomarkers/Genetics:** (EGFR, HER2, ALK, KRAS, BRAF, BCR-ABL, FLT3, CD19, ER_Status, PR_Status)
-  - **Lab Values:** (Creatinine, GFR, Bilirubin, AST, ALT, INR, PSA, Testosterone, BNP, LVEF, Platelets, Hemoglobin, ANC)
+  - **Conditions:** (e.g., NSCLC, Breast Cancer, Heart Failure, CKD, Respiratory Failure, Liver Failure, Leukemia, Prostate, Skin, Cervical, Bone; examples only — full coverage in `clinical_synonyms.json`)
+  - **Biomarkers/Genetics:** (e.g., EGFR, HER2, ALK, KRAS, BRAF, BCR-ABL, FLT3, CD19, ER_Status, PR_Status; examples only — full coverage in `clinical_synonyms.json`)
+  - **Lab Values:** (e.g., Creatinine, GFR, Bilirubin, AST, ALT, INR, PSA, Testosterone, BNP, LVEF, Platelets, Hemoglobin, ANC; examples only — full coverage in `clinical_synonyms.json`)
   - **Demographics:** (Age Range [Min/Max], Gender [Male/Female/All])
   - **Hard Exclusions:** (CNS Metastases, HIV, Hepatitis B/C, Pregnancy/Lactation, Prior Malignancy)
   - **Temporal Rules:** (Washout periods for chemotherapy or surgery in days/weeks)
@@ -20,7 +20,8 @@ This module houses the core intelligence of the Clinical Trial Search Engine. It
   - **Biomarker Match:** (+25 points if patient matches a required genomic marker like EGFR or HER2)
   - **ECOG Status:** (+15 points if patient's ECOG score is within the trial's allowed range)
   - **Lines of Therapy:** (+10 points if patient's prior history fits the trial's specific window, e.g. 2nd Line)
-  - **Lab Thresholds:** (+10 points per passed lab value, e.g. Creatinine < 1.5)
+  - **Lab Thresholds:** (+5 points per passed lab value, e.g. Creatinine < 1.5)
+    - Note: Lab points are capped at a maximum of +15 total.
   - **Age:** (+5 points for demographic fit)
   - **Gender:** (+5 points for demographic fit)
   - **Washout Periods:** (+5 points if patient clears required washout days)
