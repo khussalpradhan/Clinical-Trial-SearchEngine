@@ -3,12 +3,15 @@
 from typing import Any, List, Optional, Dict
 import logging
 
+import psycopg2
 from fastapi import FastAPI, Query, HTTPException, BackgroundTasks
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
+from psycopg2.extras import RealDictCursor
 
 from opensearchpy import OpenSearch
 
 from backend.config import OPENSEARCH_HOST, TRIALS_INDEX_NAME
+from backend.config import POSTGRES_DSN
 from backend.db.scrape_clinical_trials import fetch_and_store
 from backend.search.reindex_from_postgres import reindex as run_reindex
 from backend.db.init_db import run_schema
@@ -74,6 +77,40 @@ class SearchResponse(BaseModel):
     hits: List[TrialHit]
     candidate_total: Optional[int] = None
     truncated: bool = False
+
+
+class TrialLocation(BaseModel):
+    facility_name: Optional[str] = None
+    city: Optional[str] = None
+    state: Optional[str] = None
+    country: Optional[str] = None
+
+
+class TrialDetail(BaseModel):
+    nct_id: str
+    title: Optional[str] = None
+    official_title: Optional[str] = None
+    brief_summary: Optional[str] = None
+    detailed_description: Optional[str] = None
+    conditions: List[str] = Field(default_factory=list)
+    interventions: List[str] = Field(default_factory=list)
+    study_type: Optional[str] = None
+    phase: Optional[str] = None
+    overall_status: Optional[str] = None
+    min_age_years: Optional[int] = None
+    max_age_years: Optional[int] = None
+    sex: Optional[str] = None
+    healthy_volunteers: Optional[bool] = None
+    enrollment_actual: Optional[int] = None
+    enrollment_target: Optional[int] = None
+    start_date: Optional[str] = None
+    primary_completion_date: Optional[str] = None
+    completion_date: Optional[str] = None
+    last_updated: Optional[str] = None
+    locations: List[TrialLocation] = Field(default_factory=list)
+    criteria_inclusion: Optional[str] = None
+    criteria_exclusion: Optional[str] = None
+    eligibility_criteria_raw: Optional[str] = None
 
 
 class ScrapeRequest(BaseModel):
@@ -717,8 +754,136 @@ def dense_only_fallback(
 
 
 # -----------------------------
+# DB fetch helpers
+# -----------------------------
+def _fetch_trial_detail_from_db(nct_id: str) -> TrialDetail:
+    conn = None
+    try:
+        conn = psycopg2.connect(POSTGRES_DSN)
+        with conn.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute(
+                """
+                SELECT
+                    id,
+                    nct_id,
+                    brief_title,
+                    official_title,
+                    brief_summary,
+                    detailed_description,
+                    conditions,
+                    interventions,
+                    study_type,
+                    phase,
+                    overall_status,
+                    min_age_years,
+                    max_age_years,
+                    sex,
+                    healthy_volunteers,
+                    enrollment_actual,
+                    enrollment_target,
+                    start_date,
+                    primary_completion_date,
+                    completion_date,
+                    last_updated,
+                    eligibility_criteria_raw
+                FROM trials
+                WHERE nct_id = %s;
+                """,
+                (nct_id,),
+            )
+            trial_row = cur.fetchone()
+            if not trial_row:
+                raise HTTPException(status_code=404, detail="Trial not found")
+
+            trial_id = trial_row["id"]
+
+            cur.execute(
+                """
+                SELECT facility_name, city, state, country
+                FROM sites
+                WHERE trial_id = %s;
+                """,
+                (trial_id,),
+            )
+            sites_rows = list(cur.fetchall() or [])
+
+            cur.execute(
+                """
+                SELECT type, text
+                FROM criteria
+                WHERE trial_id = %s
+                ORDER BY sequence_no;
+                """,
+                (trial_id,),
+            )
+            criteria_rows = list(cur.fetchall() or [])
+    except HTTPException:
+        raise
+    except Exception as exc:
+        logger.exception("Database error while fetching trial %s", nct_id)
+        raise HTTPException(status_code=500, detail=str(exc))
+    finally:
+        if conn:
+            conn.close()
+
+    inclusion_blocks = [c.get("text", "") for c in criteria_rows if c.get("type") == "inclusion"]
+    exclusion_blocks = [c.get("text", "") for c in criteria_rows if c.get("type") == "exclusion"]
+
+    locations: List[TrialLocation] = []
+    for s in sites_rows:
+        locations.append(
+            TrialLocation(
+                facility_name=s.get("facility_name"),
+                city=s.get("city"),
+                state=s.get("state"),
+                country=s.get("country"),
+            )
+        )
+
+    title = trial_row.get("brief_title") or trial_row.get("official_title")
+    # Normalize date/datetime objects from psycopg to strings for the response model
+    def _to_iso(val):
+        return val.isoformat() if hasattr(val, "isoformat") else val
+
+    return TrialDetail(
+        nct_id=trial_row.get("nct_id"),
+        title=title,
+        official_title=trial_row.get("official_title"),
+        brief_summary=trial_row.get("brief_summary"),
+        detailed_description=trial_row.get("detailed_description"),
+        conditions=trial_row.get("conditions") or [],
+        interventions=trial_row.get("interventions") or [],
+        study_type=trial_row.get("study_type"),
+        phase=trial_row.get("phase"),
+        overall_status=trial_row.get("overall_status"),
+        min_age_years=trial_row.get("min_age_years"),
+        max_age_years=trial_row.get("max_age_years"),
+        sex=trial_row.get("sex"),
+        healthy_volunteers=trial_row.get("healthy_volunteers"),
+        enrollment_actual=trial_row.get("enrollment_actual"),
+        enrollment_target=trial_row.get("enrollment_target"),
+        start_date=_to_iso(trial_row.get("start_date")),
+        primary_completion_date=_to_iso(trial_row.get("primary_completion_date")),
+        completion_date=_to_iso(trial_row.get("completion_date")),
+        last_updated=_to_iso(trial_row.get("last_updated")),
+        locations=locations,
+        criteria_inclusion="\n".join([t for t in inclusion_blocks if t]) if inclusion_blocks else None,
+        criteria_exclusion="\n".join([t for t in exclusion_blocks if t]) if exclusion_blocks else None,
+        eligibility_criteria_raw=trial_row.get("eligibility_criteria_raw"),
+    )
+
+
+# -----------------------------
 # Routes
 # -----------------------------
+@app.get("/trials/{nct_id}", response_model=TrialDetail, tags=["search"])
+def get_trial_details(nct_id: str):
+    """
+    Fetch a single trial document by NCT ID directly from Postgres.
+    """
+    return _fetch_trial_detail_from_db(nct_id)
+
+
 @app.get("/search", response_model=SearchResponse, tags=["search"])
 def search_trials(
     q: Optional[str] = Query(
