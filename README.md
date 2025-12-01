@@ -248,7 +248,10 @@ MIT (or your preferred license)
 
 ## Contributors
 
-- [Your Team Names]
+- Khussal
+- Shashank
+- Kritika 
+- Aashta
 
 ---
 
