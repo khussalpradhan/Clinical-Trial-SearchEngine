@@ -14,7 +14,8 @@ def rank_trials(payload):
     try:
         log_debug("POST →", url)
         log_debug("Payload:", payload)
-        response = requests.post(url, json=payload, timeout=15)
+        # Increased timeout to 300 seconds (5 minutes)
+        response = requests.post(url, json=payload, timeout=300)
         response.raise_for_status()
         try:
             return response.json()
@@ -49,7 +50,8 @@ def get_trial_details(nct_id):
     url = f"{API_BASE_URL}/trials/{nct_id}"
     try:
         log_debug("GET →", url)
-        response = requests.get(url, timeout=15)
+        # Increased timeout to 300 seconds (5 minutes)
+        response = requests.get(url, timeout=300)
         response.raise_for_status()
         try:
             return response.json()

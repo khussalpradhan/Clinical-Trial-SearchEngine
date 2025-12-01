@@ -45,6 +45,22 @@ body, .stApp {
 # ============================================
 # Session State Navigation
 # ============================================
+
+
+if "page" not in st.session_state:
+    st.session_state.page = "main"
+
+if "selected_trial" not in st.session_state:
+    st.session_state.selected_trial = None
+
+
+# ============================================
+# TRIAL DETAILS PAGE
+# ============================================
+# ============================================
+# Session State Navigation
+# ============================================
+
 if "page" not in st.session_state:
     st.session_state.page = "main"
 
@@ -96,10 +112,11 @@ if st.session_state.page == "trial":
         }
 
         .trial-official-title {
-            font-size:1.4rem;
-            font-weight:600;
-            color:#ccc;
-            margin-bottom:20px;
+            font-size:2.3rem;
+            font-weight:800;
+            color:white;
+            margin-bottom:25px;
+            line-height:1.3;
         }
 
         .detail-grid {
@@ -110,31 +127,55 @@ if st.session_state.page == "trial":
         }
 
         .detail-label {
-            font-size:0.95rem;
+            font-size:1rem;
             color:#aaa;
             font-weight:700;
             text-transform:uppercase;
-            margin-bottom:4px;
+            margin-bottom:12px;
+            margin-top:20px;
         }
 
         .detail-value {
-            font-size:1.1rem;
+            font-size:1.15rem;
             color:#fff;
             font-weight:500;
+            word-wrap: break-word;
         }
 
         .summary-title {
-            font-size:1.4rem;
+            font-size:1rem;
             font-weight:700;
-            color:#eee;
+            color:#aaa;
+            text-transform:uppercase;
             margin-top:20px;
             margin-bottom:12px;
         }
 
         .summary-text {
-            font-size:1.05rem;
-            color:#ccc;
-            line-height:1.65;
+            font-size:1.15rem;
+            color:#fff;
+            font-weight:500;
+            word-wrap: break-word;
+        }
+
+        /* Styling for Centered, Small Back Button */
+        .back-button {
+            padding: 8px 15px;
+            background-color: #007BFF;
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+            font-size: 0.9rem;
+            margin-top: 30px;
+            display: block;
+            width: 200px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .back-button:hover {
+            background-color: #0056b3;
         }
     </style>
     """, unsafe_allow_html=True)
@@ -142,10 +183,11 @@ if st.session_state.page == "trial":
     # ============================================
     # TITLE & OFFICIAL TITLE
     # ============================================
-    st.markdown(f"<div class='trial-official-title'>{trial.get('official_title','')}</div>", unsafe_allow_html=True)
+    if trial.get("official_title"):
+        st.markdown(f"<div class='trial-official-title'>{trial['official_title']}</div>", unsafe_allow_html=True)
 
     # ============================================
-    # Details Grid
+    # Details Grid (Show only non-empty fields)
     # ============================================
     st.markdown("<div class='detail-grid'>", unsafe_allow_html=True)
     fields = {
@@ -153,43 +195,48 @@ if st.session_state.page == "trial":
         "Phase": trial.get("phase", "N/A"),
         "Status": trial.get("overall_status", "N/A"),
         "Study Type": trial.get("study_type", "N/A"),
-        "Conditions": ", ".join(trial.get("conditions", [])),
-        "Locations": ", ".join([loc.get("facility_name","") + ", " + loc.get("city","") + (", " + loc.get("country","") if loc.get("country") else "") for loc in trial.get("locations", [])]),
+        "Conditions": ", ".join(trial.get("conditions", [])) if trial.get("conditions") else None,
+        "Locations": ", ".join([loc.get("facility_name", "") + ", " + loc.get("city", "") + (", " + loc.get("country", "") if loc.get("country") else "") for loc in trial.get("locations", [])]) if trial.get("locations") else None,
     }
 
     for label, value in fields.items():
-        st.markdown(
-            f"""
-            <div>
-                <div class='detail-label'>{label}</div>
-                <div class='detail-value'>{value}</div>
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
+        if value:  # Only show sections with content
+            st.markdown(
+                f"""
+                <div>
+                    <div class='detail-label'>{label}</div>
+                    <div class='detail-value'>{value}</div>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
 
     st.markdown("</div>", unsafe_allow_html=True)
 
     # ============================================
-    # Summaries & Descriptions
+    # Summaries & Descriptions (Show only non-empty sections)
     # ============================================
     summary_sections = [
-        ("Brief Summary", trial.get("brief_summary","No summary available.")),
-        ("Detailed Description", trial.get("detailed_description","No description available.")),
-        ("Inclusion Criteria", trial.get("criteria_inclusion","N/A")),
-        ("Exclusion Criteria", trial.get("criteria_exclusion","N/A"))
+        ("Brief Summary", trial.get("brief_summary", "No summary available.")),
+        ("Detailed Description", trial.get("detailed_description", "No description available.")),
+        ("Inclusion Criteria", trial.get("criteria_inclusion", "N/A")),
+        ("Exclusion Criteria", trial.get("criteria_exclusion", "N/A"))
     ]
 
     for title, content in summary_sections:
-        st.markdown(f"<div class='summary-title'>{title}</div>", unsafe_allow_html=True)
-        st.markdown(f"<div class='summary-text'>{content}</div>", unsafe_allow_html=True)
+        if content and content != "N/A" and content != "No summary available.":  # Skip empty or placeholder content
+            st.markdown(f"<div class='summary-title'>{title}</div>", unsafe_allow_html=True)
+            st.markdown(f"<div class='summary-text'>{content}</div>", unsafe_allow_html=True)
 
     # BACK BUTTON
     st.markdown("<div style='height:20px;'></div>", unsafe_allow_html=True)
-    st.button("⬅ Back to Search", on_click=lambda: st.session_state.update(page="main"))
+    
+    # Use Streamlit's `on_click` function to navigate to the "main" page
+    st.button("⬅ Back to Search", on_click=lambda: st.session_state.update(page="main"), key="back_button")
 
     st.markdown("</div>", unsafe_allow_html=True)
     st.stop()
+
 
 # ============================================
 # MAIN PAGE — SEARCH UI
@@ -433,7 +480,7 @@ payload = {
 st.markdown("<hr>", unsafe_allow_html=True)
 
 if st.button("Search", use_container_width=True):
-    with st.spinner("Ranking trials…"):
+    with st.spinner("Searching..."):
         try:
             response = rank_trials(payload)
             hits = response.get("hits", []) if response else []
