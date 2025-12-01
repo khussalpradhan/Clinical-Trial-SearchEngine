@@ -9,6 +9,7 @@ from pydantic import BaseModel, Field
 from psycopg2.extras import RealDictCursor
 
 from opensearchpy import OpenSearch
+from fastapi.middleware.cors import CORSMiddleware
 
 from backend.config import OPENSEARCH_HOST, TRIALS_INDEX_NAME
 from backend.config import POSTGRES_DSN
@@ -44,6 +45,13 @@ app = FastAPI(
     version="1.0.0",
 )
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # -----------------------------
 # Response models
