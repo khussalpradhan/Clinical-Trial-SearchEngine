@@ -276,6 +276,7 @@ def normalize_study(study: Dict[str, Any]) -> Tuple[Dict[str, Any], List[Dict[st
     # criteria rows (type, text)
     criteria_rows = split_criteria(eligibility_criteria_raw)
 
+
     trial_row: Dict[str, Any] = {
         "nct_id": nct_id,
         "brief_title": brief_title,

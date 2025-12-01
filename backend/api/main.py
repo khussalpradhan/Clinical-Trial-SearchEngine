@@ -1,6 +1,6 @@
 # backend/api/main.py
 
-from typing import List, Optional, Dict
+from typing import Any, List, Optional, Dict
 import logging
 
 import psycopg2
@@ -19,6 +19,8 @@ from backend.search.init_index import create_index
 from backend.search.vector_search import get_vector_search
 from backend.search.build_faiss_index import build_faiss_index
 from backend.nlp import FeasibilityScorer
+from backend.nlp.condition_normalizer import get_condition_normalizer
+from backend.nlp.biomarker_normalizer import get_biomarker_normalizer
 
 # -----------------------------
 # OpenSearch client
@@ -56,11 +58,16 @@ class TrialHit(BaseModel):
     study_type: Optional[str] = None
     locations: List[str] = []
     score: float
+    eligibility_criteria_raw: Optional[str] = None
+    min_age_years: Optional[float] = None 
+    max_age_years: Optional[float] = None  
+    sex: Optional[str] = None
     retrieval_score: Optional[float] = None
     retrieval_score_raw: Optional[float] = None
     feasibility_score: Optional[float] = None
     feasibility_reasons: Optional[List[str]] = None
     is_feasible: Optional[bool] = None
+    parsed_criteria: Optional[Dict[str, Any]] = None
 
 
 class SearchResponse(BaseModel):
@@ -158,6 +165,8 @@ def build_query(
     status: Optional[str],
     condition: Optional[str],
     country: Optional[str],
+    age: Optional[int] = None,
+    gender: Optional[str] = None,
 ):
     must_clauses = []
     filter_clauses = []
@@ -173,8 +182,7 @@ def build_query(
                         "detailed_description",
                         "conditions^2",
                         "interventions",
-                        "criteria_inclusion",
-                        "criteria_exclusion",
+                        "criteria_inclusion_clean^2"
                     ],
                     "type": "best_fields",
                     # Looser, works for both short + long queries
@@ -213,6 +221,28 @@ def build_query(
                 }
             }
         )
+    # Age Logic: Trial Min <= Patient Age <= Trial Max
+    if age is not None:
+        filter_clauses.append({
+            "range": {
+                "min_age_years": {"lte": age} # Trial min must be <= Patient age
+            }
+        })
+        filter_clauses.append({
+            "range": {
+                "max_age_years": {"gte": age} # Trial max must be >= Patient age
+            }
+        })
+
+    # Gender Logic: Trial Sex must match Patient OR be "ALL"
+    if gender and gender.lower() != "all":
+        # We allow trials that are specifically for this gender OR for "ALL"
+        target_gender = gender.upper() # "MALE" or "FEMALE"
+        filter_clauses.append({
+            "terms": {
+                "sex": [target_gender, "ALL"]
+            }
+        })
 
     return {
         "bool": {
@@ -269,6 +299,26 @@ def build_profile_query_text(profile: PatientProfile) -> str:
     return ". ".join(parts)
 
 
+def _expand_condition_synonyms_for_query(normalized_conditions: List[str], max_terms: int = 8, max_per_condition: int = 3) -> List[str]:
+    try:
+        normalizer = get_condition_normalizer()
+    except Exception:
+        return []
+
+    expanded: List[str] = []
+    seen = set()
+    for key in normalized_conditions:
+        terms = normalizer.get_all_synonyms(key)[: max_per_condition]
+        for t in terms:
+            tl = t.lower().strip()
+            if tl and tl not in seen and len(expanded) < max_terms:
+                expanded.append(t)
+                seen.add(tl)
+        if len(expanded) >= max_terms:
+            break
+    return expanded
+
+
 # -----------------------------
 # Health route
 # -----------------------------
@@ -280,6 +330,16 @@ def health():
         return {"status": "ok"}
     except Exception as e:
         raise HTTPException(status_code=503, detail=str(e))
+    
+#normalise condition input
+def normalize_condition_input(user_text: str) -> str:
+    """
+    Maps user text to internal canonical keys 
+    """
+    normalizer = get_condition_normalizer()
+    normalized = normalizer.normalize(user_text)
+    # If no match found, return original text in Title Case
+    return normalized if normalized else user_text.title()
 
 
 def _normalize_scores(values: List[float]) -> dict[str, float]:
@@ -366,7 +426,13 @@ def _apply_feasibility_rerank(
             feasibility_norm = 0.0
         else:
             try:
-                result = feasibility_scorer.score_patient(profile_dict, criteria_text)
+                metadata = {
+                    "min_age_years": hit.min_age_years,
+                    "max_age_years": hit.max_age_years,
+                    "sex": hit.sex,
+                    "conditions": hit.conditions or []  # <--- Pass the DB conditions here!
+                }
+                result = feasibility_scorer.score_patient(profile_dict, criteria_text, trial_metadata=metadata)
                 feas_score = float(result.get("score") or 0.0)
                 hit.feasibility_score = feas_score
                 hit.feasibility_reasons = result.get("reasons") or []
@@ -419,12 +485,20 @@ def _search_trials_internal(
     # How many docs to ask BM25 for in total (candidate pool)
     total_candidates = candidate_size or size
 
+    filter_age = None
+    filter_gender = None
+    if patient_profile:
+        filter_age = patient_profile.age
+        filter_gender = patient_profile.gender
+
     query = build_query(
         q=q,
         phase=phase,
         status=overall_status,
         condition=condition,
         country=country,
+        age=filter_age,
+        gender=filter_gender
     )
 
     # We always fetch from offset 0 for the candidate pool;
@@ -446,6 +520,11 @@ def _search_trials_internal(
             "criteria_inclusion",
             "criteria_exclusion",
             "eligibility_criteria_raw",
+            "min_age_years",
+            "max_age_years",
+            "sex",
+            "healthy_volunteers",
+            "enrollment"
         ],
     }
 
@@ -491,6 +570,10 @@ def _search_trials_internal(
             locations=loc_strings,
             score=score,  # temporarily BM25 score
             retrieval_score_raw=score,
+            eligibility_criteria_raw=src.get("eligibility_criteria_raw"),
+            min_age_years=src.get("min_age_years"),
+            max_age_years=src.get("max_age_years"),
+            sex=src.get("sex")
         )
         hits.append(hit)
         bm25_scores.append(score)
@@ -533,7 +616,8 @@ def _search_trials_internal(
             dense_norm = float(dense_norm_by_id.get(hit.nct_id, 0.0))
             hybrid = bm25_weight * bm25_norm + (1.0 - bm25_weight) * dense_norm
             hit.score = hybrid
-            hit.retrieval_score_raw = hybrid
+            # Keep original BM25 for feasibility scoring normalization
+            # (retrieval_score_raw is already set to BM25 score at line 517)
 
         # sort by hybrid score desc
         hits.sort(key=lambda h: h.score, reverse=True)
@@ -591,7 +675,12 @@ def dense_only_fallback(
         "_source": [
             "nct_id", "title", "brief_summary", "phase",
             "overall_status", "conditions", "study_type", "locations",
-            "criteria_inclusion", "criteria_exclusion", "eligibility_criteria_raw"
+            "criteria_inclusion", "criteria_exclusion", "eligibility_criteria_raw",
+            "min_age_years",
+            "max_age_years",
+            "sex",
+            "healthy_volunteers",
+            "enrollment"
         ]
     }
 
@@ -628,6 +717,10 @@ def dense_only_fallback(
                 locations=locations,
                 score=score,
                 retrieval_score_raw=raw_dense,
+                eligibility_criteria_raw=src.get("eligibility_criteria_raw"),
+                min_age_years=src.get("min_age_years"),
+                max_age_years=src.get("max_age_years"),
+                sex=src.get("sex")
             )
         )
         criteria_by_id[nct] = _build_criteria_text(src)
@@ -656,6 +749,8 @@ def dense_only_fallback(
         candidate_total=candidate_total if use_candidate_total else None,
         truncated=False,
     )
+
+
 
 
 # -----------------------------
@@ -817,6 +912,8 @@ def search_trials(
         description="Weight for BM25 in hybrid fusion (dense weight = 1 - bm25_weight)",
     ),
 ):
+    required_pool = page * size
+    candidate_size = max(required_pool, 50)
     """
     Hybrid search over clinical trials (free-text query).
 
@@ -833,7 +930,7 @@ def search_trials(
         condition=condition,
         country=country,
         bm25_weight=bm25_weight,
-        candidate_size=size,  # for /search, candidate pool = requested page size
+        candidate_size=candidate_size,  # for /search, candidate pool = requested page size
     )
 
 
@@ -850,7 +947,40 @@ def rank_trials(body: RankRequest):
       optionally blend with the NLP feasibility score, and then return the
       requested page/size from that candidate set.
     """
+
+    
+    normalized_conditions = []
+    normalized_biomarkers = []
+    if body.profile.conditions:
+        try:
+            normalizer = get_condition_normalizer()
+            normalized_conditions = normalizer.normalize_list(body.profile.conditions)
+        except Exception as e:
+            logger.warning(f"Condition normalization failed: {e}, using original conditions")
+            normalized_conditions = body.profile.conditions
+
+    # Normalize biomarkers for feasibility scoring (keep originals for BM25 text)
+    if body.profile.biomarkers:
+        try:
+            bnorm = get_biomarker_normalizer()
+            normalized_biomarkers = bnorm.normalize_list(body.profile.biomarkers)
+        except Exception as e:
+            logger.warning(f"Biomarker normalization failed: {e}, using original biomarkers")
+            normalized_biomarkers = body.profile.biomarkers
+
+    
     q_text = build_profile_query_text(body.profile)
+    # small query expansion with synonyms to boost BM25 recall
+    if normalized_conditions:
+        extra_terms = _expand_condition_synonyms_for_query(normalized_conditions)
+        if extra_terms:
+            q_text = f"{q_text}. Related terms: " + ", ".join(extra_terms)
+    
+    
+    if normalized_conditions:
+        body.profile.conditions = normalized_conditions
+    if normalized_biomarkers:
+        body.profile.biomarkers = normalized_biomarkers
 
     # Always search over a candidate pool of 100 docs for /rank,
     # but only return the top 20 to clients.

@@ -2,6 +2,7 @@
 
 from .criteria_parser import CriteriaParser
 from .feasibility_scorer import FeasibilityScorer
+from .condition_normalizer import ConditionNormalizer, get_condition_normalizer
 
 # Initialize singleton instances to save memory
 # (Loading spaCy takes time, so we only want to do it once)
@@ -23,10 +24,28 @@ def rank_trials(patient_profile, trials_list):
     
     for trial in trials_list:
         # Handle different database column names just in case
+        #print(trial.keys())
         text = trial.get('eligibility_criteria_raw') or trial.get('criteria') or ""
-        
-        # Run the scoring logic
-        result = _scorer.score_patient(patient_profile, text)
+
+        #Get Metadata
+        metadata = {
+            "min_age_years": trial.get("min_age_years"),
+            "max_age_years": trial.get("max_age_years"),
+            "sex": trial.get("sex"),
+            "conditions": trial.get("conditions") or []
+        }
+
+        if not text and not any(metadata.values()):
+            # NO text and NO metadata, skip or fail
+            trial['feasibility_score'] = 0
+            trial['feasibility_reasons'] = ["No data available"]
+            trial['is_feasible'] = False
+            trial['parsed_criteria'] = {}
+            scored_trials.append(trial)
+            continue
+
+        #run scorer logic
+        result = _scorer.score_patient(patient_profile, text, trial_metadata=metadata)
         
         # Enrich the trial object
         trial['feasibility_score'] = result['score']

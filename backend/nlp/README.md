@@ -20,7 +20,7 @@ This module houses the core intelligence of the Clinical Trial Search Engine. It
   - **Biomarker Match:** (+25 points if patient matches a required genomic marker like EGFR or HER2)
   - **ECOG Status:** (+15 points if patient's ECOG score is within the trial's allowed range)
   - **Lines of Therapy:** (+10 points if patient's prior history fits the trial's specific window, e.g. 2nd Line)
-  - **Lab Thresholds:** (+10 points per passed lab value, e.g. Creatinine < 1.5)
+  - **Lab Thresholds:** (+5 points per passed lab value, e.g. Creatinine < 1.5)
   - **Age:** (+5 points for demographic fit)
   - **Gender:** (+5 points for demographic fit)
   - **Washout Periods:** (+5 points if patient clears required washout days)

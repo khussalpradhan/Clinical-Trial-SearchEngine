@@ -1,231 +1,1609 @@
 {
   "NSCLC": [
-    "NSCLC - Non-small cell lung cancer",
-    "Non-Small Cell Lung Cancer",
-    "Non-Small Cell Cancer of Lung",
     "Non-Small Cell Carcinoma of the Lung",
     "Non Small Cell Lung Cancer NOS",
-    "Non-small cell lung cancer",
-    "NSCLC - Non-Small Cell Lung Cancer",
     "Lung Non-Small Cell Carcinoma",
-    "Non-Small Cell Carcinoma of Lung",
+    "KRAS G12C NSCLC",
+    "NSCLC - Non-small cell lung cancer",
+    "Non-Small Cell Cancer of Lung",
+    "Non-small cell lung cancer (disorder)",
     "Non-Small Cell Cancer of the Lung",
-    "Non-Small Cell Lung Carcinoma",
-    "Non-small cell lung cancer (disorder)"
+    "NSCLC - Non-Small Cell Lung Cancer",
+    "ALK-positive NSCLC",
+    "PD-L1 high NSCLC",
+    "Non-Small Cell Carcinoma of Lung",
+    "Non-Small Cell Lung Cancer",
+    "ROS1-positive NSCLC",
+    "Non-small cell lung cancer",
+    "EGFR-mutant NSCLC",
+    "Non-Small Cell Lung Carcinoma"
+  ],
+  "SCLC": [
+    "Small Cell Lung Cancer",
+    "Small cell carcinoma of lung (disorder)",
+    "SCLC - Small cell lung cancer",
+    "Small cell carcinoma of lung",
+    "Small Cell Carcinoma of the Lung",
+    "Small Cell Carcinoma of Lung",
+    "Small cell lung cancer",
+    "Lung Small Cell Carcinoma",
+    "Oat cell carcinoma of lung",
+    "Small Cell Neuroendocrine Carcinoma of Lung",
+    "Small Cell Lung Carcinoma",
+    "Small Cell Neuroendocrine Carcinoma of the Lung",
+    "Lung Small Cell Neuroendocrine Carcinoma"
   ],
   "Breast_Cancer": [
-    "Malignant Tumor of Breast",
+    "Malignant tumor of breast",
+    "Triple negative breast cancer",
     "Malignant tumour of breast",
-    "Malignant Neoplasm of the Breast",
-    "Malignant neoplasm of breast",
-    "Malignant Breast Tumor",
-    "Malignant Neoplasm of Breast",
+    "Malignant Tumor of Breast",
     "Malignant Breast Neoplasm",
-    "Malignant Tumor of the Breast",
-    "Malignant neoplasm of breast (disorder)",
     "Breast cancer",
-    "Malignant tumor of breast"
-  ],
-  "Heart_Failure": [
-    "Cardiac Failure Congestive",
-    "CHF - Congestive heart failure",
-    "CCF - Congestive cardiac failure",
-    "Congestive Heart Failure",
-    "Congestive heart disease",
-    "Congestive heart failure (disorder)",
-    "Congestive cardiac failure",
-    "Congestive heart failure"
-  ],
-  "Chronic_Kidney_Disease": [
-    "ESRF - End stage renal failure",
-    "End-stage renal disease (disorder)",
-    "End-stage renal disease",
-    "End stage kidney disease",
-    "Chronic renal failure syndrome (disorder)",
-    "ESRD - End stage renal disease",
-    "CRF - Chronic renal failure",
-    "Chronic renal failure syndrome",
-    "Chronic renal failure",
-    "Chronic Renal Failure",
-    "ESCRF - End stage chronic renal failure",
-    "CRF - Chronic Renal Failure",
-    "Chronic Renal Disease",
-    "End stage chronic renal failure"
-  ],
-  "Respiratory_Failure": [
-    "DaNang lung",
-    "ARDS - Adult respiratory distress syndrome",
-    "Acute respiratory distress syndrome",
-    "Acute respiratory distress syndrome (disorder)",
-    "Congestive atelectasis",
-    "Pulmonary capillary leak syndrome",
-    "Adult hyaline membrane disease",
-    "Adult RDS",
-    "Vietnam lung",
-    "Shock lung",
-    "Acquired respiratory distress syndrome",
-    "Adult Respiratory Distress Syndrome",
-    "Acute Respiratory Distress Syndrome",
-    "Adult respiratory distress syndrome"
-  ],
-  "Liver_Failure": [
-    "Liver Disease",
-    "Disorder of liver",
-    "Hepatopathy",
-    "Liver Disorder",
-    "Hepatic Disorder",
-    "LD - Liver disease",
-    "Disease of liver",
-    "Liver disease",
-    "Disorder of liver (disorder)",
-    "Liver and Intrahepatic Bile Duct Disorder"
-  ],
-  "Leukemia": [
-    "Leukaemia",
-    "Leukemia, disease (disorder)",
-    "Leukemia",
-    "Blood (Leukemia)",
-    "Leukemia (morphologic abnormality)",
-    "Leukaemia, disease",
-    "Leukemia, disease"
+    "Malignant Neoplasm of Breast",
+    "Malignant Neoplasm of the Breast",
+    "ER-positive breast cancer",
+    "Malignant neoplasm of breast",
+    "Malignant Tumor of the Breast",
+    "HER2-positive breast cancer",
+    "Luminal A",
+    "Luminal B",
+    "TNBC",
+    "Malignant Breast Tumor",
+    "HER2+ breast cancer",
+    "ER+/PR+ breast cancer",
+    "Malignant neoplasm of breast (disorder)"
   ],
   "Prostate_Cancer": [
-    "Neoplasm of Prostate",
+    "Prostate Neoplasm",
     "Tumor of Prostate",
-    "Neoplasm of prostate",
-    "Tumor of the Prostate",
-    "Prostate Tumor",
-    "Tumour of prostate",
-    "NGP - New growth of prostate",
-    "Tumor of prostate",
-    "Neoplasm of prostate (disorder)",
     "Neoplasm of the Prostate",
-    "Prostate Neoplasm"
+    "Neoplasm of Prostate",
+    "NGP - New growth of prostate",
+    "Tumor of the Prostate",
+    "Neoplasm of prostate (disorder)",
+    "Tumor of prostate",
+    "Tumour of prostate",
+    "Prostate Tumor",
+    "Neoplasm of prostate"
   ],
-  "Skin_Cancer": [
-    "Tumor of the Skin",
-    "Tumor of skin",
-    "Cutaneous tumor",
-    "Cutaneous tumour",
-    "Neoplasm of skin",
-    "Neoplasm of skin (disorder)",
-    "Skin tumor",
-    "Skin Neoplasms",
-    "Skin Neoplasm",
-    "Skin Tumor",
-    "Neoplasm of Skin",
-    "Tumor of Skin",
-    "Neoplasm of the Skin",
-    "Tumour of skin",
-    "Skin tumour"
+  "Colorectal_Cancer": [
+    "Carcinoma of Large Intestine",
+    "Large Bowel Carcinoma",
+    "Carcinoma of the Large Intestine",
+    "CRC",
+    "Colorectal carcinoma",
+    "Cancer of the Large Bowel",
+    "Colorectal Cancer",
+    "Cancer of Large Intestine",
+    "Carcinoma of Large Bowel",
+    "Large Intestine Carcinoma",
+    "Large Bowel Cancer",
+    "Cancer of the Large Intestine",
+    "Cancer of Large Bowel",
+    "Carcinoma of the Large Bowel",
+    "Large Intestine Cancer",
+    "Colorectal Carcinoma"
+  ],
+  "Pancreatic_Cancer": [
+    "Malignant Pancreatic Neoplasm",
+    "Malignant tumour of pancreas",
+    "Malignant Neoplasm of Pancreas",
+    "Malignant Neoplasm of the Pancreas",
+    "Pancreatic cancer",
+    "Malignant tumor of pancreas",
+    "Malignant neoplasm of pancreas (disorder)",
+    "Malignant neoplasm of pancreas"
+  ],
+  "Ovarian_Cancer": [
+    "Ovarian Tumors",
+    "Ovarian Neoplasm",
+    "Neoplasm of Ovary",
+    "Tumor of Ovary",
+    "Tumour of ovary",
+    "Tumor of the Ovary",
+    "High-grade serous ovarian cancer",
+    "HGSOC",
+    "Tumor of ovary",
+    "Ovarian Tumor",
+    "Neoplasm of ovary (disorder)",
+    "Ovarian tumor",
+    "Neoplasm of the Ovary",
+    "Ovarian tumour",
+    "Neoplasm of ovary"
   ],
   "Cervical_Cancer": [
-    "Malignant Tumor of the Cervix Uteri",
-    "Malignant Tumor of Cervix Uteri",
-    "Malignant neoplasm of cervix uteri",
-    "Malignant Uterine Cervix Tumor",
-    "Malignant Cervical Tumor",
-    "Malignant Neoplasm of Cervix Uteri",
-    "Malignant neoplasm of cervix",
-    "Malignant Uterine Cervix Neoplasm",
-    "Malignant Tumor of the Uterine Cervix",
-    "Malignant Neoplasm of the Cervix",
-    "Malignant Cervix Tumor",
-    "Malignant Tumor of Uterine Cervix",
     "Malignant Cervix Uteri Neoplasm",
-    "Malignant tumor of cervix",
-    "Malignant Tumor of Cervix",
-    "Malignant Cervix Neoplasm",
-    "Malignant Cervix Uteri Tumor",
     "Malignant Neoplasm of Cervix",
-    "Malignant Tumor of the Cervix",
-    "Malignant Neoplasm of the Cervix Uteri",
-    "Cervical cancer",
-    "Malignant tumour of cervix",
-    "Malignant Neoplasm of the Uterine Cervix",
-    "Malignant Neoplasm of Uterine Cervix",
+    "Malignant tumor of cervix",
+    "Malignant Tumor of the Uterine Cervix",
+    "Malignant neoplasm of cervix uteri",
+    "Malignant Cervix Tumor",
     "Malignant Cervical Neoplasm",
+    "Malignant Neoplasm of the Cervix",
+    "Malignant Uterine Cervix Neoplasm",
+    "Malignant Neoplasm of Cervix Uteri",
+    "Malignant Neoplasm of Uterine Cervix",
+    "Malignant Tumor of Cervix Uteri",
+    "Cervical cancer",
+    "Malignant Cervix Neoplasm",
+    "Malignant Tumor of the Cervix",
+    "Malignant Cervical Tumor",
+    "Malignant tumour of cervix",
+    "Malignant Tumor of Uterine Cervix",
+    "Malignant Neoplasm of the Cervix Uteri",
+    "Malignant Tumor of Cervix",
+    "Malignant Tumor of the Cervix Uteri",
+    "Malignant neoplasm of cervix",
+    "Malignant Cervix Uteri Tumor",
+    "Malignant Uterine Cervix Tumor",
+    "Malignant Neoplasm of the Uterine Cervix",
     "Malignant neoplasm of cervix uteri (disorder)"
   ],
-  "Bone_Cancer": [
-    "Neoplasm of bone",
-    "Bone tumour",
-    "Neoplasm of the Bone",
-    "Bone Tumor",
-    "Bone tumor (morphologic abnormality)",
-    "Osseous Tumor",
-    "Osseous Neoplasm",
-    "Bone tumor",
-    "Tumor of Bone",
-    "Bone Neoplasms",
-    "Tumor of the Bone",
-    "Neoplasm of bone (disorder)",
-    "Bone Tumors",
-    "Neoplasm of Bone",
-    "Bone Neoplasm"
+  "Endometrial_Cancer": [
+    "Malignant Endometrial Neoplasm",
+    "Cancer of endometrium",
+    "Malignant neoplasm of endometrium of corpus uteri (disorder)",
+    "Malignant neoplasm of endometrium of corpus uteri"
+  ],
+  "Gastric_Cancer": [
+    "Malignant Neoplasm of Stomach",
+    "Cancer of stomach",
+    "Malignant Neoplasm of the Stomach",
+    "Malignant tumor of stomach",
+    "Malignant Tumor of the Stomach",
+    "Gastric cancer",
+    "Malignant tumour of stomach",
+    "Malignant neoplasm of stomach",
+    "Malignant Tumor of Stomach",
+    "Malignant Gastric Tumor",
+    "Malignant Gastric Neoplasm",
+    "Malignant neoplasm of stomach (disorder)"
+  ],
+  "Esophageal_Cancer": [
+    "Esophagus Tumor",
+    "Esophagus Neoplasm",
+    "Tumor of Esophagus",
+    "Neoplasm of esophagus",
+    "Neoplasm of Esophagus",
+    "Esophageal Tumors",
+    "Esophageal Tumor",
+    "Neoplasm of oesophagus",
+    "Esophageal Neoplasm",
+    "Neoplasm of esophagus (disorder)",
+    "Neoplasm of the Esophagus",
+    "Esophageal Neoplasms, Benign and Malignant",
+    "Tumour of oesophagus",
+    "Tumor of the Esophagus",
+    "Tumor of esophagus"
+  ],
+  "Bladder_Cancer": [
+    "Tumor of Urinary Bladder",
+    "Tumor of the Bladder",
+    "Neoplasm of bladder",
+    "Neoplasm of Urinary Bladder",
+    "Neoplasm of urinary bladder",
+    "Neoplasm of urinary bladder (disorder)",
+    "Bladder Neoplasm",
+    "Tumour of urinary bladder",
+    "Neoplasm of Bladder",
+    "Tumor of the Urinary Bladder",
+    "Bladder Tumor",
+    "Neoplasm of the Bladder",
+    "Tumor of urinary bladder",
+    "Tumor of Bladder",
+    "Bladder Tumors",
+    "Urinary Bladder Neoplasms",
+    "Urinary Bladder Tumors",
+    "Neoplasm of the Urinary Bladder",
+    "Urinary Bladder Neoplasm",
+    "Urinary Bladder Tumor"
+  ],
+  "Kidney_Cancer": [
+    "Renal cancer",
+    "Malignant Neoplasm of the Kidney",
+    "Clear cell RCC",
+    "Renal malignant tumor",
+    "Malignant Renal Tumor",
+    "Malignant Kidney Neoplasm",
+    "Malignant tumor of kidney",
+    "Malignant neoplasm of kidney (disorder)",
+    "Malignant neoplasm of kidney",
+    "Malignant tumour of kidney",
+    "Renal cell carcinoma",
+    "RCC",
+    "Malignant Tumor of the Kidney",
+    "Malignant Renal Neoplasm",
+    "Malignant Kidney Tumor",
+    "Renal malignant tumour",
+    "Malignant Neoplasm of Kidney",
+    "Malignant Tumor of Kidney"
+  ],
+  "Liver_Cancer": [
+    "CA - Liver cancer",
+    "Malignant neoplasm of liver (disorder)",
+    "Malignant tumour of liver",
+    "Malignant tumor of liver",
+    "Malignant neoplasm of liver",
+    "HCC",
+    "Liver cancer",
+    "Malignant Liver Neoplasm",
+    "Hepatocellular carcinoma"
+  ],
+  "Thyroid_Cancer": [
+    "Thyroid cancer",
+    "Malignant tumour of thyroid gland",
+    "Malignant Tumor of Thyroid Gland",
+    "Malignant Tumor of the Thyroid Gland",
+    "Malignant Thyroid Neoplasm",
+    "Malignant Thyroid Gland Neoplasm",
+    "Malignant Neoplasm of Thyroid Gland",
+    "Malignant Tumor of the Thyroid",
+    "Malignant Neoplasm of the Thyroid",
+    "Malignant Neoplasm of Thyroid",
+    "Malignant Neoplasm of the Thyroid Gland",
+    "Malignant tumor of thyroid gland",
+    "Malignant Thyroid Tumor",
+    "Malignant Tumor of Thyroid",
+    "Malignant neoplasm of thyroid gland (disorder)",
+    "Malignant Thyroid Gland Tumor",
+    "Malignant neoplasm of thyroid gland"
+  ],
+  "Melanoma": [
+    "Malignant melanoma",
+    "Melanosarcoma",
+    "Melanoma",
+    "Malignant melanoma (disorder)",
+    "MM - malignant melanoma",
+    "Malignant Melanoma",
+    "Malignant melanoma (morphologic abnormality)"
+  ],
+  "Head_Neck_Cancer": [
+    "Malignant neoplasm of head and/or neck",
+    "Malignant Tumor of Head and Neck",
+    "Malignant Head and Neck Tumor",
+    "Malignant Neoplasm of the Head and Neck",
+    "Cancer of Head and Neck",
+    "Head and Neck Cancer",
+    "Malignant Tumor of the Head and Neck",
+    "Head and neck squamous cell carcinoma",
+    "Malignant tumor of head and neck",
+    "Malignant tumor of head and/or neck",
+    "Malignant neoplasm of head and/or neck (disorder)",
+    "Malignant tumour of head and neck",
+    "Malignant tumour of head and/or neck",
+    "HNSCC",
+    "Cancer of the Head and Neck",
+    "Malignant Neoplasm of Head and Neck",
+    "Malignant Head and Neck Neoplasm"
+  ],
+  "Glioblastoma": [
+    "GBM",
+    "Glioblastoma, NOS",
+    "Glioblastoma multiforme",
+    "Glioblastoma, Not Otherwise Specified"
+  ],
+  "Mesothelioma": [],
+  "Sarcoma": [
+    "Multiple Hemorrhagic Sarcoma",
+    "Kaposi's sarcoma (disorder)",
+    "Multiple hemorrhagic sarcoma",
+    "Kaposi Sarcoma",
+    "Kaposi's Sarcoma",
+    "Kaposi sarcoma",
+    "Multiple haemorrhagic sarcoma",
+    "KS - Kaposi's sarcoma",
+    "Kaposi's sarcoma (clinical)",
+    "Kaposi's sarcoma",
+    "Kaposi sarcoma (morphologic abnormality)"
+  ],
+  "Neuroendocrine_Tumor": [
+    "Neuroendocrine neoplasm",
+    "Neuroendocrine neoplasm (morphologic abnormality)",
+    "Well-differentiated neuroendocrine tumor (morphologic abnormality)",
+    "Well-differentiated neuroendocrine tumour",
+    "Well-differentiated neuroendocrine tumor (disorder)",
+    "NEN - neuroendocrine neoplasm",
+    "Well-differentiated neuroendocrine tumor",
+    "Neuroendocrine tumour",
+    "Neuroendocrine Neoplasm",
+    "Neuroendocrine neoplasm (disorder)",
+    "Neuroendocrine tumor"
+  ],
+  "Leukemia": [
+    "Leukemia, disease",
+    "Blood (Leukemia)",
+    "Leukemia, disease (disorder)",
+    "Leukemia (morphologic abnormality)",
+    "Leukaemia, disease",
+    "Leukaemia",
+    "Leukemia"
+  ],
+  "AML": [
+    "AML - Acute myeloblastic leukaemia",
+    "AML - Acute myeloid leukaemia",
+    "Acute myelocytic leukaemia",
+    "Acute myelocytic leukemia",
+    "Acute granulocytic leukaemia",
+    "AML - Acute Myeloid Leukemia",
+    "Acute Myeloid Leukemia Not Otherwise Categorized",
+    "Acute Myelogenous Leukemias",
+    "Acute Myeloid Leukemia NOS",
+    "Acute Myeloid Leukemia",
+    "Acute myeloid leukaemia",
+    "Acute myeloid leukaemia, disease",
+    "Acute Myeloid Leukemia, Not Otherwise Specified",
+    "Acute non-lymphocytic leukaemia",
+    "Acute myelogenous leukaemia",
+    "Acute myeloid leukemia (morphologic abnormality)",
+    "Hematopoeitic - Acute Myleogenous Leukemia (AML)",
+    "Acute myeloid leukemia (disorder)",
+    "Acute myeloid leukemia, disease",
+    "Acute Myeloblastic Leukemia",
+    "Acute non-lymphocytic leukemia",
+    "Acute Myelogenous Leukemia",
+    "Acute myelogenous leukemia",
+    "AML - Acute myeloblastic leukemia",
+    "Acute Myeloid Leukemia, NOS",
+    "Acute myeloid leukemia",
+    "AML - Acute myeloid leukemia",
+    "Acute granulocytic leukemia"
+  ],
+  "ALL": [
+    "Acute lymphocytic leukemia",
+    "Acute Lymphoblastic Leukemia",
+    "Precursor Lymphoblastic Leukemia",
+    "ALL - Acute lymphoblastic leukaemia",
+    "Acute lymphatic leukaemia",
+    "Acute lymphoblastic leukaemia-lymphoma",
+    "Lymphoblastic leukemia",
+    "Acute lymphoblastic leukaemia",
+    "Acute lymphoid leukemia",
+    "Lymphoblastic Leukemia",
+    "Acute lymphatic leukemia",
+    "Acute lymphoid leukemia, disease (disorder)",
+    "ALL - Acute lymphoblastic leukemia",
+    "Lymphoblastic leukaemia",
+    "Acute lymphoid leukaemia",
+    "Acute lymphoblastic leukemia",
+    "Acute lymphoblastic leukemia-lymphoma",
+    "Acute lymphocytic leukaemia",
+    "Acute lymphoid leukemia, disease",
+    "Precursor Cell Lymphoblastic Leukemia",
+    "Acute lymphoid leukaemia, disease"
+  ],
+  "CML": [],
+  "CLL": [
+    "Chronic lymphocytic leukemia",
+    "Chronic Lymphocytic Leukemia",
+    "Chronic lymphoid leukemia, disease (disorder)",
+    "B-cell chronic lymphocytic leukemia/small lymphocytic lymphoma (morphologic abnormality)",
+    "Chronic lymphoid leukaemia",
+    "B-cell chronic lymphocytic leukaemia/small lymphocytic lymphoma",
+    "Chronic lymphatic leukemia",
+    "B-Cell Lymphocytic Leukemia",
+    "Chronic lymphatic leukaemia",
+    "B-cell chronic lymphocytic leukaemia",
+    "B-cell chronic lymphocytic leukemia/small lymphocytic lymphoma",
+    "Hematopoeitic - Chronic Lymphocytic Leukemia (CLL)",
+    "B Cell CLL",
+    "Chronic B-Cell Lymphocytic Leukemia",
+    "B-Cell Chronic Lymphoid Leukemia",
+    "B-Cell Chronic Lymphocytic Leukemia",
+    "CLL - Chronic lymphocytic leukaemia",
+    "B-Cell CLL",
+    "Chronic lymphocytic leukaemia, B-cell type",
+    "Chronic lymphoid leukemia",
+    "Chronic lymphocytic leukemia, B-cell type",
+    "B Cell Lymphocytic Leukemia",
+    "B Cell Chronic Lymphocytic Leukemia",
+    "B-cell CLL/SLL (chronic lymphocytic leukemia/small lymphocytic lymphoma)",
+    "B-cell chronic lymphocytic leukemia",
+    "Chronic lymphoid leukaemia, disease",
+    "Chronic lymphoid leukemia, disease",
+    "Malignant lymphoma lymphocytic well differentiated diffuse",
+    "B-cell CLL/SLL (chronic lymphocytic leukaemia/small lymphocytic lymphoma)",
+    "Chronic lymphocytic leukaemia",
+    "CLL - Chronic lymphocytic leukemia"
+  ],
+  "Multiple_Myeloma": [
+    "Plasma Cell Myeloma",
+    "Plasma cell myeloma (morphologic abnormality)",
+    "Multiple myeloma (disorder)",
+    "Plasma Cell Myeloma/Multiple Myeloma",
+    "Multiple Myeloma/Plasma Cell Myeloma",
+    "Multiple Myeloma",
+    "Plasmacytic myeloma",
+    "Kahler's disease",
+    "Multiple myeloma",
+    "Myelomatosis",
+    "Multiple myeloma (clinical)",
+    "Plasma cell myeloma",
+    "Myeloma"
+  ],
+  "Lymphoma": [
+    "Lymphoma (Hodgkin and Non-Hodgkin)",
+    "Reticulolymphosarcoma",
+    "Lymphoma",
+    "Malignant lymphoma (morphologic abnormality)",
+    "Lymphomatous",
+    "Malignant lymphoma",
+    "Malignant Lymphoma",
+    "Malignant lymphoma (disorder)",
+    "Lymphoma (Hodgkin's and Non-Hodgkin's)"
+  ],
+  "Hodgkin_Lymphoma": [
+    "Hodgkin's granuloma (disorder)",
+    "Hodgkin's lymphoma",
+    "Hodgkin disease",
+    "Lymphoma, Hodgkins",
+    "Hodgkin Lymphoma",
+    "Hodgkin's disease",
+    "Hodgkin's granuloma (clinical)",
+    "Hodgkin granuloma (morphologic abnormality)",
+    "Hodgkin lymphoma",
+    "Malignant Hodgkin's lymphoma",
+    "Hodgkin lymphoma (morphologic abnormality)",
+    "HD - Hodgkin's disease",
+    "Hodgkin granuloma",
+    "Hodgkin's paragranuloma (clinical)",
+    "Hodgkin's disease (disorder)",
+    "Hodgkin's Granuloma",
+    "Hodgkin's Paragranuloma",
+    "Hodgkin's disease (clinical)",
+    "Hodgkin's granuloma",
+    "Hodgkin's Lymphoma"
+  ],
+  "Non_Hodgkin_Lymphoma": [
+    "Non-Hodgkin's lymphoma (disorder)",
+    "Non-Hodgkin lymphoma (morphologic abnormality)",
+    "Non-Hodgkin's lymphoma",
+    "Non-Hodgkin lymphoma",
+    "Non-Hodgkin malignant lymphoma",
+    "Non-Hodgkin's Lymphoma (NHL)",
+    "Non-Hodgkin's Lymphoma",
+    "Malignant lymphoma, non-Hodgkin",
+    "Malignant lymphoma, non-Hodgkin's",
+    "Diffuse malignant lymphoma",
+    "NHL - Non-Hodgkin's lymphoma",
+    "Non-Hodgkin's malignant lymphoma",
+    "Non-Hodgkin Lymphoma",
+    "Non-Hodgkin's lymphoma - disorder",
+    "Diffuse non-Hodgkin's small cleaved cell (diffuse) lymphoma",
+    "Malignant lymphoma, non-Hodgkin's type",
+    "Non-Hodgkin's lymphoma (clinical)"
+  ],
+  "Myelodysplastic_Syndrome": [],
+  "Heart_Failure": [
+    "Congestive cardiac failure",
+    "Congestive Heart Failure",
+    "Congestive heart failure",
+    "Cardiac Failure Congestive",
+    "Congestive heart failure (disorder)",
+    "Congestive heart disease",
+    "CHF - Congestive heart failure",
+    "CCF - Congestive cardiac failure"
+  ],
+  "Coronary_Artery_Disease": [
+    "Coronary atherosclerosis",
+    "Coronary Atherosclerosis",
+    "Atherosclerosis of coronary artery (disorder)",
+    "Arteriosclerotic heart disease",
+    "Atherosclerosis of coronary artery",
+    "Coronary sclerosis",
+    "Atherosclerosis of native coronary artery",
+    "Coronary arteriosclerosis",
+    "Coronary arteriosclerosis (disorder)"
+  ],
+  "Atrial_Fibrillation": [
+    "Atrial fibrillation",
+    "Atrial Fibrillation",
+    "Atrial fibrillation (disorder)",
+    "AF - Atrial fibrillation"
+  ],
+  "Hypertension": [
+    "Hypertensive vascular degeneration",
+    "Hypertensive disorder",
+    "High Blood Pressure",
+    "Hypertensive disorder, systemic arterial (disorder)",
+    "Vascular Hypertensive Disorder",
+    "BP+ - Hypertension",
+    "HBP - High blood pressure",
+    "Hypertensive disorder, systemic arterial",
+    "HTN - Hypertension",
+    "Hypertension",
+    "High blood pressure",
+    "BP - High blood pressure",
+    "Hypertensive vascular disease",
+    "Systemic arterial hypertension",
+    "High blood pressure disorder",
+    "HT - Hypertension"
+  ],
+  "Myocardial_Infarction": [
+    "MI - myocardial infarction",
+    "Myocardial infarct",
+    "Infarction of heart",
+    "Heart Attack",
+    "Heart attack",
+    "Myocardial infarction",
+    "Myocardial infarction (disorder)",
+    "Myocardial Infarct",
+    "MI",
+    "Myocardial Infarction",
+    "Cardiac infarction"
+  ],
+  "Stroke": [
+    "Stroke",
+    "CVA - Cerebrovascular accident",
+    "Cerebrovascular accident",
+    "Cerebrovascular accident (disorder)",
+    "Cerebrovascular Accident",
+    "Stroke Syndrome"
+  ],
+  "Peripheral_Artery_Disease": [
+    "Peripheral vascular disease",
+    "PVD - peripheral vascular disease",
+    "Peripheral vascular disease (disorder)",
+    "Peripheral Vascular Disease",
+    "Peripheral Vascular Disorder",
+    "Peripheral angiopathy"
+  ],
+  "Cardiomyopathy": [
+    "Myocardial disease (disorder)",
+    "Myocardial disease",
+    "Myocardiopathy",
+    "Cardiomyopathy (disorder)",
+    "Disorder of myocardium",
+    "Disorder of heart muscle",
+    "Cardiomyopathy"
+  ],
+  "Pulmonary_Hypertension": [
+    "Pulmonary hypertension",
+    "Pulmonary hypertension (disorder)",
+    "Pulmonary Hypertension",
+    "PHT - Pulmonary hypertension"
+  ],
+  "Aortic_Stenosis": [
+    "Aortic Valve Stenosis",
+    "Aortic valve stenosis",
+    "Aortic valve stenosis (disorder)",
+    "Stenosed aortic valve"
+  ],
+  "Deep_Vein_Thrombosis": [
+    "Deep venous thrombosis",
+    "DVT - Deep vein thrombosis",
+    "Deep Vein Thrombosis",
+    "Deep vein thrombosis",
+    "Deep venous thrombosis (disorder)"
+  ],
+  "Pulmonary_Embolism": [
+    "Pulmonary embolism",
+    "Pulmonary Embolism",
+    "PE - Pulmonary embolism",
+    "Pulmonary embolism (disorder)"
+  ],
+  "Diabetes_Type_1": [
+    "Type 1 Diabetes Mellitus",
+    "Juvenile Diabetes",
+    "T1DM - type 1 diabetes mellitus",
+    "Diabetes mellitus type 1",
+    "Diabetes mellitus type I",
+    "Type I Diabetes Mellitus",
+    "Type I diabetes mellitus",
+    "Type 1 diabetes mellitus",
+    "Type 1 Diabetes",
+    "Diabetes mellitus type 1 (disorder)",
+    "Insulin Dependent Diabetes Mellitus",
+    "Insulin Dependent Diabetes",
+    "Type I Diabetes"
+  ],
+  "Diabetes_Type_2": [
+    "Type 2 diabetes mellitus",
+    "Non-Insulin Dependent Diabetes",
+    "Type 2 Diabetes",
+    "Diabetes, Type 2",
+    "Diabetes mellitus type 2",
+    "Type 2 Diabetes Mellitus",
+    "Adult-Onset Diabetes",
+    "NIDDM",
+    "Diabetes mellitus type 2 (disorder)",
+    "Diabetes mellitus type II",
+    "Type II diabetes mellitus",
+    "Type 2 Diabetes Mellitus Non-Insulin Dependent",
+    "Type II Diabetes Mellitus",
+    "Non-Insulin Dependent Diabetes Mellitus",
+    "T2DM - Type 2 Diabetes mellitus",
+    "Type II Diabetes",
+    "T2DM - diabetes mellitus type 2"
+  ],
+  "Obesity": [
+    "Obesity",
+    "Obese",
+    "Obesity (disorder)",
+    "Obese (finding)"
+  ],
+  "Metabolic_Syndrome": [
+    "Cardiometabolic Syndrome",
+    "Dysmetabolic syndrome X",
+    "Insulin resistance syndrome",
+    "Metabolic Syndrome",
+    "Metabolic syndrome X",
+    "Reaven's syndrome",
+    "Metabolic syndrome X (disorder)",
+    "Metabolic Syndrome X",
+    "Metabolic syndrome"
+  ],
+  "Hyperlipidemia": [
+    "Lipidemia",
+    "HLD - Hyperlipidemia",
+    "HLD - Hyperlipidaemia",
+    "Hyperlipidemia",
+    "Lipidaemia",
+    "Hyperlipidemia (disorder)",
+    "Hyperlipidaemia"
+  ],
+  "Hypothyroidism": [
+    "Hypothyroidism (disorder)",
+    "Hypothyroid",
+    "Hypothyroidism"
+  ],
+  "Hyperthyroidism": [
+    "Overactive Thyroid",
+    "Hyperthyroidism",
+    "Hyperthyroidism (disorder)"
+  ],
+  "Osteoporosis": [
+    "Osteoporosis",
+    "Osteoporosis (disorder)"
+  ],
+  "COPD": [
+    "CAL - Chronic airflow limitation",
+    "Chronic irreversible airway obstruction",
+    "Chronic Obstructive Airways Disease",
+    "Chronic airflow limitation",
+    "Chronic Obstructive Lung Disease",
+    "Chronic Obstructive Pulmonary Disease",
+    "Chronic obstructive pulmonary disease",
+    "Chronic airway disease",
+    "COAD - Chronic obstructive airways disease",
+    "Chronic Obstructive Pulmonary Disease (COPD)",
+    "COLD - Chronic obstructive lung disease",
+    "Chronic airway obstruction",
+    "CAFL - Chronic airflow limitation",
+    "Chronic obstructive pulmonary disease (disorder)",
+    "Chronic obstructive airway disease",
+    "COPD - Chronic obstructive pulmonary disease",
+    "Chronic obstructive lung disease"
+  ],
+  "Asthma": [
+    "Asthma",
+    "Asthmatic",
+    "Asthma (disorder)",
+    "Airway hyperreactivity",
+    "Bronchial asthma"
+  ],
+  "Pulmonary_Fibrosis": [
+    "Pulmonary Fibrosis",
+    "Fibrosis of lung",
+    "Fibrosis of lung (disorder)",
+    "Cirrhosis of lung",
+    "Pulmonary fibrosis"
+  ],
+  "Cystic_Fibrosis": [
+    "Cystic fibrosis (disorder)",
+    "CF - Cystic fibrosis",
+    "Cystic fibrosis",
+    "Fibrocystic disease",
+    "Cystic Fibrosis",
+    "Mucoviscidosis"
+  ],
+  "Sleep_Apnea": [
+    "Sleep hypopnea",
+    "Sleep apnoea syndrome",
+    "SAS - Sleep apnea syndrome",
+    "Sleep apnea",
+    "Sleep apnea syndrome",
+    "Sleep apnoea",
+    "SAS - Sleep apnoea syndrome",
+    "Sleep apnea (disorder)",
+    "Sleep Apnea",
+    "Sleep hypopnoea"
+  ],
+  "Pneumonia": [
+    "Pneumonia (disorder)",
+    "Pneumonia"
+  ],
+  "Tuberculosis": [
+    "Infection caused by Mycobacterium tuberculosis",
+    "Tuberculosis (disorder)",
+    "Infection caused by Mycobacterium tuberculosis (disorder)",
+    "Tuberculous",
+    "TB - Tuberculosis",
+    "Tuberculosis",
+    "Tuberculous (qualifier value)"
+  ],
+  "Respiratory_Failure": [
+    "Vietnam lung",
+    "Adult Respiratory Distress Syndrome",
+    "Pulmonary capillary leak syndrome",
+    "ARDS - Adult respiratory distress syndrome",
+    "Adult hyaline membrane disease",
+    "Congestive atelectasis",
+    "Acute Respiratory Distress Syndrome",
+    "Acute respiratory distress syndrome",
+    "Acute respiratory distress syndrome (disorder)",
+    "Adult respiratory distress syndrome",
+    "Adult RDS",
+    "DaNang lung",
+    "Acquired respiratory distress syndrome",
+    "Shock lung"
+  ],
+  "Chronic_Kidney_Disease": [
+    "CRF - Chronic renal failure",
+    "ESRD - End stage renal disease",
+    "ESRF - End stage renal failure",
+    "Chronic renal failure syndrome (disorder)",
+    "Chronic Renal Disease",
+    "End-stage renal disease (disorder)",
+    "End stage kidney disease",
+    "End-stage renal disease",
+    "ESCRF - End stage chronic renal failure",
+    "CRF - Chronic Renal Failure",
+    "End stage chronic renal failure",
+    "Chronic Renal Failure",
+    "Chronic renal failure syndrome",
+    "Chronic renal failure"
+  ],
+  "Acute_Kidney_Injury": [
+    "Acute Renal Failure",
+    "Acute Kidney Injury",
+    "Acute renal failure",
+    "Acute renal failure syndrome",
+    "ARF - Acute renal failure",
+    "AKI - acute kidney injury",
+    "Acute kidney injury",
+    "Acute kidney injury (disorder)"
+  ],
+  "End_Stage_Renal_Disease": [
+    "CRF - Chronic renal failure",
+    "ESRD - End stage renal disease",
+    "ESRF - End stage renal failure",
+    "Chronic renal failure syndrome (disorder)",
+    "Chronic Renal Disease",
+    "End-stage renal disease (disorder)",
+    "End stage kidney disease",
+    "End-stage renal disease",
+    "ESCRF - End stage chronic renal failure",
+    "CRF - Chronic Renal Failure",
+    "End stage chronic renal failure",
+    "Chronic Renal Failure",
+    "Chronic renal failure syndrome",
+    "Chronic renal failure"
+  ],
+  "Nephrotic_Syndrome": [
+    "Nephrosis",
+    "Nephrotic syndrome",
+    "Nephrotic syndrome (disorder)",
+    "NS - Nephrotic syndrome",
+    "Nephrotic Syndrome"
+  ],
+  "Benign_Prostatic_Hyperplasia": [
+    "BPH - benign prostatic hyperplasia",
+    "Benign prostatic hypertrophy",
+    "Benign Hyperplasia of Prostate",
+    "Benign Prostatic Hyperplasia - BPH",
+    "Prostate Adenoma",
+    "Benign Prostatic Hyperplasia",
+    "Benign Prostatic Hypertrophy",
+    "Benign prostatic hyperplasia (disorder)",
+    "Benign Prostate Hyperplasia",
+    "Benign prostatic hyperplasia",
+    "Benign Hyperplasia of the Prostate",
+    "Benign enlargement of prostate",
+    "BEP - Benign enlargement of prostate",
+    "Nodular hyperplasia of prostate gland"
+  ],
+  "Urinary_Tract_Infection": [
+    "Urinary tract infectious disease",
+    "UTI - Urinary tract infection",
+    "Urinary tract infectious disease (disorder)",
+    "Urinary tract infection",
+    "Urinary Tract Infection"
+  ],
+  "Crohns_Disease": [
+    "Regional Enteritis",
+    "Crohns disease",
+    "Crohn disease",
+    "Crohn's disease",
+    "CD - Crohn's disease",
+    "Crohn Disease",
+    "Crohn's Disease",
+    "Crohn's disease (disorder)"
+  ],
+  "Ulcerative_Colitis": [
+    "Idiopathic proctocolitis",
+    "Ulcerative colitis (disorder)",
+    "Ulcerative colitis",
+    "Ulcerative Colitis",
+    "Colitis gravis",
+    "UC - ulcerative colitis"
+  ],
+  "Irritable_Bowel_Syndrome": [
+    "Colon spasm",
+    "Irritable bowel syndrome",
+    "Irritable colon",
+    "IBS - Irritable bowel syndrome",
+    "Irritable colon syndrome",
+    "Membranous colitis",
+    "Mucous colitis",
+    "Irritable bowel syndrome (disorder)",
+    "Adaptive colitis",
+    "Irritable bowel",
+    "Nervous colitis",
+    "Irritable Bowel Syndrome",
+    "Spastic colon",
+    "Spastic colitis",
+    "IC - Irritable colon",
+    "Functional bowel disease"
+  ],
+  "Cirrhosis": [
+    "CL - Cirrhosis of liver",
+    "Liver Cirrhosis",
+    "Cirrhosis of liver (disorder)",
+    "Cirrhosis",
+    "Hepatic cirrhosis",
+    "Cirrhosis of liver"
+  ],
+  "Liver_Failure": [
+    "Hepatopathy",
+    "Liver and Intrahepatic Bile Duct Disorder",
+    "Disorder of liver",
+    "Hepatic Disorder",
+    "LD - Liver disease",
+    "Liver Disease",
+    "Liver disease",
+    "Disorder of liver (disorder)",
+    "Disease of liver",
+    "Liver Disorder"
+  ],
+  "Hepatitis_B": [
+    "Type B viral hepatitis",
+    "SH - Serum hepatitis",
+    "Hepatitis B Infection",
+    "Hepatitis B Virus infection",
+    "Hepatitis B",
+    "Hepatitis B infection",
+    "Viral hepatitis type B (disorder)",
+    "Viral hepatitis type B",
+    "Viral Hepatitis B",
+    "Serum hepatitis"
+  ],
+  "Hepatitis_C": [
+    "HCV Infection",
+    "Viral hepatitis C",
+    "Hepatitis C Infection",
+    "Type C viral hepatitis",
+    "Hepatitis C Virus Infection",
+    "Viral hepatitis type C",
+    "Viral hepatitis type C (disorder)",
+    "Hepatitis C"
+  ],
+  "NASH": [
+    "MASH - metabolic dysfunction-associated steatohepatitis",
+    "Nonalcoholic steatohepatitis",
+    "Metabolic dysfunction-associated steatohepatitis (disorder)",
+    "Non-alcoholic steatohepatitis",
+    "NASH - Nonalcoholic steatohepatitis",
+    "NASH - Nonalcoholic Steatohepatitis",
+    "Metabolic dysfunction-associated steatohepatitis",
+    "Nonalcoholic Steatohepatitis"
+  ],
+  "Gastroesophageal_Reflux": [
+    "GORD - Gastro-oesophageal reflux disease",
+    "GERD - Gastro-esophageal reflux disease",
+    "GERD",
+    "Gastro-oesophageal reflux disease",
+    "Gastro-esophageal reflux disease",
+    "GOR - Gastro-oesophageal reflux",
+    "GORD - Gastro-esophageal reflux disease",
+    "Gastrooesophageal reflux disease",
+    "Gastroesophageal reflux disease (disorder)",
+    "Gastroesophageal Reflux Disease",
+    "Gastro-esophageal reflux",
+    "Gastroesophageal reflux disease",
+    "GOR - Gastro-esophageal reflux",
+    "Gastro-oesophageal reflux"
+  ],
+  "Celiac_Disease": [
+    "Gluten enteropathy",
+    "Idiopathic steatorrhea",
+    "Gluten-responsive sprue",
+    "Celiac Disease",
+    "Non-tropical sprue",
+    "Non Tropical Sprue",
+    "CS - Celiac sprue",
+    "CD - Coeliac disease",
+    "Wheat-sensitive enteropathy",
+    "Coeliac syndrome",
+    "CD - Celiac disease",
+    "Nontropical sprue",
+    "Celiac Sprue",
+    "Idiopathic steatorrhoea",
+    "Coeliac sprue",
+    "Gluten-Induced Enteropathy",
+    "Celiac sprue",
+    "Gluten-induced enteropathy syndrome",
+    "Celiac disease",
+    "Coeliac disease",
+    "Celiac syndrome",
+    "CS - Coeliac sprue",
+    "Gluten-sensitive enteropathy",
+    "GSE - Gluten-sensitive enteropathy",
+    "Celiac disease (disorder)"
+  ],
+  "Alzheimers_Disease": [
+    "Alzheimer's Disease",
+    "Alzheimer's disease (disorder)",
+    "Alzheimer's disease",
+    "AD - Alzheimer's disease",
+    "Alzheimer disease",
+    "Alzheimer dementia",
+    "Alzheimer's Dementia",
+    "Alzheimer Disease"
+  ],
+  "Parkinsons_Disease": [
+    "Parkinsons disease",
+    "Paralysis agitans",
+    "Parkinson disease",
+    "PD - Parkinson's disease",
+    "Primary Parkinsonism",
+    "Parkinson's disease (disorder)",
+    "Parkinson Disease",
+    "Shaking palsy",
+    "Idiopathic Parkinsonism",
+    "Parkinson's Disease",
+    "Idiopathic Parkinson's disease",
+    "Parkinson's disease"
+  ],
+  "Multiple_Sclerosis": [
+    "Multiple sclerosis (disorder)",
+    "DS - Disseminated sclerosis",
+    "Multiple sclerosis",
+    "Disseminated sclerosis",
+    "MS - Multiple sclerosis",
+    "Multiple Sclerosis"
+  ],
+  "Epilepsy": [
+    "Seizure Disorder",
+    "Epilepsy (disorder)",
+    "Seizure disorder",
+    "Seizure disorder (disorder)",
+    "Epilepsy"
+  ],
+  "Migraine": [
+    "Migraine Headache",
+    "Migraine",
+    "Migraine (disorder)"
+  ],
+  "ALS": [
+    "Lou Gehrig's disease",
+    "Amyotrophic lateral sclerosis",
+    "Bulbar motor neuron disease",
+    "ALS - Amyotrophic lateral sclerosis",
+    "Lou Gehrig Disease",
+    "Amyotrophic lateral sclerosis (disorder)",
+    "Amyotrophic Lateral Sclerosis"
+  ],
+  "Huntingtons_Disease": [
+    "HD - Huntington chorea",
+    "Huntington's Chorea",
+    "HC - Huntington chorea",
+    "Huntington chorea",
+    "Huntington's Disease",
+    "Chronic progressive hereditary chorea",
+    "Huntington's disease",
+    "Chronic progressive chorea",
+    "Huntington Disease",
+    "Huntington's chorea (disorder)",
+    "Huntington disease",
+    "Huntington's chorea"
+  ],
+  "Neuropathy": [
+    "Neuropathy",
+    "Neuropathy (disorder)",
+    "Neuropathy (nerve damage)"
+  ],
+  "Traumatic_Brain_Injury": [
+    "Traumatic brain injury",
+    "Traumatic Encephalopathy",
+    "Traumatic brain injury (disorder)"
+  ],
+  "Major_Depression": [
+    "Major Depressive Disorder",
+    "Unipolar Depression",
+    "Major Depression"
+  ],
+  "Bipolar_Disorder": [
+    "Bipolar disorder (disorder)",
+    "Manic-depressive illness",
+    "Manic-depressive psychosis",
+    "Manic Depressive Disorder",
+    "MDI - Manic-depressive illness",
+    "Manic-Depression",
+    "Bipolar disorder",
+    "Bipolar Disorder",
+    "Bipolar affective disorder"
+  ],
+  "Schizophrenia": [
+    "Schizophrenia",
+    "Schizophrenia (disorder)",
+    "Schizophrenic disorders (disorder)",
+    "Schizophrenic disorders"
+  ],
+  "Anxiety_Disorder": [
+    "Anxiety Disorder",
+    "Anxiety disorder",
+    "Anxiety disorder (disorder)"
+  ],
+  "PTSD": [
+    "PTSD - post-traumatic stress disorder",
+    "Post-traumatic stress disorder (disorder)",
+    "Post traumatic stress disorder",
+    "Traumatic neurosis",
+    "Post-traumatic stress syndrome",
+    "Post-traumatic stress disorder",
+    "Post-Traumatic Stress Disorder",
+    "Posttraumatic stress disorder",
+    "Combat Neurosis"
+  ],
+  "ADHD": [
+    "Hyperkinetic syndrome",
+    "Hyperkinetic disorder",
+    "Attention Deficit Hyperactivity Disorder",
+    "Attention Deficit-Hyperactivity Disorder",
+    "ADHD - Attention deficit disorder with hyperactivity",
+    "Overactive child syndrome",
+    "Attention deficit hyperkinetic disorder",
+    "Attention deficit hyperactivity disorder",
+    "Attention deficit hyperactivity disorder (disorder)"
+  ],
+  "Autism_Spectrum_Disorder": [
+    "Autism Spectrum Disorder"
+  ],
+  "Obsessive_Compulsive_Disorder": [
+    "Obsessive-compulsive disorder",
+    "Obsessive-compulsive disorder (disorder)",
+    "OCD - obsessive-compulsive disorder",
+    "Obsessive compulsive disorder",
+    "Obsessive Compulsive Disorder"
+  ],
+  "Rheumatoid_Arthritis": [
+    "Rheumatic gout",
+    "RA - Rheumatoid arthritis",
+    "Atrophic arthritis",
+    "Rheumatoid arthritis",
+    "RhA - Rheumatoid arthritis",
+    "Rheumatoid arthritis (disorder)",
+    "Rheumatoid Arthritis",
+    "Rheumatoid disease"
+  ],
+  "Osteoarthritis": [
+    "Hypertrophic polyarthritis",
+    "Arthrosis",
+    "Hypertrophic arthritis",
+    "OA - Osteoarthritis",
+    "Osteoarthrosis deformans",
+    "Osteoarthrosis",
+    "OA - Osteoarthrosis",
+    "Degenerative arthritis",
+    "Degenerative polyarthritis",
+    "Degenerative polyarthritis (disorder)",
+    "Degenerative joint disease",
+    "Osteoarthritis (disorder)",
+    "Osteoarthritis",
+    "Osteoarthritis deformans",
+    "Degenerative arthropathy"
+  ],
+  "Systemic_Lupus_Erythematosus": [
+    "SLE - Systemic lupus erythematosus",
+    "Systemic lupus erythematosus",
+    "Systemic Lupus Erythematosus",
+    "Systemic lupus erythematosus (disorder)",
+    "SLE - Lupus Erythematosus, Systemic",
+    "Disseminated lupus erythematosus"
+  ],
+  "Psoriasis": [
+    "Psoriasis",
+    "Psoriasis (disorder)"
+  ],
+  "Psoriatic_Arthritis": [
+    "PA (Psoriatic arthritis)",
+    "Psoriatic arthritis (disorder)",
+    "Psoriatic Arthritis",
+    "Psoriatic arthritis",
+    "PsA (Psoriatic arthritis)"
+  ],
+  "Ankylosing_Spondylitis": [
+    "Marie-Strumpell spondylitis",
+    "Bekhterev's disease",
+    "Marie Str\u00fcmpell spondylitis",
+    "Idiopathic ankylosing spondylitis",
+    "Ankylosing Spondylitis",
+    "Ankylosing spondylitis (disorder)",
+    "AS - Ankylosing spondylitis",
+    "Ankylosing spondylitis"
+  ],
+  "Sjogrens_Syndrome": [
+    "Syndrome"
+  ],
+  "Scleroderma": [
+    "Scleroderma, Diffuse",
+    "Systemic sclerosis",
+    "Systemic Scleroderma",
+    "Systemic scleroderma",
+    "Scleroderma, Systemic",
+    "Systemic sclerosis (disorder)",
+    "SS - Systemic sclerosis",
+    "Diffuse Sclerosis",
+    "Systemic Sclerosis",
+    "Progressive Systemic Sclerosis",
+    "Diffuse Scleroderma"
+  ],
+  "Vasculitis": [
+    "Vasculitis (disorder)",
+    "Angiitis",
+    "Vasculitis"
+  ],
+  "Gout": [
+    "Gout (disorder)",
+    "Gout"
+  ],
+  "HIV": [
+    "Human Immunodeficiency Virus Infection",
+    "HIV Infection",
+    "Human immunodeficiency virus infection (disorder)",
+    "Human immunodeficiency virus infection",
+    "HIV infection",
+    "HIV - Human immunodeficiency virus infection"
+  ],
+  "COVID_19": [
+    "Disease caused by severe acute respiratory syndrome coronavirus 2",
+    "2019-nCoV Infection",
+    "SARS-CoV-2 Infection",
+    "Disease caused by 2019-nCoV",
+    "Disease caused by severe acute respiratory syndrome coronavirus 2 (disorder)",
+    "SARS2 Infection",
+    "SARS-2 Infection",
+    "HCoV-19 Infection",
+    "SARS-CoV2 Infection",
+    "Disease caused by SARS-CoV-2",
+    "COVID-19",
+    "SARS-CoV-2 Disease",
+    "Severe Acute Respiratory Syndrome Coronavirus 2 Infection",
+    "COVID-19 Virus Infection",
+    "SARS Coronavirus 2 Infection",
+    "COVID-19 Infection",
+    "Disease caused by 2019 novel coronavirus",
+    "Human Coronavirus 2019 Infection",
+    "SARS-CoV2 Disease"
+  ],
+  "Influenza": [
+    "Grippe",
+    "Influenza",
+    "Influenza (disorder)",
+    "Flu"
+  ],
+  "Sepsis": [
+    "Systemic infection",
+    "Sepsis",
+    "Sepsis (disorder)"
+  ],
+  "Malaria": [
+    "Malaria (disorder)",
+    "Malarial fever (finding)",
+    "Malaria",
+    "Disease caused by Plasmodiidae",
+    "Malarial fever",
+    "Paludism",
+    "Plasmodiosis",
+    "Disease caused by Plasmodiidae (disorder)"
+  ],
+  "HPV": [
+    "Human papillomavirus infection",
+    "HPV (human papillomavirus) infection",
+    "Human papilloma virus infection",
+    "Human papillomavirus infection (disorder)",
+    "Human Papilloma Virus Infection",
+    "Human Papillomavirus Infection",
+    "HPV",
+    "HPV (human papillomavirus) disease",
+    "HPV Infection"
+  ],
+  "CMV": [
+    "Cytomegalovirus infection",
+    "Infection caused by Cytomegalovirus (disorder)",
+    "CMV - Cytomegalovirus infection",
+    "Cytomegalovirus disease",
+    "Disease due to Cytomegalovirus",
+    "HCMV Infection",
+    "Cytomegalic inclusion disease",
+    "Cytomegalovirus Infection",
+    "Cytomegaloviral Infection",
+    "Infection caused by Cytomegalovirus",
+    "CMV Infection"
+  ],
+  "Herpes_Simplex": [
+    "HSV Infection",
+    "Herpes simplex",
+    "Herpes simplex (disorder)",
+    "Herpes simplex viral infection",
+    "Herpes simplex complex",
+    "Herpes simplex infection",
+    "Herpes Simplex Virus Infection"
+  ],
+  "Eczema": [
+    "Eczema (disorder)",
+    "Eczema",
+    "Eczematous Dermatitis"
+  ],
+  "Acne": [
+    "Acne Vulgaris",
+    "Common acne",
+    "Acne",
+    "Acne vulgaris",
+    "Acne vulgaris (disorder)"
+  ],
+  "Vitiligo": [
+    "Vitiligo",
+    "Vitiligo (disorder)"
+  ],
+  "Alopecia": [
+    "Alopecia",
+    "Hair Loss",
+    "Thinning hair",
+    "Loss of hair",
+    "Baldness",
+    "Hair loss disorder",
+    "Bald",
+    "Alopecia Areata",
+    "Alopecia (disorder)",
+    "Falling hair",
+    "Loss of hair (finding)"
+  ],
+  "Anemia": [
+    "Anaemia",
+    "Anemia",
+    "Anemia (disorder)"
+  ],
+  "Sickle_Cell_Disease": [
+    "Sickle cell-hemoglobin SS disease",
+    "Sickle cell syndrome",
+    "Drepanocythemia",
+    "Sickling disorder due to hemoglobin S (disorder)",
+    "Haemoglobin S-S disease",
+    "Sickle cell-hemoglobin SS disease (disorder)",
+    "Hb S disease",
+    "Drepanocythaemia",
+    "Sickle Cell Disease",
+    "Sickle cell disease",
+    "Hereditary haemoglobinopathy disorder homozygous for haemoglobin S",
+    "Sickle cell anemia",
+    "Hereditary hemoglobinopathy disorder homozygous for hemoglobin S",
+    "Haemoglobin S disease",
+    "Sickling disorder due to haemoglobin S",
+    "Sickle Cell Anemia",
+    "Hb SS disease",
+    "Hemoglobin S disease",
+    "Sickle cell anaemia",
+    "Sickle cell-haemoglobin SS disease",
+    "Sickling disorder due to hemoglobin S",
+    "Hemoglobin S-S disease"
+  ],
+  "Hemophilia": [
+    "AHG deficiency disease",
+    "Congenital factor VIII deficiency disease",
+    "Haemophilia A",
+    "Hereditary factor VIII deficiency disease",
+    "Classical haemophilia",
+    "Hereditary factor VIII deficiency disease (disorder)",
+    "Hereditary Factor VIII Deficiency",
+    "Congenital factor VIII deficiency",
+    "Classical hemophilia",
+    "Hemophilia A",
+    "Sex-linked factor VIII deficiency"
+  ],
+  "Thrombocytopenia": [
+    "Thrombocytopenic disorder",
+    "Thrombocytopenia",
+    "Thrombocytopenic Disorder",
+    "Thrombocytopenic disorder (disorder)"
+  ],
+  "Von_Willebrand_Disease": [
+    "Angiohemophilia",
+    "von Willebrand's Disease",
+    "Vascular hemophilia",
+    "von Willebrand disorder",
+    "Constitutional thrombopathy",
+    "von Willebrand disorder (disorder)",
+    "Angiohaemophilia",
+    "von Willebrand-Jurgens disease",
+    "vWD - von Willebrand's disease",
+    "Vascular haemophilia",
+    "Pseudohaemophilia type B",
+    "von Willebrand's disease",
+    "Factor VIII deficiency with vascular defect",
+    "von Willebrand disease",
+    "Pseudohemophilia type B",
+    "von Willebrand Disease"
+  ],
+  "Macular_Degeneration": [
+    "Age-related macular degeneration",
+    "SMD - Senile macular degeneration",
+    "AMD - Age-related macular degeneration",
+    "ARMD - Age-related macular degeneration",
+    "Senile macular degeneration",
+    "Age-related macular degeneration (disorder)",
+    "Age-Related Macular Degeneration",
+    "Age related macular degeneration",
+    "Senile macular retinal degeneration",
+    "AAMD - Age related macular degeneration"
+  ],
+  "Glaucoma": [
+    "Glaucoma",
+    "Glaucoma (disorder)"
+  ],
+  "Diabetic_Retinopathy": [
+    "Retinal abnormality - diabetes-related",
+    "Retinopathy due to diabetes mellitus",
+    "DR - Diabetic retinopathy",
+    "Diabetic retinopathy",
+    "Diabetic Retinopathy",
+    "Retinopathy due to diabetes mellitus (disorder)"
+  ],
+  "Cataracts": [],
+  "Duchenne_Muscular_Dystrophy": [
+    "DMD - Duchenne muscular dystrophy",
+    "Duchenne muscular dystrophy (disorder)",
+    "Duchenne Muscular Dystrophy",
+    "Benign Duchenne muscular dystrophy",
+    "Pseudohypertrophic muscular dystrophy",
+    "Duchenne muscular dystrophy"
+  ],
+  "Gaucher_Disease": [
+    "Gaucher's disease",
+    "Glucocerebrosidosis",
+    "Glucosylceramidase deficiency, chronic type",
+    "Kerasin thesaurismosis (disorder)",
+    "Gaucher Disease",
+    "Chronic non-neuropathic Gaucher disease",
+    "Kerasin thesaurismosis",
+    "Kerasin histiocytosis",
+    "Gaucher disease",
+    "Cerebroside lipidosis syndrome",
+    "Gaucher splenomegaly",
+    "Glucosylceramidase deficiency",
+    "Glucosylceramide beta-glucosidase deficiency (disorder)",
+    "Adult Gaucher disease",
+    "Kerasin lipoidosis",
+    "Glucosylceramide beta-glucosidase deficiency",
+    "Chronic non-neuropathic Gaucher's disease (disorder)",
+    "Gaucher syndrome",
+    "Glucocerebrosidase deficiency",
+    "Chronic adult Gaucher's disease",
+    "Chronic non-neuropathic Gaucher's disease"
+  ],
+  "Fabry_Disease": [
+    "Thesaurismosis hereditaria",
+    "Fabry's disease (disorder)",
+    "Ceramide trihexosidase deficiency",
+    "Lactosyl ceramidosis",
+    "Alpha-galactosidase A deficiency",
+    "Ceramide lactoside lipidosis",
+    "GLA deficiency",
+    "Ruiter-Pompen syndrome",
+    "Hereditary dystopic lipidosis",
+    "Fabry disease",
+    "Cardiovasorenal syndrome",
+    "Fabry's disease",
+    "Thesaurismosis lipoidica",
+    "Angiokeratoma corporis diffusum universale",
+    "Sweeley-Klionsky disease",
+    "Anderson-Fabry disease",
+    "Angiokeratoma corporis diffusum",
+    "Deficiency of melibiase",
+    "Fabry Disease",
+    "Alpha-Galactosidase A Deficiency",
+    "alpha-Galactosidase-A deficiency"
   ],
   "EGFR_Gene": [
     "EGFR",
     "Epidermal Growth Factor Receptor",
     "ERBB1",
     "HER1",
-    "EGFR mutation"
+    "EGFR mutation",
+    "EGFR positive",
+    "Exon 19 deletion",
+    "Ex19del",
+    "Del19",
+    "L858R",
+    "T790M"
   ],
   "ALK_Gene": [
     "ALK",
     "Anaplastic Lymphoma Kinase",
     "ALK rearrangement",
-    "ALK positive"
+    "ALK positive",
+    "ALK fusion",
+    "EML4-ALK"
+  ],
+  "ROS1_Gene": [
+    "ROS1",
+    "ROS1 rearrangement",
+    "ROS1 positive",
+    "ROS1 fusion"
   ],
   "KRAS_Gene": [
     "KRAS",
     "K-Ras",
     "Ki-Ras",
     "KRAS mutation",
-    "KRAS G12C"
+    "KRAS G12C",
+    "KRAS G12D",
+    "KRAS G12S",
+    "KRAS G12V",
+    "p.G12C",
+    "c.34G>T"
+  ],
+  "NRAS_Gene": [
+    "NRAS",
+    "N-Ras",
+    "NRAS mutation"
   ],
   "BRAF_Gene": [
     "BRAF",
     "BRAF V600E",
-    "BRAF mutation"
+    "BRAF mutation",
+    "BRAF V600K",
+    "p.V600E",
+    "p.V600K",
+    "c.1799T>A"
+  ],
+  "PIK3CA_Gene": [
+    "PIK3CA",
+    "PIK3CA mutation",
+    "H1047R"
+  ],
+  "MET_Gene": [
+    "MET",
+    "MET exon 14",
+    "MET amplification",
+    "c-MET",
+    "MET exon 14 skipping",
+    "METex14",
+    "Exon 14 skipping"
+  ],
+  "RET_Gene": [
+    "RET",
+    "RET fusion",
+    "RET rearrangement",
+    "RET fusion positive"
+  ],
+  "NTRK_Gene": [
+    "NTRK",
+    "NTRK fusion",
+    "TRK fusion",
+    "NTRK1",
+    "NTRK2",
+    "NTRK3",
+    "ETV6-NTRK3"
   ],
   "BCR_ABL_Gene": [
     "BCR-ABL",
     "Philadelphia Chromosome",
-    "BCR/ABL"
+    "BCR/ABL",
+    "BCR-ABL1"
   ],
   "FLT3_Gene": [
     "FLT3",
     "FLT3-ITD",
-    "FLT3 mutation"
+    "FLT3 mutation",
+    "FLT3-TKD"
+  ],
+  "NPM1_Gene": [
+    "NPM1",
+    "NPM1 mutation"
+  ],
+  "IDH1_Gene": [
+    "IDH1",
+    "IDH1 mutation",
+    "IDH1 R132H"
+  ],
+  "IDH2_Gene": [
+    "IDH2",
+    "IDH2 mutation"
+  ],
+  "JAK2_Gene": [
+    "JAK2",
+    "JAK2 V617F",
+    "JAK2 mutation"
+  ],
+  "TP53_Gene": [
+    "TP53",
+    "p53",
+    "TP53 mutation"
   ],
   "HER2_Receptor": [
     "HER2",
     "HER-2",
     "ERBB2",
     "HER-2/neu",
-    "HER2 positive"
+    "HER2 positive",
+    "HER2 amplification"
   ],
   "ER_Status": [
     "ER",
     "Estrogen Receptor",
-    "Estrogen Receptor Positive"
+    "ER positive",
+    "ER+",
+    "ESR1"
   ],
   "PR_Status": [
     "PR",
     "Progesterone Receptor",
-    "Progesterone Receptor Positive"
+    "PR positive",
+    "PR+",
+    "PGR"
+  ],
+  "BRCA1_Gene": [
+    "BRCA1",
+    "BRCA1 mutation"
+  ],
+  "BRCA2_Gene": [
+    "BRCA2",
+    "BRCA2 mutation"
+  ],
+  "PD_L1_Expression": [
+    "PD-L1",
+    "PDL1",
+    "PD-L1 expression",
+    "PD-L1 positive",
+    "PD-L1 TPS"
+  ],
+  "TMB": [
+    "TMB",
+    "Tumor Mutational Burden",
+    "high TMB"
+  ],
+  "MSI_Status": [
+    "MSI",
+    "MSI-H",
+    "Microsatellite Instability",
+    "dMMR",
+    "mismatch repair deficient"
   ],
   "CD19_Marker": [
     "CD19",
     "Cluster of Differentiation 19",
     "CD19 positive"
   ],
+  "CD20_Marker": [
+    "CD20",
+    "CD20 positive"
+  ],
+  "CD38_Marker": [
+    "CD38",
+    "CD38 positive"
+  ],
+  "BCMA_Marker": [
+    "BCMA",
+    "B-cell maturation antigen"
+  ],
   "Creatinine_Level": [
     "Creatinine",
     "Serum Creatinine",
     "SCr",
-    "sCr"
+    "sCr",
+    "Cr"
   ],
   "GFR_Level": [
     "GFR",
@@ -234,58 +1612,318 @@
     "Creatinine Clearance",
     "CrCl"
   ],
+  "BUN_Level": [
+    "BUN",
+    "Blood Urea Nitrogen",
+    "Urea"
+  ],
+  "Albumin_Level": [
+    "Albumin",
+    "Serum Albumin"
+  ],
+  "Protein_Urine": [
+    "Proteinuria",
+    "Urine Protein",
+    "UACR"
+  ],
   "Bilirubin_Level": [
     "Bilirubin",
     "Total Bilirubin",
     "Direct Bilirubin",
-    "TBil"
+    "TBil",
+    "TBIL"
   ],
   "AST_Level": [
     "AST",
     "Aspartate Aminotransferase",
-    "SGOT"
+    "SGOT",
+    "AST/SGOT"
   ],
   "ALT_Level": [
     "ALT",
     "Alanine Aminotransferase",
-    "SGPT"
+    "SGPT",
+    "ALT/SGPT"
+  ],
+  "ALP_Level": [
+    "ALP",
+    "Alkaline Phosphatase"
   ],
   "INR_Level": [
     "INR",
     "International Normalized Ratio",
-    "Prothrombin Time"
-  ],
-  "PSA_Level": [
-    "PSA",
-    "Prostate Specific Antigen"
-  ],
-  "Testosterone_Level": [
-    "Testosterone",
-    "Serum Testosterone"
+    "Prothrombin Time",
+    "PT"
   ],
   "BNP_Level": [
     "BNP",
     "NT-proBNP",
-    "B-type Natriuretic Peptide"
+    "B-type Natriuretic Peptide",
+    "Brain Natriuretic Peptide"
   ],
   "LVEF_Score": [
     "LVEF",
     "Ejection Fraction",
-    "Left Ventricular Ejection Fraction"
+    "Left Ventricular Ejection Fraction",
+    "EF"
+  ],
+  "Troponin_Level": [
+    "Troponin",
+    "Troponin I",
+    "Troponin T",
+    "cTnI",
+    "cTnT"
+  ],
+  "CK_MB_Level": [
+    "CK-MB",
+    "Creatine Kinase MB"
+  ],
+  "Hemoglobin_Level": [
+    "Hemoglobin",
+    "Hgb",
+    "Hb",
+    "Hemoglobin level"
+  ],
+  "Hematocrit_Level": [
+    "Hematocrit",
+    "HCT",
+    "Hct"
   ],
   "Platelet_Count": [
     "Platelets",
     "Platelet count",
     "PLT"
   ],
-  "Hemoglobin_Level": [
-    "Hemoglobin",
-    "Hgb",
-    "Hb"
+  "WBC_Count": [
+    "WBC",
+    "White Blood Cell",
+    "Leukocyte count"
   ],
   "ANC_Level": [
     "ANC",
     "Absolute Neutrophil Count",
     "Neutrophils"
+  ],
+  "Lymphocyte_Count": [
+    "Lymphocytes",
+    "Absolute Lymphocyte Count",
+    "ALC"
+  ],
+  "Monocyte_Count": [
+    "Monocytes"
+  ],
+  "Eosinophil_Count": [
+    "Eosinophils"
+  ],
+  "PTT_Level": [
+    "PTT",
+    "aPTT",
+    "Activated Partial Thromboplastin Time"
+  ],
+  "D_Dimer_Level": [
+    "D-Dimer",
+    "D-dimer"
+  ],
+  "Fibrinogen_Level": [
+    "Fibrinogen"
+  ],
+  "Cholesterol_Total": [
+    "Total Cholesterol",
+    "Cholesterol"
+  ],
+  "LDL_Cholesterol": [
+    "LDL",
+    "LDL Cholesterol",
+    "Low-Density Lipoprotein"
+  ],
+  "HDL_Cholesterol": [
+    "HDL",
+    "HDL Cholesterol",
+    "High-Density Lipoprotein"
+  ],
+  "Triglycerides_Level": [
+    "Triglycerides",
+    "TG"
+  ],
+  "HbA1c_Level": [
+    "HbA1c",
+    "Hemoglobin A1c",
+    "Glycated Hemoglobin",
+    "A1C"
+  ],
+  "Glucose_Level": [
+    "Glucose",
+    "Blood Glucose",
+    "Fasting Glucose",
+    "FBG"
+  ],
+  "Insulin_Level": [
+    "Insulin",
+    "Fasting Insulin"
+  ],
+  "TSH_Level": [
+    "TSH",
+    "Thyroid Stimulating Hormone",
+    "Thyrotropin"
+  ],
+  "T4_Level": [
+    "T4",
+    "Thyroxine",
+    "Free T4",
+    "FT4"
+  ],
+  "T3_Level": [
+    "T3",
+    "Triiodothyronine",
+    "Free T3",
+    "FT3"
+  ],
+  "PSA_Level": [
+    "PSA",
+    "Prostate Specific Antigen"
+  ],
+  "CEA_Level": [
+    "CEA",
+    "Carcinoembryonic Antigen"
+  ],
+  "CA_125_Level": [
+    "CA-125",
+    "CA 125",
+    "Cancer Antigen 125"
+  ],
+  "CA_19_9_Level": [
+    "CA 19-9",
+    "CA19-9",
+    "Cancer Antigen 19-9"
+  ],
+  "AFP_Level": [
+    "AFP",
+    "Alpha-Fetoprotein"
+  ],
+  "Beta_hCG_Level": [
+    "Beta-hCG",
+    "hCG",
+    "Human Chorionic Gonadotropin"
+  ],
+  "CRP_Level": [
+    "CRP",
+    "C-Reactive Protein",
+    "hs-CRP"
+  ],
+  "ESR_Level": [
+    "ESR",
+    "Erythrocyte Sedimentation Rate",
+    "Sed Rate"
+  ],
+  "Sodium_Level": [
+    "Sodium",
+    "Na",
+    "Serum Sodium"
+  ],
+  "Potassium_Level": [
+    "Potassium",
+    "K",
+    "Serum Potassium"
+  ],
+  "Calcium_Level": [
+    "Calcium",
+    "Ca",
+    "Serum Calcium"
+  ],
+  "Magnesium_Level": [
+    "Magnesium",
+    "Mg"
+  ],
+  "Phosphate_Level": [
+    "Phosphate",
+    "Phosphorus"
+  ],
+  "Chloride_Level": [
+    "Chloride",
+    "Cl"
+  ],
+  "Testosterone_Level": [
+    "Testosterone",
+    "Serum Testosterone",
+    "Total Testosterone"
+  ],
+  "Estradiol_Level": [
+    "Estradiol",
+    "E2"
+  ],
+  "Cortisol_Level": [
+    "Cortisol"
+  ],
+  "Vitamin_D_Level": [
+    "Vitamin D",
+    "25-OH Vitamin D",
+    "25-hydroxyvitamin D"
+  ],
+  "Bone_Alkaline_Phosphatase": [
+    "Bone-specific ALP",
+    "BSAP"
+  ],
+  "CTX_Level": [
+    "CTX",
+    "C-telopeptide"
+  ],
+  "Osteocalcin_Level": [
+    "Osteocalcin"
+  ],
+  "HIV_Viral_Load": [
+    "HIV RNA",
+    "HIV viral load",
+    "HIV-1 RNA"
+  ],
+  "HBV_DNA_Level": [
+    "HBV DNA",
+    "Hepatitis B viral load"
+  ],
+  "HCV_RNA_Level": [
+    "HCV RNA",
+    "Hepatitis C viral load"
+  ],
+  "ANA_Level": [
+    "ANA",
+    "Antinuclear Antibody"
+  ],
+  "RF_Level": [
+    "RF",
+    "Rheumatoid Factor"
+  ],
+  "Anti_CCP_Level": [
+    "Anti-CCP",
+    "Anti-Cyclic Citrullinated Peptide"
+  ],
+  "Lactate_Level": [
+    "Lactate",
+    "Lactic Acid"
+  ],
+  "Ammonia_Level": [
+    "Ammonia",
+    "NH3"
+  ],
+  "Uric_Acid_Level": [
+    "Uric Acid"
+  ],
+  "Ferritin_Level": [
+    "Ferritin",
+    "Serum Ferritin"
+  ],
+  "Iron_Level": [
+    "Iron",
+    "Serum Iron"
+  ],
+  "TIBC_Level": [
+    "TIBC",
+    "Total Iron Binding Capacity"
+  ],
+  "B12_Level": [
+    "Vitamin B12",
+    "Cobalamin"
+  ],
+  "Folate_Level": [
+    "Folate",
+    "Folic Acid"
   ]
 }
