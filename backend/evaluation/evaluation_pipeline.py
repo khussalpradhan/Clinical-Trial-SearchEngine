@@ -3,7 +3,8 @@ import csv
 from ranx import Qrels, Run, evaluate
 from backend.api.main import rank_trials, RankRequest, PatientProfile
 from backend.evaluation.custom_metrics import  compute_all_feasibility_metrics
-
+import os
+import matplotlib.pyplot as plt
 
 # --------------------------------------------------------
 # Load queries CSV
@@ -118,7 +119,7 @@ queries = load_queries_csv("./backend/evaluation/converted_queries_using_openai.
 qrels = load_qrels_tsv("./backend/evaluation/qrels_trec.tsv")
 run, hit_metadata = build_run(queries)
 
-results = evaluate(
+ranking_results = evaluate(
     qrels=Qrels.from_dict(qrels),
     run=Run.from_dict(run),
     
@@ -148,8 +149,65 @@ results = evaluate(
 
 feasibility_results = compute_all_feasibility_metrics(qrels, run, hit_metadata)
 
-print("\nRanking Metrics (Ranx):")
-print(results)
+# print("\nRanking Metrics (Ranx):")
+# print(results)
 
-print("\nFeasibility Metrics:")
-print(feasibility_results)
+# print("\nFeasibility Metrics:")
+# print(feasibility_results)
+
+
+OUTPUT_CSV   = "metrics_report.csv"
+OUTPUT_JSON  = "metrics_report.json"
+CHART_DIR    = "metrics_charts"
+
+all_results = {
+    **ranking_results,
+    **feasibility_results
+}
+
+print("\n========= FINAL METRICS =========")
+for k, v in all_results.items():
+    print(f"{k}: {v}")
+
+
+# =========================================================
+#        5. SAVE RESULTS (CSV + JSON)
+# =========================================================
+print(f"\nSaving CSV to {OUTPUT_CSV} ...")
+
+with open(OUTPUT_CSV, "w", newline="", encoding="utf-8") as f:
+    writer = csv.writer(f)
+    writer.writerow(["metric", "value"])
+    for metric, value in all_results.items():
+        writer.writerow([metric, float(value)])
+
+print(f"Saving JSON to {OUTPUT_JSON} ...")
+
+with open(OUTPUT_JSON, "w", encoding="utf-8") as f:
+    json.dump(all_results, f, indent=4)
+
+os.makedirs(CHART_DIR, exist_ok=True)
+
+def save_bar_chart(title, values, filename):
+    plt.figure(figsize=(10, 6))
+    plt.bar(values.keys(), values.values())
+    plt.xticks(rotation=45, ha='right')
+    plt.title(title)
+    plt.tight_layout()
+    plt.savefig(os.path.join(CHART_DIR, filename))
+    plt.close()
+
+
+# --- Chart 1: Ranking Metrics ---
+ranking_subset = {
+    k: float(ranking_results[k])
+    for k in ["mrr@10", "ndcg@10", "map@10",
+              "precision@10", "recall@10", "f1@10"]
+}
+
+save_bar_chart("Main Ranking Metrics", ranking_subset, "ranking_metrics.png")
+
+# --- Chart 2: Feasibility Metrics ---
+save_bar_chart("Feasibility Metrics", feasibility_results, "feasibility_metrics.png")
+
+print("\nCharts saved in:", CHART_DIR)
