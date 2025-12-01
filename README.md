@@ -198,6 +198,35 @@ GET /trials/{nct_id}
 - Inclusion criteria: extracted via regex (exclusion removed)
 - Demographics, summaries: 1x
 
+### Feasibility Scoring Summary
+
+- Condition match: +40
+- Biomarker match: +25
+- ECOG allowed: +15
+- Lines of therapy within range: +10
+- Age in range: +5
+- Gender match or All: +5
+- Washout cleared: +5
+- Lab thresholds: +5 per passed lab (capped at +15 total); failing key labs marks trial infeasible
+- Hard exclusions (e.g., Pregnancy, CNS Mets, HIV, Hepatitis): score = 0 and infeasible
+
+Final score is capped at 100. Infeasible trials receive 0.
+
+### Final Scoring and Normalization
+
+- Hybrid retrieval scoring (BM25 + Dense):
+  - Normalize BM25 scores across candidates to `[0,1]`.
+  - Normalize dense (FAISS) scores across candidates to `[0,1]`.
+  - Combine via `hybrid = bm25_weight * bm25_norm + (1 - bm25_weight) * dense_norm`.
+- Feasibility blending (applied after retrieval):
+  - Normalize retrieval scores to `[0,1]` again (per page’s candidate set).
+  - Convert feasibility scores (0–100) to `[0,1]` by `feas_norm = feasibility_score / 100`.
+  - Final displayed score per trial:
+    - `final = (1 - feasibility_weight) * retrieval_norm + feasibility_weight * feasi_norm`.
+  - Trials marked infeasible keep feasibility score `0`; final score reflects the blend.
+  - Candidates are sorted by `final` descending; pagination is applied after blending.
+
+
 ---
 
 ## Data Sharing (For Teams)
