@@ -92,11 +92,7 @@ queries = load_queries_csv("./backend/evaluation/converted_queries_using_openai.
 qrels = load_qrels_tsv("./backend/evaluation/qrels_trec.tsv")
 run = build_run(queries)
 
-results = evaluate(
-    qrels=Qrels.from_dict(qrels),
-    run=Run.from_dict(run),
-    # metrics=["mrr@10", "ndcg@10", "recall@100"]
-    metrics = [
+extended_metrics = [
     # ranking metrics
     "mrr@10",
     "ndcg@3", "ndcg@5", "ndcg@10", "ndcg@20",
@@ -112,6 +108,43 @@ results = evaluate(
     "bpref",
 ]
 
+results = evaluate(
+    qrels=Qrels.from_dict(qrels),
+    run=Run.from_dict(run),
+    metrics=extended_metrics,
 )
 
-print(results)
+# Core summary
+core_keys = ["mrr@10", "ndcg@10", "precision@10", "recall@100"]
+core = {k: results.get(k) for k in core_keys if k in results}
+
+print("\n=== Core Metrics ===")
+for k in core_keys:
+    if k in core:
+        print(f"{k}: {core[k]:.4f}")
+
+print("\n=== Extended Metrics ===")
+for k in extended_metrics:
+    if k in results:
+        print(f"{k}: {results[k]:.4f}")
+
+# Save to files for tracking
+try:
+    import os
+    import pandas as pd
+    out_dir = "./backend/evaluation"
+    os.makedirs(out_dir, exist_ok=True)
+
+    # JSON
+    json_path = os.path.join(out_dir, "results.json")
+    with open(json_path, "w", encoding="utf-8") as jf:
+        json.dump({"core": core, "extended": results}, jf, indent=2)
+
+    # CSV
+    csv_path = os.path.join(out_dir, "results.csv")
+    df = pd.DataFrame([{**{"metric": k, "value": results[k]}, **({"core": k in core_keys})} for k in results])
+    df.to_csv(csv_path, index=False)
+
+    print(f"\nSaved results to: {json_path} and {csv_path}")
+except Exception as e:
+    print(f"Warning: could not save results: {e}")

@@ -96,73 +96,69 @@ Interactive docs: `http://localhost:8000/docs`
 
 ## API Endpoints
 
-### Search Trials
-```bash
-GET /search?q=lung+cancer&page=1&size=10&bm25_weight=0.5
-```
-
 ### Rank Trials (with Patient Profile)
 ```bash
 POST /rank
+```
+
+```json
 {
-  "query": "EGFR+ NSCLC second-line",
-  "patient_profile":    {
-  "age": 65,
-  "gender": "Female",
-  "conditions": [
-    "Non-small cell lung cancer",
-    "Breast Cancer",
-    "Heart Failure",
-    "Chronic Kidney Disease",
-    "Respiratory Failure",
-    "Liver Failure",
-    "Leukemia",
-    "Prostate Cancer",
-    "Skin Cancer",
-    "Cervical Cancer",
-    "Bone Cancer"
-  ],
-  "ecog": 1,
-  "biomarkers": [
-    "EGFR",
-    "HER2",
-    "ALK",
-    "KRAS",
-    "BRAF",
-    "BCR-ABL",
-    "FLT3",
-    "CD19",
-    "ER",
-    "PR"
-  ],
-  "history": [
-    "History_MI",
-    "History_Stroke",
-    "Autoimmune_Disease",
-    "Prior_Malignancy",
-    "HIV",
-    "Hepatitis",
-    "Pregnancy"
-  ],
-  "labs": {
-    "Creatinine": 1.2,
-    "GFR": 55.0,
-    "Bilirubin": 0.8,
-    "AST": 35.0,
-    "ALT": 40.0,
-    "INR": 1.1,
-    "PSA": 4.5,
-    "Testosterone": 300.0,
-    "BNP": 150.0,
-    "LVEF": 50.0,
-    "Platelet_Count": 150,
-    "Hemoglobin": 11.5,
-    "ANC": 2500
-  },
-  "prior_lines": 2,
-  "days_since_last_treatment": 45
-}
-   
+  "patient_profile": {
+    "age": 65,
+    "gender": "Female",
+    "conditions": [
+      "Non-small cell lung cancer",
+      "Breast Cancer",
+      "Heart Failure",
+      "Chronic Kidney Disease",
+      "Respiratory Failure",
+      "Liver Failure",
+      "Leukemia",
+      "Prostate Cancer",
+      "Skin Cancer",
+      "Cervical Cancer",
+      "Bone Cancer"
+    ],
+    "ecog": 1,
+    "biomarkers": [
+      "EGFR",
+      "HER2",
+      "ALK",
+      "KRAS",
+      "BRAF",
+      "BCR-ABL",
+      "FLT3",
+      "CD19",
+      "ER",
+      "PR"
+    ],
+    "history": [
+      "History_MI",
+      "History_Stroke",
+      "Autoimmune_Disease",
+      "Prior_Malignancy",
+      "HIV",
+      "Hepatitis",
+      "Pregnancy"
+    ],
+    "labs": {
+      "Creatinine": 1.2,
+      "GFR": 55.0,
+      "Bilirubin": 0.8,
+      "AST": 35.0,
+      "ALT": 40.0,
+      "INR": 1.1,
+      "PSA": 4.5,
+      "Testosterone": 300.0,
+      "BNP": 150.0,
+      "LVEF": 50.0,
+      "Platelet_Count": 150,
+      "Hemoglobin": 11.5,
+      "ANC": 2500
+    },
+    "prior_lines": 2,
+    "days_since_last_treatment": 45
+  }
 }
 ```
 
