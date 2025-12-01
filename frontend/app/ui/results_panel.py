@@ -10,26 +10,23 @@ def render_results(results):
         title = trial.get("title", "Untitled Study")
         phase = trial.get("phase", "N/A")
         status = trial.get("overall_status", "N/A")
+        brief_summary = trial.get("brief_summary", "No summary available.")
 
         st.markdown(f"""
-        <div style="
-            background-color:#0d0d0d;
-            padding:18px;
-            border-radius:14px;
-            border:1px solid #222;
-            margin-bottom:18px;
-            transition:0.2s;
-        ">
-            <h3 style="margin:0; color:#00eaff; font-size:22px;">{title}</h3>
-            <p style="margin:4px 0 10px 0; color:#ccc;">Phase {phase} • {status}</p>
-
+        <div class="trial-card">
+            <h3>{title}</h3>
+            <p>Phase {phase} • {status}</p>
+            <p style="font-size:14px; color:#ccc; margin-top:4px;">{brief_summary[:150]}...</p>
             <a href="?page=trial&nct_id={nct}" style="
-                background:#00eaff;
+                display:inline-block;
+                background-color:#222;
                 padding:8px 14px;
-                color:black;
+                color:white;
                 font-weight:600;
                 border-radius:6px;
                 text-decoration:none;
+                margin-top:5px;
+                font-size:14px;
             ">View Details</a>
         </div>
         """, unsafe_allow_html=True)
