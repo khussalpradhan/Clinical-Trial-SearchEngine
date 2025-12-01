@@ -7,9 +7,8 @@ frontend_root = Path(__file__).parent.parent.resolve()
 if str(frontend_root) not in sys.path:
     sys.path.append(str(frontend_root))
 
-from api_clients.trial_api import rank_trials
+from api_clients.trial_api import rank_trials  # Import from api_clients
 from app.ui.results_panel import render_results
-
 
 # ============================================
 # Streamlit Page Config
@@ -433,7 +432,7 @@ payload = {
 # ============================================
 st.markdown("<hr>", unsafe_allow_html=True)
 
-if st.button("Rank Trials", use_container_width=True):
+if st.button("Search", use_container_width=True):
     with st.spinner("Ranking trials…"):
         try:
             response = rank_trials(payload)
@@ -447,9 +446,6 @@ if st.button("Rank Trials", use_container_width=True):
 # ============================================
 # SEARCH RESULTS
 # ============================================
-st.markdown(
-    "<h2 style='color:white;margin-top:20px;margin-bottom:20px'>SEARCH RESULTS</h2>",
-    unsafe_allow_html=True,
-)
+
 
 render_results(st.session_state.get("results", []))
