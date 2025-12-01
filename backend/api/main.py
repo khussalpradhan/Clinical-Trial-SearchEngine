@@ -867,8 +867,8 @@ def _fetch_trial_detail_from_db(nct_id: str) -> TrialDetail:
         completion_date=_to_iso(trial_row.get("completion_date")),
         last_updated=_to_iso(trial_row.get("last_updated")),
         locations=locations,
-        criteria_inclusion="\n".join([t for t in inclusion_blocks if t]) if inclusion_blocks else None,
-        criteria_exclusion="\n".join([t for t in exclusion_blocks if t]) if exclusion_blocks else None,
+        criteria_inclusion=" \n ".join([t for t in inclusion_blocks if t]) if inclusion_blocks else None,
+        criteria_exclusion=" \n ".join([t for t in exclusion_blocks if t]) if exclusion_blocks else None,
         eligibility_criteria_raw=trial_row.get("eligibility_criteria_raw"),
     )
 
