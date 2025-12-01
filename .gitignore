@@ -74,6 +74,10 @@ temp/
 # Raw API dumps or downloaded data
 raw_data/
 
+# Large local data and indexes (do not commit)
+data/
+
+
 # Local admin tools
 pgadmin/
 pgcli_history
