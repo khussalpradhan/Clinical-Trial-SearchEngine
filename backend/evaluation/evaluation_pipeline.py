@@ -2,6 +2,7 @@ import json
 import csv
 from ranx import Qrels, Run, evaluate
 from backend.api.main import rank_trials, RankRequest, PatientProfile
+from backend.evaluation.custom_metrics import  compute_all_feasibility_metrics
 
 
 # --------------------------------------------------------
@@ -69,30 +70,60 @@ def sanitize_profile_json(profile_json):
 # --------------------------------------------------------
 # Build run using your ranker
 # --------------------------------------------------------
+# def build_run(queries):
+#     run = {}
+#     for qid, profile_json in queries.items():
+#         profile_json = sanitize_profile_json(profile_json)
+
+#         profile = PatientProfile(**profile_json)
+#         request = RankRequest(profile=profile)
+#         result = rank_trials(request)
+
+#         run[qid] = {
+#             hit.nct_id: float(hit.score)
+#             for hit in result.hits
+#         }
+#     return run
+
+
+
 def build_run(queries):
     run = {}
+    hit_metadata = {}
+
     for qid, profile_json in queries.items():
         profile_json = sanitize_profile_json(profile_json)
-
         profile = PatientProfile(**profile_json)
         request = RankRequest(profile=profile)
         result = rank_trials(request)
 
-        run[qid] = {
-            hit.nct_id: float(hit.score)
-            for hit in result.hits
-        }
-    return run
+        run[qid] = {}
+        hit_metadata[qid] = {}
 
+        for hit in result.hits:
+            run[qid][hit.nct_id] = float(hit.score)
+
+            # store feasibility metadata
+            hit_metadata[qid][hit.nct_id] = {
+                "feasibility_score": float(hit.feasibility_score or 0.0),
+                "is_feasible": bool(hit.is_feasible),
+            }
+
+    return run, hit_metadata
 
 # --------------------------------------------------------
 # Main evaluation
 # --------------------------------------------------------
 queries = load_queries_csv("./backend/evaluation/converted_queries_using_openai.csv")
 qrels = load_qrels_tsv("./backend/evaluation/qrels_trec.tsv")
-run = build_run(queries)
+run, hit_metadata = build_run(queries)
 
-extended_metrics = [
+results = evaluate(
+    qrels=Qrels.from_dict(qrels),
+    run=Run.from_dict(run),
+    
+    # metrics=["mrr@10", "ndcg@10", "recall@100"]
+    metrics = [
     # ranking metrics
     "mrr@10",
     "ndcg@3", "ndcg@5", "ndcg@10", "ndcg@20",
@@ -106,45 +137,19 @@ extended_metrics = [
     "hit_rate@1", "hit_rate@5", "hit_rate@10",
     "f1@5", "f1@10", "f1@20",
     "bpref",
-]
+   ]
 
-results = evaluate(
-    qrels=Qrels.from_dict(qrels),
-    run=Run.from_dict(run),
-    metrics=extended_metrics,
+        
+    # custom_metrics=get_custom_metrics(hit_metadata)
+
 )
 
-# Core summary
-core_keys = ["mrr@10", "ndcg@10", "precision@10", "recall@100"]
-core = {k: results.get(k) for k in core_keys if k in results}
 
-print("\n=== Core Metrics ===")
-for k in core_keys:
-    if k in core:
-        print(f"{k}: {core[k]:.4f}")
 
-print("\n=== Extended Metrics ===")
-for k in extended_metrics:
-    if k in results:
-        print(f"{k}: {results[k]:.4f}")
+feasibility_results = compute_all_feasibility_metrics(qrels, run, hit_metadata)
 
-# Save to files for tracking
-try:
-    import os
-    import pandas as pd
-    out_dir = "./backend/evaluation"
-    os.makedirs(out_dir, exist_ok=True)
+print("\nRanking Metrics (Ranx):")
+print(results)
 
-    # JSON
-    json_path = os.path.join(out_dir, "results.json")
-    with open(json_path, "w", encoding="utf-8") as jf:
-        json.dump({"core": core, "extended": results}, jf, indent=2)
-
-    # CSV
-    csv_path = os.path.join(out_dir, "results.csv")
-    df = pd.DataFrame([{**{"metric": k, "value": results[k]}, **({"core": k in core_keys})} for k in results])
-    df.to_csv(csv_path, index=False)
-
-    print(f"\nSaved results to: {json_path} and {csv_path}")
-except Exception as e:
-    print(f"Warning: could not save results: {e}")
+print("\nFeasibility Metrics:")
+print(feasibility_results)
