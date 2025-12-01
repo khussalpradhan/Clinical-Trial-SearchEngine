@@ -7,6 +7,7 @@ from fastapi import FastAPI, Query, HTTPException, BackgroundTasks
 from pydantic import BaseModel
 
 from opensearchpy import OpenSearch
+from fastapi.middleware.cors import CORSMiddleware
 
 from backend.config import OPENSEARCH_HOST, TRIALS_INDEX_NAME
 from backend.db.scrape_clinical_trials import fetch_and_store
@@ -39,6 +40,13 @@ app = FastAPI(
     version="1.0.0",
 )
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # -----------------------------
 # Response models
