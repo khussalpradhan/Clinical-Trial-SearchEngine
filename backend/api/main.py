@@ -841,6 +841,9 @@ def _fetch_trial_detail_from_db(nct_id: str) -> TrialDetail:
         )
 
     title = trial_row.get("brief_title") or trial_row.get("official_title")
+    # Normalize date/datetime objects from psycopg to strings for the response model
+    def _to_iso(val):
+        return val.isoformat() if hasattr(val, "isoformat") else val
 
     return TrialDetail(
         nct_id=trial_row.get("nct_id"),
@@ -859,10 +862,10 @@ def _fetch_trial_detail_from_db(nct_id: str) -> TrialDetail:
         healthy_volunteers=trial_row.get("healthy_volunteers"),
         enrollment_actual=trial_row.get("enrollment_actual"),
         enrollment_target=trial_row.get("enrollment_target"),
-        start_date=trial_row.get("start_date"),
-        primary_completion_date=trial_row.get("primary_completion_date"),
-        completion_date=trial_row.get("completion_date"),
-        last_updated=trial_row.get("last_updated"),
+        start_date=_to_iso(trial_row.get("start_date")),
+        primary_completion_date=_to_iso(trial_row.get("primary_completion_date")),
+        completion_date=_to_iso(trial_row.get("completion_date")),
+        last_updated=_to_iso(trial_row.get("last_updated")),
         locations=locations,
         criteria_inclusion="\n".join([t for t in inclusion_blocks if t]) if inclusion_blocks else None,
         criteria_exclusion="\n".join([t for t in exclusion_blocks if t]) if exclusion_blocks else None,
