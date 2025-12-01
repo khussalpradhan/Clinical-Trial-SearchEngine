@@ -88,8 +88,8 @@ def build_run(queries):
 # --------------------------------------------------------
 # Main evaluation
 # --------------------------------------------------------
-queries = load_queries_csv("F:/Clinical-Trial-SearchEngine/backend/evaluation/converted_queries_using_openai.csv")
-qrels = load_qrels_tsv("F:/Clinical-Trial-SearchEngine/backend/evaluation/qrels_trec.tsv")
+queries = load_queries_csv("./backend/evaluation/converted_queries_using_openai.csv")
+qrels = load_qrels_tsv("./backend/evaluation/qrels_trec.tsv")
 run = build_run(queries)
 
 results = evaluate(
