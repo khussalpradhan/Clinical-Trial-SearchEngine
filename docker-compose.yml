@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   postgres:
     image: postgres:16
@@ -27,9 +25,10 @@ services:
     ports:
       - "9200:9200"
     volumes:
-      - opensearch_data:/usr/share/opensearch/data   # <- persist OpenSearch data
+      - opensearch_data:/usr/share/opensearch/data # <- persist OpenSearch data
 
   backend:
+    platform: linux/amd64
     build: .
     container_name: ctf_backend
     depends_on:
@@ -44,7 +43,19 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - ./data:/app/data                              # <- persist FAISS index (trials_faiss.*)
+      - ./data:/app/data # <- persist FAISS index (trials_faiss.*)
+      - scispacy_cache:/root/.scispacy # <- persist NLP models
+      - ./backend:/app/backend # <- HOT RELOAD: Mount source code so we don't need to rebuild
+
+  frontend:
+    build: ./frontend
+    container_name: ctf_frontend
+    depends_on:
+      - backend
+    ports:
+      - "8501:8501"
+    environment:
+      - API_BASE_URL=http://backend:8000
 
   pgadmin:
     image: dpage/pgadmin4
@@ -60,3 +71,4 @@ services:
 volumes:
   pgdata:
   opensearch_data:
+  scispacy_cache:
