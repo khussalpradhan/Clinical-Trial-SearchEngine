@@ -189,8 +189,8 @@ class RankRequest(BaseModel):
     overall_status: Optional[str] = None
     condition: Optional[str] = None
     country: Optional[str] = None
-    bm25_weight: float = 0.5
-    feasibility_weight: float = 0.6
+    bm25_weight: float = 0.3
+    feasibility_weight: float = 0.7
 
 
 # -----------------------------
