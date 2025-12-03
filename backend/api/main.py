@@ -44,7 +44,7 @@ feasibility_scorer = FeasibilityScorer()
 
 app = FastAPI(
     title="Clinical Trial Search API",
-    version="1.0.0",
+    version="2.0.0",
 )
 
 app.add_middleware(
@@ -1090,9 +1090,9 @@ def rank_trials(body: RankRequest):
     if normalized_biomarkers:
         body.profile.biomarkers = normalized_biomarkers
 
-    # Always search over a candidate pool of 1000 docs for /rank,
+    # Always search over a candidate pool of 500 docs for /rank,
     # but only return the top 20 to clients.
-    candidate_size = 10000
+    candidate_size = 500
     page = 1
     size = 20
 
