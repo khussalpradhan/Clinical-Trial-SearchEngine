@@ -2,10 +2,11 @@
 
 from typing import Any, List, Optional, Dict
 import logging
+import time
 
 import psycopg2
 from fastapi import FastAPI, Query, HTTPException, BackgroundTasks
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, validator
 from psycopg2.extras import RealDictCursor
 
 from opensearchpy import OpenSearch
@@ -26,6 +27,7 @@ from backend.nlp.biomarker_normalizer import get_biomarker_normalizer
 # -----------------------------
 # OpenSearch client
 # -----------------------------
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
@@ -42,7 +44,7 @@ feasibility_scorer = FeasibilityScorer()
 
 app = FastAPI(
     title="Clinical Trial Search API",
-    version="1.0.0",
+    version="2.0.0",
 )
 
 app.add_middleware(
@@ -53,6 +55,20 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.on_event("startup")
+async def startup_event():
+    logger.info("Pre-loading UMLS Linker...")
+    # Trigger lazy load
+    feasibility_scorer._get_umls()
+    logger.info("UMLS Linker pre-loaded.")
+    
+    # Pre-load vector search model
+    if vector_search.ready:
+        logger.info("Pre-loading Vector Search model...")
+        # Trigger model loading with a dummy query
+        vector_search.search("test", k=1)
+        logger.info("Vector Search model pre-loaded.")
+
 # -----------------------------
 # Response models
 # -----------------------------
@@ -62,20 +78,28 @@ class TrialHit(BaseModel):
     brief_summary: Optional[str] = None
     phase: Optional[str] = None
     overall_status: Optional[str] = None
-    conditions: List[str] = []
+    conditions: Optional[List[str]] = None
+    conditions_cuis: Optional[List[str]] = None
     study_type: Optional[str] = None
-    locations: List[str] = []
-    score: float
-    eligibility_criteria_raw: Optional[str] = None
-    min_age_years: Optional[float] = None 
-    max_age_years: Optional[float] = None  
-    sex: Optional[str] = None
+    locations: Optional[List[str]] = None
+    score: float = 0.0
     retrieval_score: Optional[float] = None
     retrieval_score_raw: Optional[float] = None
     feasibility_score: Optional[float] = None
     feasibility_reasons: Optional[List[str]] = None
     is_feasible: Optional[bool] = None
+    eligibility_criteria_raw: Optional[str] = None
     parsed_criteria: Optional[Dict[str, Any]] = None
+    min_age_years: Optional[float] = None 
+    max_age_years: Optional[float] = None  
+    sex: Optional[str] = None
+
+    @validator("conditions", "conditions_cuis", "locations", "feasibility_reasons", pre=True)
+    def _default_empty_list(cls, v):
+        return v or []
+
+    class Config:
+        extra = "forbid"
 
 
 class SearchResponse(BaseModel):
@@ -139,16 +163,21 @@ class PatientProfile(BaseModel):
     age: int
     gender: str
 
-    conditions: List[str] = []
+    # Allow these list fields to be nullable in incoming JSON; coerce None -> []
+    conditions: Optional[List[str]] = None
     ecog: Optional[int] = None
 
-    biomarkers: List[str] = []
-    history: List[str] = []
+    biomarkers: Optional[List[str]] = None
+    history: Optional[List[str]] = None
 
-    labs: Dict[str, Optional[float]] = {} 
+    labs: Dict[str, Optional[float]] = {}
 
     prior_lines: Optional[int] = None
     days_since_last_treatment: Optional[int] = None
+
+    @validator("conditions", "biomarkers", "history", pre=True, always=True)
+    def _default_empty_list(cls, v):  # type: ignore
+        return v or []
 
 
 class RankRequest(BaseModel):
@@ -160,8 +189,8 @@ class RankRequest(BaseModel):
     overall_status: Optional[str] = None
     condition: Optional[str] = None
     country: Optional[str] = None
-    bm25_weight: float = 0.5
-    feasibility_weight: float = 0.6
+    bm25_weight: float = 0.3
+    feasibility_weight: float = 0.7
 
 
 # -----------------------------
@@ -188,14 +217,15 @@ def build_query(
                         "title^3",
                         "brief_summary^2",
                         "detailed_description",
-                        "conditions^2",
+                        "conditions^4",
+                        "conditions_all^5",
                         "interventions",
                         "criteria_inclusion_clean^2"
                     ],
                     "type": "best_fields",
                     # Looser, works for both short + long queries
                     "operator": "or",
-                    "minimum_should_match": "60%",
+                    # "minimum_should_match": "60%",
                 }
             }
         )
@@ -252,12 +282,37 @@ def build_query(
             }
         })
 
-    return {
+    bool_query = {
         "bool": {
             "must": must_clauses,
             "filter": filter_clauses,
         }
     }
+
+    # Wrap in function_score to boost Recruiting and Late Phase trials
+    query_body = {
+        "function_score": {
+            "query": bool_query,
+            "functions": [
+                {
+                    "filter": {"term": {"overall_status.keyword": "Recruiting"}},
+                    "weight": 1.05
+                },
+                {
+                    "filter": {"terms": {"phase.keyword": ["Phase 3", "Phase 4"]}},
+                    "weight": 1.1
+                },
+                {
+                    "filter": {"terms": {"phase.keyword": ["Phase 2"]}},
+                    "weight": 1.05
+                }
+            ],
+            "score_mode": "multiply",
+            "boost_mode": "multiply"
+        }
+    }
+
+    return query_body
 
 
 # -----------------------------
@@ -270,16 +325,16 @@ def build_profile_query_text(profile: PatientProfile) -> str:
     """
     parts: List[str] = []
 
-    # Age + gender
-    gender_word = profile.gender.lower()
-    if gender_word in ("m", "male"):
-        gender_str = "male"
-    elif gender_word in ("f", "female"):
-        gender_str = "female"
-    else:
-        gender_str = profile.gender
+    # Age + gender - REMOVED to prevent recall drop (we filter by age/gender anyway)
+    # gender_word = profile.gender.lower()
+    # if gender_word in ("m", "male"):
+    #     gender_str = "male"
+    # elif gender_word in ("f", "female"):
+    #     gender_str = "female"
+    # else:
+    #     gender_str = profile.gender
 
-    parts.append(f"{profile.age}-year-old {gender_str}")
+    # parts.append(f"{profile.age}-year-old {gender_str}")
 
     # Conditions
     if profile.conditions:
@@ -350,18 +405,33 @@ def normalize_condition_input(user_text: str) -> str:
     return normalized if normalized else user_text.title()
 
 
-def _normalize_scores(values: List[float]) -> dict[str, float]:
-    if not values:
+def compute_rrf(rank_lists: List[List[str]], k: int = 20) -> Dict[str, float]:
+    """
+    Compute Reciprocal Rank Fusion scores.
+    rank_lists: List of lists, where each inner list contains nct_ids in ranked order.
+    Returns: Dict mapping nct_id -> rrf_score
+    """
+    rrf_map = {}
+    for rank_list in rank_lists:
+        for rank, nct_id in enumerate(rank_list):
+            if nct_id not in rrf_map:
+                rrf_map[nct_id] = 0.0
+            rrf_map[nct_id] += 1.0 / (k + rank + 1)
+    return rrf_map
+
+
+def _normalize_scores(scores: List[float]) -> Dict[str, float]:
+    """
+    Min-Max normalization of scores.
+    Returns a dict mapping index -> normalized score.
+    """
+    if not scores:
         return {}
-    v_min = min(values)
-    v_max = max(values)
-    if v_max <= v_min:
-        # all equal → everything becomes 1.0
-        return {str(i): 1.0 for i in range(len(values))}
-    norm = {}
-    for i, v in enumerate(values):
-        norm[str(i)] = (v - v_min) / (v_max - v_min)
-    return norm
+    min_s = min(scores)
+    max_s = max(scores)
+    if max_s == min_s:
+        return {str(i): 1.0 for i in range(len(scores))}
+    return {str(i): (s - min_s) / (max_s - min_s) for i, s in enumerate(scores)}
 
 
 def _build_criteria_text(src: dict) -> str:
@@ -406,9 +476,9 @@ def _apply_feasibility_rerank(
 
     retrieval_raw_values: List[float] = []
     for hit in hits:
-        base = hit.retrieval_score_raw
+        base = hit.score
         if base is None:
-            base = hit.score
+            base = 0.0
         retrieval_raw_values.append(float(base))
 
     if retrieval_raw_values:
@@ -421,6 +491,12 @@ def _apply_feasibility_rerank(
         if v_max <= v_min:
             return 1.0
         return (val - v_min) / (v_max - v_min)
+
+    # Pre-compute patient CUIs to avoid re-running NLP for every trial
+    patient_cuis = None
+    if patient_profile.conditions:
+        # We need to access the scorer instance. It's global 'feasibility_scorer'.
+        patient_cuis = feasibility_scorer.extract_cuis(patient_profile.conditions)
 
     for idx, hit in enumerate(hits):
         retrieval_norm = _norm(retrieval_raw_values[idx])
@@ -438,9 +514,16 @@ def _apply_feasibility_rerank(
                     "min_age_years": hit.min_age_years,
                     "max_age_years": hit.max_age_years,
                     "sex": hit.sex,
-                    "conditions": hit.conditions or []  # <--- Pass the DB conditions here!
+                    "conditions": hit.conditions or [],
+                    "conditions_cuis": hit.conditions_cuis or [],
+                    "parsed_criteria": hit.parsed_criteria
                 }
-                result = feasibility_scorer.score_patient(profile_dict, criteria_text, trial_metadata=metadata)
+                result = feasibility_scorer.score_patient(
+                    profile_dict, 
+                    criteria_text, 
+                    trial_metadata=metadata,
+                    patient_cuis=patient_cuis
+                )
                 feas_score = float(result.get("score") or 0.0)
                 hit.feasibility_score = feas_score
                 hit.feasibility_reasons = result.get("reasons") or []
@@ -456,6 +539,9 @@ def _apply_feasibility_rerank(
         hit.score = (1.0 - feasibility_weight) * retrieval_norm + feasibility_weight * feasibility_norm
 
     hits.sort(key=lambda h: h.score, reverse=True)
+    # Remove trials explicitly marked as infeasible (is_feasible == False)
+    # Keep those where feasibility wasn't assessed (None) or passed (True)
+    hits[:] = [h for h in hits if getattr(h, 'is_feasible', None) is not False]
 
 
 def _search_trials_internal(
@@ -523,11 +609,13 @@ def _search_trials_internal(
             "phase",
             "overall_status",
             "conditions",
+            "conditions_cuis",
             "study_type",
             "locations",
             "criteria_inclusion",
             "criteria_exclusion",
             "eligibility_criteria_raw",
+            "parsed_criteria",
             "min_age_years",
             "max_age_years",
             "sex",
@@ -537,11 +625,15 @@ def _search_trials_internal(
     }
 
     # --- BM25 search (OpenSearch) ---
+    t_start = time.time()
     try:
         res = client.search(index=TRIALS_INDEX_NAME, body=body)
     except Exception as e:
         logger.exception("OpenSearch query failed")
         raise HTTPException(status_code=500, detail=str(e))
+    
+    t_os = time.time()
+    logger.info(f"OpenSearch Query took: {t_os - t_start:.4f}s")
 
     total = res.get("hits", {}).get("total", {})
     if isinstance(total, dict):
@@ -574,11 +666,13 @@ def _search_trials_internal(
             phase=src.get("phase"),
             overall_status=src.get("overall_status"),
             conditions=src.get("conditions") or [],
+            conditions_cuis=src.get("conditions_cuis") or [],
             study_type=src.get("study_type"),
             locations=loc_strings,
             score=score,  # temporarily BM25 score
             retrieval_score_raw=score,
             eligibility_criteria_raw=src.get("eligibility_criteria_raw"),
+            parsed_criteria=src.get("parsed_criteria"),
             min_age_years=src.get("min_age_years"),
             max_age_years=src.get("max_age_years"),
             sex=src.get("sex")
@@ -599,45 +693,42 @@ def _search_trials_internal(
             use_candidate_total=use_candidate_total,
         )
 
-    # --- Dense retrieval (FAISS) + hybrid fusion ---
+    # --- Dense retrieval (FAISS) + hybrid fusion (RRF) ---
     if q and vector_search.ready and hits:
-        # Use a reasonably large k for dense candidates; keep it tied to total_candidates
+        # 1. Get BM25 Ranks (hits are already sorted by BM25 score from OpenSearch)
+        bm25_ranked_ids = [h.nct_id for h in hits]
+
+        # 2. Get Dense Ranks
+        # Use a reasonably large k for dense candidates
         dense_results = vector_search.search(q, k=max(total_candidates * 3, total_candidates))
+        dense_ranked_ids = [nct_id for (nct_id, _) in dense_results]
 
-        dense_by_id = {nct_id: s for (nct_id, s) in dense_results}
+        # 3. Compute RRF
+        # We fuse two lists: BM25 results and Dense results
+        rrf_scores = compute_rrf([bm25_ranked_ids, dense_ranked_ids], k=60)
 
-        # normalize BM25 & dense scores to [0, 1]
-        bm25_norm_map = _normalize_scores(bm25_scores)
-        dense_norm_values = list(dense_by_id.values())
-        dense_norm_map_raw = _normalize_scores(dense_norm_values)
-
-        # map back to nct_id → norm_dense
-        dense_norm_by_id: dict[str, float] = {}
-        for idx, (nct_id, s) in enumerate(dense_results):
-            key = str(idx)
-            if key in dense_norm_map_raw:
-                dense_norm_by_id[nct_id] = dense_norm_map_raw[key]
-
-        # hybrid = w * bm25_norm + (1 - w) * dense_norm
-        for i, hit in enumerate(hits):
-            bm25_norm = float(bm25_norm_map.get(str(i), 0.0))
-            dense_norm = float(dense_norm_by_id.get(hit.nct_id, 0.0))
-            hybrid = bm25_weight * bm25_norm + (1.0 - bm25_weight) * dense_norm
-            hit.score = hybrid
-            # Keep original BM25 for feasibility scoring normalization
-            # (retrieval_score_raw is already set to BM25 score at line 517)
-
-        # sort by hybrid score desc
+        # 4. Assign RRF scores to hits
+        # Note: We only keep hits that were returned by BM25 (OpenSearch) to respect filters (Age, Gender, etc.)
+        # If a doc is in Dense but not BM25, it's currently dropped because we filter by OpenSearch first.
+        # Ideally, we would union the sets, but for now we re-score the filtered BM25 hits.
+        for hit in hits:
+            hit.score = rrf_scores.get(hit.nct_id, 0.0)
+            # We can still keep the raw retrieval score for debugging if needed
+            
+        # sort by RRF score desc
         hits.sort(key=lambda h: h.score, reverse=True)
 
     # Optional feasibility scoring + blending
     if patient_profile:
+        t_feas_start = time.time()
         _apply_feasibility_rerank(
             hits=hits,
             criteria_by_id=criteria_by_id,
             patient_profile=patient_profile,
             feasibility_weight=feasibility_weight,
         )
+        t_feas_end = time.time()
+        logger.info(f"Feasibility Rerank took: {t_feas_end - t_feas_start:.4f}s")
 
     # Pagination over the candidate set after hybrid scoring
     start = (page - 1) * size
@@ -682,8 +773,9 @@ def dense_only_fallback(
         "size": len(nct_ids),
         "_source": [
             "nct_id", "title", "brief_summary", "phase",
-            "overall_status", "conditions", "study_type", "locations",
+            "overall_status", "conditions", "conditions_cuis", "study_type", "locations",
             "criteria_inclusion", "criteria_exclusion", "eligibility_criteria_raw",
+            "parsed_criteria",
             "min_age_years",
             "max_age_years",
             "sex",
@@ -721,11 +813,13 @@ def dense_only_fallback(
                 phase=src.get("phase"),
                 overall_status=src.get("overall_status"),
                 conditions=src.get("conditions") or [],
+                conditions_cuis=src.get("conditions_cuis") or [],
                 study_type=src.get("study_type"),
                 locations=locations,
                 score=score,
                 retrieval_score_raw=raw_dense,
                 eligibility_criteria_raw=src.get("eligibility_criteria_raw"),
+                parsed_criteria=src.get("parsed_criteria"),
                 min_age_years=src.get("min_age_years"),
                 max_age_years=src.get("max_age_years"),
                 sex=src.get("sex")
@@ -959,6 +1053,8 @@ def rank_trials(body: RankRequest):
       requested page/size from that candidate set.
     """
 
+    import time
+    t0 = time.time()
     
     normalized_conditions = []
     normalized_biomarkers = []
@@ -982,10 +1078,11 @@ def rank_trials(body: RankRequest):
     
     q_text = build_profile_query_text(body.profile)
     # small query expansion with synonyms to boost BM25 recall
-    if normalized_conditions:
-        extra_terms = _expand_condition_synonyms_for_query(normalized_conditions)
-        if extra_terms:
-            q_text = f"{q_text}. Related terms: " + ", ".join(extra_terms)
+    # DISABLED: Causing query drift and recall drop
+    # if normalized_conditions:
+    #     extra_terms = _expand_condition_synonyms_for_query(normalized_conditions)
+    #     if extra_terms:
+    #         q_text = f"{q_text}. Related terms: " + ", ".join(extra_terms)
     
     
     if normalized_conditions:
@@ -993,11 +1090,14 @@ def rank_trials(body: RankRequest):
     if normalized_biomarkers:
         body.profile.biomarkers = normalized_biomarkers
 
-    # Always search over a candidate pool of 100 docs for /rank,
+    # Always search over a candidate pool of 500 docs for /rank,
     # but only return the top 20 to clients.
-    candidate_size = 100
+    candidate_size = 500
     page = 1
     size = 20
+
+    t1 = time.time()
+    logger.info(f"Normalization & Setup took: {t1-t0:.4f}s")
 
     return _search_trials_internal(
         q=q_text,

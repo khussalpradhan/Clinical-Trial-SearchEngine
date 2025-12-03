@@ -3,7 +3,8 @@ FROM python:3.11.9-slim AS base
 
 # Avoid .pyc files and enable unbuffered output
 ENV PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONUNBUFFERED=1
+    PYTHONUNBUFFERED=1 \
+    PYTORCH_ENABLE_MPS_FALLBACK=1
 
 # Workdir inside the container
 WORKDIR /app
@@ -11,9 +12,10 @@ WORKDIR /app
 # System dependencies (needed for psycopg2, etc.)
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-        build-essential \
-        libpq-dev \
-        zlib1g-dev \
+    build-essential \
+    libpq-dev \
+    zlib1g-dev \
+    cmake \
     && rm -rf /var/lib/apt/lists/*
 
 # ----------------------------

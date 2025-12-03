@@ -195,6 +195,8 @@ if st.session_state.page == "trial":
         "Phase": trial.get("phase", "N/A"),
         "Status": trial.get("overall_status", "N/A"),
         "Study Type": trial.get("study_type", "N/A"),
+        "Age Group": f"{trial.get('min_age_years', 'N/A')} - {trial.get('max_age_years', 'N/A')} Years",
+        "Gender": trial.get("sex", "All"),
         "Conditions": ", ".join(trial.get("conditions", [])) if trial.get("conditions") else None,
         "Locations": ", ".join([loc.get("facility_name", "") + ", " + loc.get("city", "") + (", " + loc.get("country", "") if loc.get("country") else "") for loc in trial.get("locations", [])]) if trial.get("locations") else None,
     }
@@ -268,9 +270,9 @@ section[data-testid="stExpander"] > div > div:first-child {
 """, unsafe_allow_html=True)
 
 with st.expander("🧪 PATIENT DETAILS", expanded=False):
-    age = st.number_input("Age", min_value=1, max_value=120)
-    gender = st.radio("Gender", ["Male", "Female", "All"])
-    ecog = st.selectbox("ECOG Performance Status", [0, 1, 2, 3, 4], index=1)
+    age = st.number_input("Age", min_value=1, max_value=120, value=None)
+    gender = st.radio("Gender", ["Male", "Female", "All"], index=None)
+    ecog = st.selectbox("ECOG Performance Status", [0, 1, 2, 3, 4], index=None)
     st.caption("0 = Fully Active, 4 = Bedbound")
 
 
@@ -294,8 +296,8 @@ with st.expander("🧪 DIAGNOSIS & HISTORY", expanded=False):
     history_input = st.text_area("History / Comorbidities (one per line)")
     history_list = [line.strip() for line in history_input.split("\n") if line.strip()]
 
-    prior_lines = st.number_input("Prior Lines of Therapy", min_value=0, value=0)
-    days_since_last_treatment = st.number_input("Days Since Last Treatment", min_value=0, value=30)
+    prior_lines = st.number_input("Prior Lines of Therapy", min_value=0, value=None)
+    days_since_last_treatment = st.number_input("Days Since Last Treatment", min_value=0, value=None)
 
 
 # ============================================
@@ -407,7 +409,7 @@ LAB_OPTIONS = [
 with st.expander("🧪 LAB VALUES", expanded=False):
     # Initialize session state for lab values
     if "lab_values_list" not in st.session_state:
-        st.session_state.lab_values_list = [{"lab": None, "value": 0.0}]
+        st.session_state.lab_values_list = []
 
     # Render all lab input rows
     for i, entry in enumerate(st.session_state.lab_values_list):
@@ -421,8 +423,9 @@ with st.expander("🧪 LAB VALUES", expanded=False):
             selected_lab = st.selectbox(
                 "Lab Name",
                 options,
-                index=options.index(entry["lab"]) if entry["lab"] in options else 0,
-                key=f"lab_name_{i}"
+                index=options.index(entry["lab"]) if entry["lab"] in options else None,
+                key=f"lab_name_{i}",
+                placeholder="Select Lab"
             )
             st.session_state.lab_values_list[i]["lab"] = selected_lab
 
@@ -430,7 +433,7 @@ with st.expander("🧪 LAB VALUES", expanded=False):
             val = st.number_input(
                 "Value",
                 min_value=0.0,
-                value=entry.get("value", 0.0),
+                value=entry.get("value", None),
                 format="%.2f",
                 key=f"lab_val_{i}"
             )
@@ -438,7 +441,7 @@ with st.expander("🧪 LAB VALUES", expanded=False):
 
     # Button to add another lab row
     if st.button("Add Another Lab"):
-        st.session_state.lab_values_list.append({"lab": None, "value": 0.0})
+        st.session_state.lab_values_list.append({"lab": None, "value": None})
 
     # Compose dictionary for payload
     labs = {
@@ -453,7 +456,7 @@ with st.expander("🧪 LAB VALUES", expanded=False):
 # ============================================
 profile_payload = {
     "age": age,
-    "gender": gender.lower(),
+    "gender": gender,
     "conditions": conditions_payload,
     "ecog": ecog,
     "biomarkers": biomarkers,

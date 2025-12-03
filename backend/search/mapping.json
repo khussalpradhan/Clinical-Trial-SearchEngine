@@ -15,31 +15,58 @@
   },
   "mappings": {
     "properties": {
-      "id": { "type": "integer" },
-      "nct_id": { "type": "keyword" },
-      "title": { "type": "text", "analyzer": "english_text" },
-      "brief_summary": { "type": "text", "analyzer": "english_text" },
-      "detailed_description": { "type": "text", "analyzer": "english_text" },
-
+      "id": {
+        "type": "integer"
+      },
+      "nct_id": {
+        "type": "keyword"
+      },
+      "title": {
+        "type": "text",
+        "analyzer": "english_text"
+      },
+      "brief_summary": {
+        "type": "text",
+        "analyzer": "english_text"
+      },
+      "detailed_description": {
+        "type": "text",
+        "analyzer": "english_text"
+      },
       "conditions": {
         "type": "text",
         "analyzer": "english_text",
         "fields": {
-          "raw": { "type": "keyword" }
+          "raw": {
+            "type": "keyword"
+          }
         }
+      },
+      "conditions_cuis": {
+        "type": "keyword"
+      },
+      "conditions_all": {
+        "type": "text",
+        "analyzer": "english_text"
       },
       "interventions": {
         "type": "text",
         "analyzer": "english_text",
         "fields": {
-          "raw": { "type": "keyword" }
+          "raw": {
+            "type": "keyword"
+          }
         }
       },
-
-      "study_type": { "type": "keyword" },
-      "phase": { "type": "keyword" },
-      "overall_status": { "type": "keyword" },
-
+      "study_type": {
+        "type": "keyword"
+      },
+      "phase": {
+        "type": "keyword"
+      },
+      "overall_status": {
+        "type": "keyword"
+      },
       "start_date": {
         "type": "date",
         "format": "yyyy-MM-dd||strict_date_optional_time"
@@ -56,27 +83,59 @@
         "type": "date",
         "format": "strict_date_optional_time"
       },
-
       "locations": {
         "type": "nested",
         "properties": {
-          "facility_name": { "type": "text", "analyzer": "english_text" },
-          "city": { "type": "keyword" },
-          "state": { "type": "keyword" },
-          "country": { "type": "keyword" }
+          "facility_name": {
+            "type": "text",
+            "analyzer": "english_text"
+          },
+          "city": {
+            "type": "keyword"
+          },
+          "state": {
+            "type": "keyword"
+          },
+          "country": {
+            "type": "keyword"
+          }
         }
       },
-
-      "criteria_inclusion": { "type": "text", "analyzer": "english_text" },
-      "criteria_exclusion": { "type": "text", "analyzer": "english_text" },
-      "criteria_inclusion_clean": { "type": "text", "analyzer": "english_text" },
-      "eligibility_criteria_raw": { "type": "text", "analyzer": "english_text"},
-
-      "min_age_years": { "type": "float" },
-      "max_age_years": { "type": "float" },
-      "sex": { "type": "keyword" },
-      "healthy_volunteers": { "type": "boolean" },
-      "enrollment": { "type": "integer" }
+      "criteria_inclusion": {
+        "type": "text",
+        "analyzer": "english_text"
+      },
+      "criteria_exclusion": {
+        "type": "text",
+        "analyzer": "english_text"
+      },
+      "criteria_inclusion_clean": {
+        "type": "text",
+        "analyzer": "english_text"
+      },
+      "eligibility_criteria_raw": {
+        "type": "text",
+        "analyzer": "english_text"
+      },
+      "min_age_years": {
+        "type": "float"
+      },
+      "max_age_years": {
+        "type": "float"
+      },
+      "sex": {
+        "type": "keyword"
+      },
+      "healthy_volunteers": {
+        "type": "boolean"
+      },
+      "enrollment": {
+        "type": "integer"
+      },
+      "parsed_criteria": {
+        "type": "object",
+        "enabled": false
+      }
     }
   }
 }

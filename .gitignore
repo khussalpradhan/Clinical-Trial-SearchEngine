@@ -89,3 +89,17 @@ node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# -------------------------------
+# Evaluation Artifacts
+# -------------------------------
+metrics_report.csv
+metrics_report.json
+metrics_charts/
+
+# -------------------------------
+# Database Dumps
+# -------------------------------
+*.sql
+*.dump
+

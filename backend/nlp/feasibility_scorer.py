@@ -1,4 +1,6 @@
 import logging
+import re
+from typing import List, Set, Optional
 
 try:
     # Prefer absolute import when module is executed directly (script context)
@@ -12,8 +14,39 @@ logger = logging.getLogger(__name__)
 class FeasibilityScorer:
     def __init__(self):
         self.parser = CriteriaParser()
+        self.umls = None
+        self._umls_load_attempted = False
+    
+    def _get_umls(self):
+        """Lazy-load UMLS only when needed"""
+        if not self._umls_load_attempted:
+            self._umls_load_attempted = True
+            try:
+                from .umls_linker import UMLSLinker
+                self.umls = UMLSLinker()
+                logger.info("UMLS Linker loaded in FeasibilityScorer")
+            except Exception as e:
+                logger.warning(f"Could not load UMLSLinker: {e}")
+                self.umls = None
+        return self.umls
 
-    def score_patient(self, patient_profile, trial_criteria_text, trial_metadata=None):
+    def extract_cuis(self, text_list: List[str]) -> Set[str]:
+        """Helper to extract CUIs from a list of strings using the lazy-loaded linker."""
+        umls = self._get_umls()
+        if not umls:
+            return set()
+        cuis = set()
+        for text in text_list:
+            cuis.update(umls.extract_cuis(text))
+        return cuis
+
+    def score_patient(
+        self,
+        patient_profile: dict,
+        trial_criteria_text: str,
+        trial_metadata: Optional[dict] = None,
+        patient_cuis: Optional[Set[str]] = None
+    ) -> dict:
         """
         Input:
             patient_profile (dict): {
@@ -24,19 +57,21 @@ class FeasibilityScorer:
             trial_criteria_text (str): Raw text from database
             trial_metadata (dict): Structured DB columns (min_age, sex, etc.)
         """
-        # 1. Parse the trial text
-        trial_data = self.parser.parse(trial_criteria_text)
-        logger.debug(
-            "Parsed criteria: conditions=%s biomarkers=%s ecog=%s labs=%s lines=%s temporal=%s exclusions=%s",
-            trial_data.get('conditions'),
-            trial_data.get('biomarkers'),
-            trial_data.get('ecog'),
-            list(trial_data.get('labs', {}).keys()) if trial_data else None,
-            trial_data.get('lines_of_therapy') if trial_data else None,
-            trial_data.get('temporal') if trial_data else None,
-            trial_data.get('exclusions'),
-        )
+        # 1. Try to use cached parsed_criteria from database (FAST)
+        # If not available, fallback to parsing (SLOW)
         db_conditions = []
+        db_cuis = []
+        
+        if trial_metadata and trial_metadata.get('parsed_criteria'):
+            # Use pre-computed parsed data (instant)
+            trial_data = trial_metadata['parsed_criteria']
+            logger.debug("Using cached parsed_criteria for trial")
+        else:
+            # Fallback: Parse on-the-fly (slow, for trials without cached data)
+            trial_data = self.parser.parse(trial_criteria_text)
+            logger.debug("Parsing trial criteria on-the-fly (no cache)")
+        
+        # 2. Override with DB metadata if available
         if trial_metadata:
             # Override Age if DB has it
             db_min_age = trial_metadata.get('min_age_years')
@@ -50,19 +85,19 @@ class FeasibilityScorer:
             # Override Gender if DB has it
             db_sex = trial_metadata.get('sex')
             if db_sex:
-                # Map DB values (MALE/FEMALE/ALL) to Parser values (Male/Female/All)
                 if db_sex.upper() == "MALE": trial_data['gender'] = "Male"
                 elif db_sex.upper() == "FEMALE": trial_data['gender'] = "Female"
                 else: trial_data['gender'] = "All"
-            # Conditions
+            
+            # Conditions from DB
             db_conditions = trial_metadata.get('conditions', [])
+            db_cuis = trial_metadata.get('conditions_cuis', [])
         
         score = 0
         reasons = []
         is_feasible = True
         
-        # 1. HARD EXCLUSIONS (The "Deal Breakers") 
-        # If trial excludes 'Pregnancy' and patient has 'Pregnancy' -> Fail immediately
+        # 1. HARD EXCLUSIONS
         patient_conditions = set(patient_profile.get('conditions', []))
         parsed_exclusions = trial_data.get('exclusions', [])
         patient_history = set(patient_profile.get('history', []))
@@ -70,7 +105,6 @@ class FeasibilityScorer:
         
         for exclusion in parsed_exclusions:
             if exclusion in all_patient_issues:
-                logger.info("Hard exclusion hit: %s", exclusion)
                 return self._compile_result(0, False, [f" Hard Exclusion: Patient has '{exclusion}'"], trial_data)
 
         # 2. CONDITION MATCHING (Must treat the right disease)
@@ -91,18 +125,45 @@ class FeasibilityScorer:
             match_found = False
             matched_names = []
             
-            for p_cond in patient_cond_lower:
-                for t_cond in trial_cond_lower:
-        
-                    if p_cond in t_cond or t_cond in p_cond:
-                        match_found = True
-                        matched_names.append(t_cond)
+            # --- UMLS MATCHING START ---
+            umls = self._get_umls()
+            if umls:
+                # Extract CUIs from patient conditions if not provided
+                if patient_cuis is None:
+                    patient_cuis = set()
+                    for pc in patient_conditions:
+                        patient_cuis.update(umls.extract_cuis(pc))
+                
+                # Use pre-computed trial CUIs from DB if available
+                trial_cuis = set(db_cuis)
+                
+                # Fallback: Extract from text if DB is empty (e.g. old data)
+                # DISABLED FOR PERFORMANCE: This runs 500x per query if DB is empty.
+                # if not trial_cuis:
+                #     for tc in all_trial_indications:
+                #         trial_cuis.update(umls.extract_cuis(tc))
+                
+                # Check intersection
+                common_cuis = patient_cuis.intersection(trial_cuis)
+                if common_cuis:
+                    match_found = True
+                    matched_names.append(f"UMLS Match (CUIs: {list(common_cuis)})")
+            # --- UMLS MATCHING END ---
+
+            # Fallback to string matching if UMLS fails or finds nothing
+            if not match_found:
+                for p_cond in patient_cond_lower:
+                    for t_cond in trial_cond_lower:
+            
+                        if p_cond in t_cond or t_cond in p_cond:
+                            match_found = True
+                            matched_names.append(t_cond)
             
             if match_found:
                 score += 40
                 reasons.append(f" Condition Match: {list(set(matched_names))}")
             else:
-               
+                is_feasible = False
                 score += 0
                 reasons.append(f" Condition Mismatch: Patient has {list(patient_conditions)}, Trial is for {list(all_trial_indications)[:3]}")
 
@@ -116,7 +177,6 @@ class FeasibilityScorer:
             reasons.append(f" Biomarker Match: {list(common_bios)}")
 
         # 4. ECOG CHECK
-        # If trial requires ECOG 0-1 and patient is 2 -> Fail
         if trial_data['ecog'] and 'ecog' in patient_profile:
             patient_ecog = patient_profile['ecog']
             if patient_ecog is not None:
@@ -127,7 +187,7 @@ class FeasibilityScorer:
                     is_feasible = False
                     reasons.append(f" ECOG {patient_ecog} excluded (Trial needs: {trial_data['ecog']})")
 
-        #5. LAB THRESHOLDS (The Math) 
+        # 5. LAB THRESHOLDS (The Math) 
         lab_points = 0
         lab_failures = 0
         patient_labs = patient_profile.get('labs', {})
@@ -152,7 +212,6 @@ class FeasibilityScorer:
                     lab_points += 5
                     reasons.append(f" Lab Passed: {lab_name} {val} {op} {threshold}")
                 else:
-                   
                     lab_failures += 1
                     is_feasible = False
                     reasons.append(f" Lab Failed: {lab_name} {val} NOT {op} {threshold}")
@@ -172,6 +231,34 @@ class FeasibilityScorer:
             else:
                 is_feasible = False
                 reasons.append(f" Age {p_age} outside [{min_a}-{max_a}]")
+
+        # 7. PRIOR LINES OF THERAPY
+        p_lines = patient_profile.get('prior_lines')
+        if p_lines is not None:
+            # Regex for "at least X prior lines" or "received X prior lines"
+            # Matches: "received at least 2 prior lines", ">= 1 prior line"
+            min_lines_match = re.search(r'(?:received|at least|>=?)\s*(\d+)\s*(?:prior|previous)\s*lines?', trial_criteria_text, re.IGNORECASE)
+            
+            # Regex for "no more than X prior lines" or "up to X prior lines"
+            max_lines_match = re.search(r'(?:no more than|up to|<=?)\s*(\d+)\s*(?:prior|previous)\s*lines?', trial_criteria_text, re.IGNORECASE)
+
+            if min_lines_match:
+                required_min = int(min_lines_match.group(1))
+                if p_lines >= required_min:
+                    score += 10
+                    reasons.append(f" Prior Lines {p_lines} >= {required_min} (Matched)")
+                else:
+                    is_feasible = False
+                    reasons.append(f" Prior Lines {p_lines} < {required_min} (Trial requires at least {required_min})")
+            
+            if max_lines_match:
+                limit_max = int(max_lines_match.group(1))
+                if p_lines <= limit_max:
+                    score += 10
+                    reasons.append(f" Prior Lines {p_lines} <= {limit_max} (Matched)")
+                else:
+                    is_feasible = False
+                    reasons.append(f" Prior Lines {p_lines} > {limit_max} (Trial limit is {limit_max})")
 
         p_gender = patient_profile.get('gender')
         t_gender = trial_data['gender']

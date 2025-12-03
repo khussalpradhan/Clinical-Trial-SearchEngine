@@ -43,6 +43,7 @@ def fetch_trials_stream(conn) -> psycopg2.extras.RealDictCursor:
             phase,
             overall_status,
             conditions,
+            conditions_cuis,
             interventions,
             start_date,
             primary_completion_date,
@@ -53,7 +54,10 @@ def fetch_trials_stream(conn) -> psycopg2.extras.RealDictCursor:
             max_age_years,
             sex,
             healthy_volunteers,
-            enrollment_target
+            sex,
+            healthy_volunteers,
+            enrollment_target,
+            parsed_criteria
         FROM trials
         ORDER BY id;
         """
@@ -151,6 +155,8 @@ def build_doc(
         "brief_summary": trial_row.get("brief_summary"),
         "detailed_description": trial_row.get("detailed_description"),
         "conditions": trial_row.get("conditions") or [],
+        "conditions_cuis": trial_row.get("conditions_cuis") or [],
+        "conditions_all": " ".join(trial_row.get("conditions") or []),
         "interventions": trial_row.get("interventions") or [],
         "study_type": trial_row.get("study_type"),
         "phase": trial_row.get("phase"),
@@ -168,7 +174,9 @@ def build_doc(
         "max_age_years": trial_row.get("max_age_years"),
         "sex": trial_row.get("sex"),
         "healthy_volunteers": trial_row.get("healthy_volunteers"),
-        "enrollment": trial_row.get("enrollment_target")
+        "healthy_volunteers": trial_row.get("healthy_volunteers"),
+        "enrollment": trial_row.get("enrollment_target"),
+        "parsed_criteria": trial_row.get("parsed_criteria")
     }
     return doc
 

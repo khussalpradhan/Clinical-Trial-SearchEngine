@@ -15,6 +15,7 @@ CREATE TABLE IF NOT EXISTS trials (
 
     -- Condition & intervention
     conditions             TEXT[],      -- ['Lung Cancer', 'NSCLC']
+    conditions_cuis        TEXT[],      -- ['C0024909', 'C0027051']
     interventions          TEXT[],      -- ['Osimertinib', 'Chemotherapy']
 
     -- Eligibility metadata

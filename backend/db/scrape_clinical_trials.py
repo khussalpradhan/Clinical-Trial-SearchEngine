@@ -11,6 +11,22 @@ from psycopg2.extras import Json, RealDictCursor
 
 from backend.config import POSTGRES_DSN
 
+# Don't initialize UMLS at import time - too memory intensive
+# It will be initialized on first use in normalize_study()
+UMLS = None
+
+def get_umls():
+    global UMLS
+    if UMLS is None:
+        try:
+            from backend.nlp.umls_linker import UMLSLinker
+            UMLS = UMLSLinker()
+            print("UMLS Linker loaded successfully")
+        except Exception as e:
+            print(f"Warning: Could not load UMLSLinker: {e}")
+            UMLS = False  # Mark as failed, don't retry
+    return UMLS if UMLS is not False else None
+
 JOB_NAME = "studies_full"
 API_BASE = "https://clinicaltrials.gov/api/v2/studies"
 
@@ -200,6 +216,14 @@ def normalize_study(study: Dict[str, Any]) -> Tuple[Dict[str, Any], List[Dict[st
 
     # conditions & interventions
     conditions = cond_mod.get("conditions") or []
+    
+    conditions_cuis = []
+    umls = get_umls()
+    if umls and conditions:
+        for c in conditions:
+            conditions_cuis.extend(umls.extract_cuis(c))
+    # Deduplicate
+    conditions_cuis = list(set(conditions_cuis))
 
     interventions_raw = int_mod.get("interventions") or []
     interventions = []
@@ -287,6 +311,7 @@ def normalize_study(study: Dict[str, Any]) -> Tuple[Dict[str, Any], List[Dict[st
         "phase": phase,
         "overall_status": overall_status,
         "conditions": conditions,
+        "conditions_cuis": conditions_cuis,
         "interventions": interventions,
         "eligibility_criteria_raw": eligibility_criteria_raw,
         "min_age_years": min_age_years,
@@ -321,6 +346,7 @@ def upsert_trial(
             phase,
             overall_status,
             conditions,
+            conditions_cuis,
             interventions,
             eligibility_criteria_raw,
             min_age_years,
@@ -343,7 +369,9 @@ def upsert_trial(
             %(study_type)s,
             %(phase)s,
             %(overall_status)s,
+            %(overall_status)s,
             %(conditions)s,
+            %(conditions_cuis)s,
             %(interventions)s,
             %(eligibility_criteria_raw)s,
             %(min_age_years)s,
@@ -367,6 +395,7 @@ def upsert_trial(
             phase = EXCLUDED.phase,
             overall_status = EXCLUDED.overall_status,
             conditions = EXCLUDED.conditions,
+            conditions_cuis = EXCLUDED.conditions_cuis,
             interventions = EXCLUDED.interventions,
             eligibility_criteria_raw = EXCLUDED.eligibility_criteria_raw,
             min_age_years = EXCLUDED.min_age_years,
