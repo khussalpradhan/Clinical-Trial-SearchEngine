@@ -1092,7 +1092,7 @@ def rank_trials(body: RankRequest):
 
     # Always search over a candidate pool of 1000 docs for /rank,
     # but only return the top 20 to clients.
-    candidate_size = 1000
+    candidate_size = 10000
     page = 1
     size = 20
 
