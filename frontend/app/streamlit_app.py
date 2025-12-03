@@ -195,6 +195,8 @@ if st.session_state.page == "trial":
         "Phase": trial.get("phase", "N/A"),
         "Status": trial.get("overall_status", "N/A"),
         "Study Type": trial.get("study_type", "N/A"),
+        "Age Group": f"{trial.get('min_age_years', 'N/A')} - {trial.get('max_age_years', 'N/A')} Years",
+        "Gender": trial.get("sex", "All"),
         "Conditions": ", ".join(trial.get("conditions", [])) if trial.get("conditions") else None,
         "Locations": ", ".join([loc.get("facility_name", "") + ", " + loc.get("city", "") + (", " + loc.get("country", "") if loc.get("country") else "") for loc in trial.get("locations", [])]) if trial.get("locations") else None,
     }

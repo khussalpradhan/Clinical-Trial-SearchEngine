@@ -131,6 +131,10 @@
       },
       "enrollment": {
         "type": "integer"
+      },
+      "parsed_criteria": {
+        "type": "object",
+        "enabled": false
       }
     }
   }

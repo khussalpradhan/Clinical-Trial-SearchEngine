@@ -476,9 +476,9 @@ def _apply_feasibility_rerank(
 
     retrieval_raw_values: List[float] = []
     for hit in hits:
-        base = hit.retrieval_score_raw
+        base = hit.score
         if base is None:
-            base = hit.score
+            base = 0.0
         retrieval_raw_values.append(float(base))
 
     if retrieval_raw_values:
@@ -1090,7 +1090,7 @@ def rank_trials(body: RankRequest):
     if normalized_biomarkers:
         body.profile.biomarkers = normalized_biomarkers
 
-    # Always search over a candidate pool of 500 docs for /rank,
+    # Always search over a candidate pool of 1000 docs for /rank,
     # but only return the top 20 to clients.
     candidate_size = 1000
     page = 1
