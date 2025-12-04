@@ -394,7 +394,7 @@ def rank_trials(body: RankRequest):
     - The profile JSON is converted into a compact text query.
     - That query is fed to:
         - BM25 (OpenSearch) over trial documents
-        - Dense retrieval (MiniLM + FAISS) when available
+        - Dense retrieval (PubMedBERT + FAISS) when available
     - We always fetch up to 500 BM25 candidates, apply hybrid scoring,
       optionally blend with the NLP feasibility score, and then return the
       requested page/size from that candidate set.
@@ -431,18 +431,13 @@ def rank_trials(body: RankRequest):
 
     # small query expansion with synonyms to boost BM25 recall
     # DISABLED: Causing query drift and recall drop
-    # if normalized_conditions:
-    #     extra_terms = _expand_condition_synonyms_for_query(normalized_conditions)
-    #     if extra_terms:
-    #         q_text = f"{q_text}. Related terms: " + ", ".join(extra_terms)
-    
     
     if normalized_conditions:
         body.profile.conditions = normalized_conditions
     if normalized_biomarkers:
         body.profile.biomarkers = normalized_biomarkers
 
-    # Always search over a candidate pool of 1000 docs for /rank,
+    # Always search over a candidate pool of 500 docs for /rank,
     # but only return the top 20 to clients.
     candidate_size = 500
     page = 1
