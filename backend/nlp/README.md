@@ -5,28 +5,29 @@ This module houses the core intelligence of the Clinical Trial Search Engine. It
 ## Key Files
 
 ### 1. Core Logic
-- **`criteria_parser.py`**: The NLP engine. Uses regex and spaCy to extract specific clinical data:
-  - **Conditions:** (e.g., NSCLC, Breast Cancer, Heart Failure, CKD, Respiratory Failure, Liver Failure, Leukemia, Prostate, Skin, Cervical, Bone; examples only — full coverage in `clinical_synonyms.json`)
-  - **Biomarkers/Genetics:** (e.g., EGFR, HER2, ALK, KRAS, BRAF, BCR-ABL, FLT3, CD19, ER_Status, PR_Status; examples only — full coverage in `clinical_synonyms.json`)
-  - **Lab Values:** (e.g., Creatinine, GFR, Bilirubin, AST, ALT, INR, PSA, Testosterone, BNP, LVEF, Platelets, Hemoglobin, ANC; examples only — full coverage in `clinical_synonyms.json`)
-  - **Demographics:** (Age Range [Min/Max], Gender [Male/Female/All])
-  - **Hard Exclusions:** (CNS Metastases, HIV, Hepatitis B/C, Pregnancy/Lactation, Prior Malignancy)
-  - **Temporal Rules:** (Washout periods for chemotherapy or surgery in days/weeks)
-  - **Treatment History:** (Min/Max allowed Lines of Therapy, Treatment Naïve status)
+- **`criteria_parser.py`**: The NLP engine. Uses **Regex and Dictionary Lookups** (via `clinical_synonyms.json`) to extract specific clinical data. (Note: spaCy is initialized but primary extraction is currently regex-based for speed and predictability).
+  - **Conditions:** (e.g., NSCLC, Breast Cancer, Heart Failure...)
+  - **Biomarkers/Genetics:** (e.g., EGFR, HER2, ALK, KRAS...)
+  - **Lab Values:** (e.g., Creatinine, GFR, Bilirubin...)
+  - **Demographics:** (Age Range, Gender)
+  - **Hard Exclusions:** (CNS Metastases, HIV, Pregnancy...)
+  - **Temporal Rules:** (Washout periods)
+  - **Treatment History:** (Lines of Therapy)
 
 - **`feasibility_scorer.py`**: The judgment engine. Compares a Patient Profile against the parsed trial data to calculate a score based on weighted logic:
-  - **Hard Exclusions:** (Score = 0 if patient has a banned condition like Pregnancy or CNS Mets)
+  - **Hard Exclusions:** (Score = 0 if patient has a banned condition)
   - **Condition Match:** (+40 points if the trial explicitly treats the patient's disease)
-  - **Biomarker Match:** (+25 points if patient matches a required genomic marker like EGFR or HER2)
-  - **ECOG Status:** (+15 points if patient's ECOG score is within the trial's allowed range)
-  - **Lines of Therapy:** (+10 points if patient's prior history fits the trial's specific window, e.g. 2nd Line)
-  - **Lab Thresholds:** (+5 points per passed lab value, e.g. Creatinine < 1.5)
-    - Note: Lab points are capped at a maximum of +15 total.
-  - **Age:** (+5 points for demographic fit)
-  - **Gender:** (+5 points for demographic fit)
-  - **Washout Periods:** (+5 points if patient clears required washout days)
+  - **Biomarker Match:** (+25 points if patient matches a required genomic marker)
+  - **ECOG Status:** (+15 points if patient's ECOG score is within range)
+  - **Lines of Therapy:** (+10 points if patient's prior history fits)
+  - **Lab Thresholds:** (+5 points per passed lab value, capped at +15)
+  - **Age/Gender/Washout:** (+5 points each)
 
-- **`__init__.py`**: The API entry point. Exposes the `rank_trials(patient, trials)` function for the backend to use.
+- **`umls_linker.py`**: Advanced Entity Linking module. Uses `scispacy` to extract UMLS Concept Unique Identifiers (CUIs) from text. Used by `feasibility_scorer.py` for more accurate, synonym-aware condition matching.
+
+- **`biomarker_normalizer.py` & `condition_normalizer.py`**: Helper scripts to standardize user input (e.g., mapping "lung cancer" -> "NSCLC" or "Her-2" -> "HER2") before passing it to the search engine.
+
+- **`__init__.py`**: The API entry point. Exposes the `rank_trials` function.
 
 ### 2. Data & Setup
 - **`fetch_synonyms.py`**: A hybrid ingestion script. It fetches synonyms from the UMLS API for the 11 targeted conditions and injects the manually curated list of biomarkers/labs. Generates `clinical_synonyms.json`.
