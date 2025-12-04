@@ -160,8 +160,8 @@ class IndexRequest(BaseModel):
 # Patient profile models (JSON input for /rank)
 # -----------------------------
 class PatientProfile(BaseModel):
-    age: int
-    gender: str
+    age: Optional[int] = None
+    gender: Optional[str] = None
 
     # Allow these list fields to be nullable in incoming JSON; coerce None -> []
     conditions: Optional[List[str]] = None
@@ -185,6 +185,7 @@ class RankRequest(BaseModel):
     Structured patient profile for /rank, plus optional filters and weights.
     """
     profile: PatientProfile
+    query: Optional[str] = None 
     phase: Optional[str] = None
     overall_status: Optional[str] = None
     condition: Optional[str] = None
@@ -380,6 +381,90 @@ def _expand_condition_synonyms_for_query(normalized_conditions: List[str], max_t
         if len(expanded) >= max_terms:
             break
     return expanded
+
+
+# -----------------------------
+# Endpoint: /rank
+# -----------------------------
+@app.post("/rank", response_model=SearchResponse, tags=["ranking"])
+def rank_trials(body: RankRequest):
+    """
+    Rank trials for a given structured patient profile (JSON).
+
+    - The profile JSON is converted into a compact text query.
+    - That query is fed to:
+        - BM25 (OpenSearch) over trial documents
+        - Dense retrieval (MiniLM + FAISS) when available
+    - We always fetch up to 500 BM25 candidates, apply hybrid scoring,
+      optionally blend with the NLP feasibility score, and then return the
+      requested page/size from that candidate set.
+    """
+
+    import time
+    t0 = time.time()
+    
+    normalized_conditions = []
+    normalized_biomarkers = []
+    if body.profile.conditions:
+        try:
+            normalizer = get_condition_normalizer()
+            normalized_conditions = normalizer.normalize_list(body.profile.conditions)
+        except Exception as e:
+            logger.warning(f"Condition normalization failed: {e}, using original conditions")
+            normalized_conditions = body.profile.conditions
+
+    # Normalize biomarkers for feasibility scoring (keep originals for BM25 text)
+    if body.profile.biomarkers:
+        try:
+            bnorm = get_biomarker_normalizer()
+            normalized_biomarkers = bnorm.normalize_list(body.profile.biomarkers)
+        except Exception as e:
+            logger.warning(f"Biomarker normalization failed: {e}, using original biomarkers")
+            normalized_biomarkers = body.profile.biomarkers
+
+    
+    # Use user-provided query if available, otherwise build from profile
+    if body.query and body.query.strip():
+        q_text = body.query.strip()
+    else:
+        q_text = build_profile_query_text(body.profile)
+
+    # small query expansion with synonyms to boost BM25 recall
+    # DISABLED: Causing query drift and recall drop
+    # if normalized_conditions:
+    #     extra_terms = _expand_condition_synonyms_for_query(normalized_conditions)
+    #     if extra_terms:
+    #         q_text = f"{q_text}. Related terms: " + ", ".join(extra_terms)
+    
+    
+    if normalized_conditions:
+        body.profile.conditions = normalized_conditions
+    if normalized_biomarkers:
+        body.profile.biomarkers = normalized_biomarkers
+
+    # Always search over a candidate pool of 1000 docs for /rank,
+    # but only return the top 20 to clients.
+    candidate_size = 500
+    page = 1
+    size = 20
+
+    t1 = time.time()
+    logger.info(f"Normalization & Setup took: {t1-t0:.4f}s")
+
+    return _search_trials_internal(
+        q=q_text,
+        page=page,
+        size=size,
+        phase=body.phase,
+        overall_status=body.overall_status,
+        condition=body.condition,
+        country=body.country,
+        bm25_weight=body.bm25_weight,
+        candidate_size=candidate_size,
+        patient_profile=body.profile,
+        feasibility_weight=body.feasibility_weight,
+        use_candidate_total=True,
+    )
 
 
 # -----------------------------
@@ -1039,80 +1124,7 @@ def search_trials(
     )
 
 
-@app.post("/rank", response_model=SearchResponse, tags=["ranking"])
-def rank_trials(body: RankRequest):
-    """
-    Rank trials for a given structured patient profile (JSON).
 
-    - The profile JSON is converted into a compact text query.
-    - That query is fed to:
-        - BM25 (OpenSearch) over trial documents
-        - Dense retrieval (MiniLM + FAISS) when available
-    - We always fetch up to 100 BM25 candidates, apply hybrid scoring,
-      optionally blend with the NLP feasibility score, and then return the
-      requested page/size from that candidate set.
-    """
-
-    import time
-    t0 = time.time()
-    
-    normalized_conditions = []
-    normalized_biomarkers = []
-    if body.profile.conditions:
-        try:
-            normalizer = get_condition_normalizer()
-            normalized_conditions = normalizer.normalize_list(body.profile.conditions)
-        except Exception as e:
-            logger.warning(f"Condition normalization failed: {e}, using original conditions")
-            normalized_conditions = body.profile.conditions
-
-    # Normalize biomarkers for feasibility scoring (keep originals for BM25 text)
-    if body.profile.biomarkers:
-        try:
-            bnorm = get_biomarker_normalizer()
-            normalized_biomarkers = bnorm.normalize_list(body.profile.biomarkers)
-        except Exception as e:
-            logger.warning(f"Biomarker normalization failed: {e}, using original biomarkers")
-            normalized_biomarkers = body.profile.biomarkers
-
-    
-    q_text = build_profile_query_text(body.profile)
-    # small query expansion with synonyms to boost BM25 recall
-    # DISABLED: Causing query drift and recall drop
-    # if normalized_conditions:
-    #     extra_terms = _expand_condition_synonyms_for_query(normalized_conditions)
-    #     if extra_terms:
-    #         q_text = f"{q_text}. Related terms: " + ", ".join(extra_terms)
-    
-    
-    if normalized_conditions:
-        body.profile.conditions = normalized_conditions
-    if normalized_biomarkers:
-        body.profile.biomarkers = normalized_biomarkers
-
-    # Always search over a candidate pool of 500 docs for /rank,
-    # but only return the top 20 to clients.
-    candidate_size = 500
-    page = 1
-    size = 20
-
-    t1 = time.time()
-    logger.info(f"Normalization & Setup took: {t1-t0:.4f}s")
-
-    return _search_trials_internal(
-        q=q_text,
-        page=page,
-        size=size,
-        phase=body.phase,
-        overall_status=body.overall_status,
-        condition=body.condition,
-        country=body.country,
-        bm25_weight=body.bm25_weight,
-        candidate_size=candidate_size,
-        patient_profile=body.profile,
-        feasibility_weight=body.feasibility_weight,
-        use_candidate_total=True,
-    )
 
 
 @app.post("/admin/scrape", tags=["admin"])

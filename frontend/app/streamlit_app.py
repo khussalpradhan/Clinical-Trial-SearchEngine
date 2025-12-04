@@ -247,6 +247,11 @@ if st.session_state.page == "trial":
 st.markdown("<h1 style='color:white;'>🧬 Clinical Trial Finder</h1>", unsafe_allow_html=True)
 
 # ============================================
+# PATIENT DESCRIPTION (Vignette)
+# ============================================
+description = st.text_area("Patient Description / Vignette", height=150, placeholder="Paste full patient history here...")
+
+# ============================================
 # PATIENT DETAILS (collapsible)
 # ============================================
 
@@ -471,6 +476,7 @@ payload = {
     "phase": None,
     "overall_status": None,
     "condition": condition_input if condition_input else None,
+    "query": description if description else None,
     "country": None,
     "bm25_weight": 0.5,
     "feasibility_weight": 0.6
