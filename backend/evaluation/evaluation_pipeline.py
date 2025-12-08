@@ -165,7 +165,7 @@ all_results = {
     **feasibility_results
 }
 
-print("\n========= FINAL METRICS =========")
+print("\n========= FINAL METRICS (Complete Model) =========")
 for k, v in all_results.items():
     print(f"{k}: {v}")
 
