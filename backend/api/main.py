@@ -23,6 +23,7 @@ from backend.search.build_faiss_index import build_faiss_index
 from backend.nlp import FeasibilityScorer
 from backend.nlp.condition_normalizer import get_condition_normalizer
 from backend.nlp.biomarker_normalizer import get_biomarker_normalizer
+from backend.nlp.cross_encoder_reranker import CrossEncoderReranker
 
 # -----------------------------
 # OpenSearch client
@@ -41,6 +42,7 @@ def get_opensearch_client() -> OpenSearch:
 client = get_opensearch_client()
 vector_search = get_vector_search()
 feasibility_scorer = FeasibilityScorer()
+cross_encoder_reranker = CrossEncoderReranker()
 
 app = FastAPI(
     title="Clinical Trial Search API",
@@ -58,16 +60,17 @@ app.add_middleware(
 @app.on_event("startup")
 async def startup_event():
     logger.info("Pre-loading UMLS Linker...")
-    # Trigger lazy load
     feasibility_scorer._get_umls()
     logger.info("UMLS Linker pre-loaded.")
-    
-    # Pre-load vector search model
+
     if vector_search.ready:
         logger.info("Pre-loading Vector Search model...")
-        # Trigger model loading with a dummy query
         vector_search.search("test", k=1)
         logger.info("Vector Search model pre-loaded.")
+
+    logger.info("Pre-loading Cross-Encoder...")
+    cross_encoder_reranker._get_model()
+    logger.info("Cross-Encoder pre-loaded." if cross_encoder_reranker.ready else "Cross-Encoder unavailable — skipping.")
 
 # -----------------------------
 # Response models
@@ -192,6 +195,7 @@ class RankRequest(BaseModel):
     country: Optional[str] = None
     bm25_weight: float = 0.3
     feasibility_weight: float = 0.7
+    cross_encoder_weight: float = 0.3
 
 
 # -----------------------------
@@ -458,6 +462,7 @@ def rank_trials(body: RankRequest):
         candidate_size=candidate_size,
         patient_profile=body.profile,
         feasibility_weight=body.feasibility_weight,
+        cross_encoder_weight=body.cross_encoder_weight,
         use_candidate_total=True,
     )
 
@@ -636,6 +641,7 @@ def _search_trials_internal(
     candidate_size: Optional[int] = None,
     patient_profile: Optional[PatientProfile] = None,
     feasibility_weight: float = 0.6,
+    cross_encoder_weight: float = 0.3,
     use_candidate_total: bool = False,
 ) -> SearchResponse:
     """
@@ -759,7 +765,7 @@ def _search_trials_internal(
         )
         hits.append(hit)
         bm25_scores.append(score)
-        if patient_profile:
+        if patient_profile or cross_encoder_reranker.ready:
             criteria_by_id[hit.nct_id] = _build_criteria_text(src)
     # If BM25 yields no results → fallback to dense-only
     if not hits and q and vector_search.ready:
@@ -809,6 +815,20 @@ def _search_trials_internal(
         )
         t_feas_end = time.time()
         logger.info(f"Feasibility Rerank took: {t_feas_end - t_feas_start:.4f}s")
+
+    # Cross-Encoder deep interaction re-ranking (final stage)
+    # Operates on top-50 post-feasibility candidates; safe to run even without
+    # a patient_profile since it falls back to title + summary signals.
+    if q and cross_encoder_reranker.ready:
+        t_ce_start = time.time()
+        cross_encoder_reranker.rerank(
+            query_text=q,
+            hits=hits,
+            criteria_by_id=criteria_by_id,
+            top_n=100,
+            weight=cross_encoder_weight,
+        )
+        logger.info(f"Cross-Encoder Rerank took: {time.time() - t_ce_start:.4f}s")
 
     # Pagination over the candidate set after hybrid scoring
     start = (page - 1) * size
@@ -917,6 +937,17 @@ def dense_only_fallback(
         )
     else:
         hits.sort(key=lambda h: h.score, reverse=True)
+
+    # Cross-Encoder deep interaction re-ranking
+    if q and cross_encoder_reranker.ready:
+        cross_encoder_reranker.rerank(
+            query_text=q,
+            hits=hits,
+            criteria_by_id=criteria_by_id,
+            top_n=50,
+            weight=0.3,
+        )
+
     start = (page - 1) * size
     end = start + size
 

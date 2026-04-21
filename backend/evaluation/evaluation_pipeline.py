@@ -115,99 +115,90 @@ def build_run(queries):
 # --------------------------------------------------------
 # Main evaluation
 # --------------------------------------------------------
-queries = load_queries_csv("./backend/evaluation/converted_queries_using_openai.csv")
-qrels = load_qrels_tsv("./backend/evaluation/qrels_trec.tsv")
-run, hit_metadata = build_run(queries)
+if __name__ == "__main__":
+    print("Loading queries from CSV...")
+    queries = load_queries_csv("./backend/evaluation/converted_queries_using_openai.csv")
+    print(f"Loaded {len(queries)} queries.")
 
-ranking_results = evaluate(
-    qrels=Qrels.from_dict(qrels),
-    run=Run.from_dict(run),
-    
-    # metrics=["mrr@10", "ndcg@10", "recall@100"]
-    metrics = [
-    # ranking metrics
-    "mrr@10",
-    "ndcg@3", "ndcg@5", "ndcg@10", "ndcg@20",
-    "map@10",
+    print("Loading QRELs...")
+    qrels = load_qrels_tsv("./backend/evaluation/qrels_trec.tsv")
+    print(f"Loaded QRELs for {len(qrels)} queries.")
 
-    # precision / recall
-    "precision@1", "precision@3", "precision@5", "precision@10", "precision@20",
-    "recall@5", "recall@10", "recall@20", "recall@100",
+    print("Running search...")
+    run, hit_metadata = build_run(queries)
+    print("Search complete.")
 
-    # others
-    "hit_rate@1", "hit_rate@5", "hit_rate@10",
-    "f1@5", "f1@10", "f1@20",
-    "bpref",
-   ]
+    print("Evaluating...")
+    ranking_results = evaluate(
+        qrels=Qrels.from_dict(qrels),
+        run=Run.from_dict(run),
+        make_comparable=True,
+        metrics=[
+            # ranking metrics
+            "mrr@10",
+            "ndcg@3", "ndcg@5", "ndcg@10", "ndcg@20",
+            "map@10",
 
-        
-    # custom_metrics=get_custom_metrics(hit_metadata)
+            # precision / recall
+            "precision@1", "precision@3", "precision@5", "precision@10", "precision@20",
+            "recall@5", "recall@10", "recall@20", "recall@100",
 
-)
+            # others
+            "hit_rate@1", "hit_rate@5", "hit_rate@10",
+            "f1@5", "f1@10", "f1@20",
+            "bpref",
+        ],
+    )
 
+    feasibility_results = compute_all_feasibility_metrics(qrels, run, hit_metadata)
 
+    OUTPUT_CSV = "metrics_report.csv"
+    OUTPUT_JSON = "metrics_report.json"
+    CHART_DIR = "metrics_charts"
 
-feasibility_results = compute_all_feasibility_metrics(qrels, run, hit_metadata)
+    all_results = {
+        **ranking_results,
+        **feasibility_results,
+    }
 
-# print("\nRanking Metrics (Ranx):")
-# print(results)
+    print("\n========= FINAL METRICS (Complete Model) =========")
+    for k, v in all_results.items():
+        print(f"{k}: {v}")
 
-# print("\nFeasibility Metrics:")
-# print(feasibility_results)
+    # =========================================================
+    #        5. SAVE RESULTS (CSV + JSON)
+    # =========================================================
+    print(f"\nSaving CSV to {OUTPUT_CSV} ...")
+    with open(OUTPUT_CSV, "w", newline="", encoding="utf-8") as f:
+        writer = csv.writer(f)
+        writer.writerow(["metric", "value"])
+        for metric, value in all_results.items():
+            writer.writerow([metric, float(value)])
 
+    print(f"Saving JSON to {OUTPUT_JSON} ...")
+    with open(OUTPUT_JSON, "w", encoding="utf-8") as f:
+        json.dump(all_results, f, indent=4)
 
-OUTPUT_CSV   = "metrics_report.csv"
-OUTPUT_JSON  = "metrics_report.json"
-CHART_DIR    = "metrics_charts"
+    os.makedirs(CHART_DIR, exist_ok=True)
 
-all_results = {
-    **ranking_results,
-    **feasibility_results
-}
+    def save_bar_chart(title, values, filename):
+        plt.figure(figsize=(10, 6))
+        plt.bar(values.keys(), values.values())
+        plt.xticks(rotation=45, ha='right')
+        plt.title(title)
+        plt.tight_layout()
+        plt.savefig(os.path.join(CHART_DIR, filename))
+        plt.close()
 
-print("\n========= FINAL METRICS (Complete Model) =========")
-for k, v in all_results.items():
-    print(f"{k}: {v}")
+    # --- Chart 1: Ranking Metrics ---
+    ranking_subset = {
+        k: float(ranking_results[k])
+        for k in ["mrr@10", "ndcg@10", "map@10",
+                  "precision@10", "recall@10", "f1@10"]
+    }
+    save_bar_chart("Main Ranking Metrics", ranking_subset, "ranking_metrics.png")
 
+    # --- Chart 2: Feasibility Metrics ---
+    save_bar_chart("Feasibility Metrics", feasibility_results, "feasibility_metrics.png")
 
-# =========================================================
-#        5. SAVE RESULTS (CSV + JSON)
-# =========================================================
-print(f"\nSaving CSV to {OUTPUT_CSV} ...")
-
-with open(OUTPUT_CSV, "w", newline="", encoding="utf-8") as f:
-    writer = csv.writer(f)
-    writer.writerow(["metric", "value"])
-    for metric, value in all_results.items():
-        writer.writerow([metric, float(value)])
-
-print(f"Saving JSON to {OUTPUT_JSON} ...")
-
-with open(OUTPUT_JSON, "w", encoding="utf-8") as f:
-    json.dump(all_results, f, indent=4)
-
-os.makedirs(CHART_DIR, exist_ok=True)
-
-def save_bar_chart(title, values, filename):
-    plt.figure(figsize=(10, 6))
-    plt.bar(values.keys(), values.values())
-    plt.xticks(rotation=45, ha='right')
-    plt.title(title)
-    plt.tight_layout()
-    plt.savefig(os.path.join(CHART_DIR, filename))
-    plt.close()
-
-
-# --- Chart 1: Ranking Metrics ---
-ranking_subset = {
-    k: float(ranking_results[k])
-    for k in ["mrr@10", "ndcg@10", "map@10",
-              "precision@10", "recall@10", "f1@10"]
-}
-
-save_bar_chart("Main Ranking Metrics", ranking_subset, "ranking_metrics.png")
-
-# --- Chart 2: Feasibility Metrics ---
-save_bar_chart("Feasibility Metrics", feasibility_results, "feasibility_metrics.png")
-
-print("\nCharts saved in:", CHART_DIR)
+    print("\nCharts saved in:", CHART_DIR)

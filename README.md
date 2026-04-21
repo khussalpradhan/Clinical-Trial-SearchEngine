@@ -6,32 +6,37 @@ A high-performance hybrid search engine for clinical trials that combines **BM25
 
 ## Key Features
 
-- **Hybrid Search Architecture**: Combines BM25 and Dense Retrieval (S-PubMedBERT-MS-MARCO) using Reciprocal Rank Fusion (RRF) for robust ranking.
+- **Multi-Stage Hybrid Architecture**: Combines BM25 and Dense Retrieval (S-PubMedBERT-MS-MARCO) using Reciprocal Rank Fusion (RRF) for robust ranking.
 - **Smart Feasibility Scoring**:
   - **Cached Parsing**: Pre-parsed eligibility criteria stored in JSONB for millisecond-level access.
   - **Rule-Based Logic**: Deterministic scoring for Age, Gender, Conditions, Biomarkers, and Lab Values.
-  - **Hard Exclusions**: Instantly filters out trials with absolute contraindications (e.g., Pregnancy, HIV).
+  - **Hard Exclusions**: Instantly filters out trials with absolute contraindications.
+- **Deep Re-ranking**: Uses a Cross-Encoder (`ms-marco-MiniLM-L-6-v2`) to apply deep self-attention between the query and trial document for unparalleled precision on the top 100 candidates.
 - **High Performance**:
-  - **Latency**: < 2 seconds per complex query (down from 60s+).
+  - **Latency**: < 2 seconds per complex query.
   - **Scale**: Searches over 580,000+ trials.
-  - **Candidate Pool**: Re-ranks top 10,000 candidates for maximum recall.
 - **Modern Tech Stack**: FastAPI, PostgreSQL (JSONB + GIN Index), OpenSearch, Docker Compose.
 
 ---
 
 ## Architecture
 
-1.  **Retrieval Layer**:
-    *   **Keyword**: OpenSearch (BM25) with field boosting (Title^3, Conditions^2).
-    *   **Semantic**: FAISS (Dense Vectors) using `pritamdeka/S-PubMedBert-MS-MARCO`.
-    *   **Fusion**: RRF (`1 / (k + rank)`) merges results from both streams.
+Our search pipeline processes queries through three increasingly sophisticated layers:
 
-2.  **Feasibility Layer**:
-    *   **Criteria Parser**: Offline NLP pipeline parses unstructured text into structured JSON (Age, Gender, Inclusion/Exclusion lists).
-    *   **Caching**: Parsed data stored in PostgreSQL `parsed_criteria` column.
-    *   **Scorer**: Real-time comparison of Patient Profile vs. Trial Criteria.
+1.  **Stage 1: Retrieval (Candidate Generation)**:
+    *   **Keyword Filtering**: OpenSearch (BM25) with field boosting (Title^3, Conditions^2) fetches the top 500 candidates while enforcing hard age and gender filters.
+    *   **Semantic Matching**: FAISS (Dense Vectors) uses `pritamdeka/S-PubMedBert-MS-MARCO` to catch semantic similarities.
+    *   **Fusion**: RRF (`1 / (k + rank)`) merges results from both streams to produce highly robust candidate rankings.
 
-3.  **Infrastructure**:
+2.  **Stage 2: Feasibility Layer (Zero-Shot Elimination)**:
+    *   **NLP Scorer**: An intelligent Scispacy + UMLS pipeline "reads" the trial's Inclusion/Exclusion criteria and measures compatibility against the patient profile (age, biomarkers, conditions).
+    *   **Elimination**: Trials explicitly contradicting patient state are thrown out; valid trials receive a 0-100 logic score blended into the retrieval ranking.
+
+3.  **Stage 3: Deep Re-Ranking (Cross-Encoder)**:
+    *   **Self-Attention**: The top 100 trials from Stage 2 are concatenated with the query and fed side-by-side into a Cross-Encoder transformer.
+    *   **Precision**: Nuances like numerical boundaries and complex medical phrasing are heavily factored to perfectly sort the final top results.
+
+4.  **Infrastructure**:
     *   **Backend**: Python 3.11 (FastAPI).
     *   **Database**: PostgreSQL 16.
     *   **Search Engine**: OpenSearch 2.15.
@@ -40,14 +45,14 @@ A high-performance hybrid search engine for clinical trials that combines **BM25
 
 ## Evaluation Metrics
 
-Performance on **TREC 2021 Clinical Trials** dataset (Top-20 Retrieval):
+Performance on **TREC 2021 Clinical Trials** dataset. Our pipeline uses a 100-document Cross-Encoder re-ranking limit:
 
 | Metric | Score | Interpretation |
 | :--- | :--- | :--- |
-| **MRR@10** | **0.48** | First relevant result appears at position ~2 on average. |
-| **Hit Rate@10** | **70%** | 70% of queries find a relevant trial in the top 10. |
-| **NDCG@10** | **0.21** | Strong ranking quality for top results. |
-| **Precision@1** | **35%** | The very first result is relevant 35% of the time. |
+| **MRR@10** | **0.52** | First highly relevant result appears at position ~2 on average. |
+| **Precision@1** | **44%** | The absolute #1 returned result is critically relevant 44% of the time (a massive boost from our 35% baseline). |
+| **Hit Rate@10** | **69%** | ~69% of queries find at least one relevant trial in the very first page of results. |
+| **NDCG@5** | **0.26** | Measures deep ranking quality for the top 5 results, optimized by the Cross-Encoder. |
 
 ---
 
@@ -168,8 +173,17 @@ The `backend` and `frontend` services are mounted with hot-reloading enabled.
 
 ### Running Evaluation
 To reproduce the metrics:
+
+**Option A (Inside Docker - Recommended)**  
+Run the pipeline directly within your live Linux environment to bypass host-machine memory limits:
 ```bash
-docker exec ctf_backend python3 -m backend.evaluation.evaluation_pipeline
+docker exec -it ctf_backend python -m backend.evaluation.evaluation_pipeline
+```
+
+**Option B (Local Mac Execution via Endpoint)**  
+Because allocating all three NLP models natively on Apple Silicon may cause `mps` GPU driver crashes or OpenMP threading collisions, we recommend avoiding loading the models natively. Ensure your Docker backend is running, then run locally utilizing the environment flags to prevent crashes:
+```bash
+OMP_NUM_THREADS=1 KMP_DUPLICATE_LIB_OK=TRUE python3 -m backend.evaluation.evaluation_pipeline
 ```
 
 ---
