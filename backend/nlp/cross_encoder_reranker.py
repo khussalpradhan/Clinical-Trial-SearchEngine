@@ -103,7 +103,7 @@ class CrossEncoderReranker:
         query_text: str,
         hits: list,
         criteria_by_id: dict,
-        top_n: int = 50,
+        top_n: int = 100,
         weight: float = 0.3,
     ) -> None:
         """

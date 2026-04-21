@@ -48,7 +48,7 @@ class VectorSearch:
         if "S-PubMedBert-MS-MARCO" not in model_name:
             model_name = "pritamdeka/S-PubMedBert-MS-MARCO"
         
-        self._model = SentenceTransformer(model_name)
+        self._model = SentenceTransformer(model_name, device="cpu")
         self._loaded = True
 
     @property

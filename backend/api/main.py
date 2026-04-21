@@ -825,7 +825,7 @@ def _search_trials_internal(
             query_text=q,
             hits=hits,
             criteria_by_id=criteria_by_id,
-            top_n=50,
+            top_n=100,
             weight=cross_encoder_weight,
         )
         logger.info(f"Cross-Encoder Rerank took: {time.time() - t_ce_start:.4f}s")
