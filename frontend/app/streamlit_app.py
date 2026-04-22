@@ -61,26 +61,6 @@ body, .stApp {
 .subtitle {
     text-align: center;
     opacity: 0.6;
-    margin-bottom: 30px;
-}
-
-/* Search Bar */
-
-.stTextInput input {
-    background-color: #0d1117 !important;
-    border: 1px solid #30363d !important;
-    border-radius: 14px !important;
-    padding: 14px !important;
-    color: white !important;
-}
-
-/* Dropdown */
-
-.stSelectbox div[data-baseweb="select"] {
-    background-color: #0d1117 !important;
-    border-radius: 10px !important;
-}
-
 /* Buttons */
 
 .stButton button {
@@ -173,15 +153,21 @@ if st.session_state.page == "trial":
     status  = _v(trial.get("overall_status"))
     nct_id  = trial.get("nct_id", "")
 
-    min_age = _v(trial.get("minimum_age") or trial.get("min_age") or elig_mod.get("minimumAge"))
-    max_age = _v(trial.get("maximum_age") or trial.get("max_age") or elig_mod.get("maximumAge"))
-    sex     = _v(trial.get("sex") or trial.get("gender") or elig_mod.get("sex"))
+    # Properly extract from backend TrialDetail fields: min_age_years, max_age_years, sex
+    min_age = trial.get("min_age_years") if trial.get("min_age_years") is not None else trial.get("minimum_age")
+    max_age = trial.get("max_age_years") if trial.get("max_age_years") is not None else trial.get("maximum_age")
+    sex_val = trial.get("sex") if trial.get("sex") is not None else trial.get("gender")
+
+    min_age = _v(min_age)
+    max_age = _v(max_age)
+    sex     = _v(sex_val)
+    
     brief   = _v(trial.get("brief_summary") or trial.get("description"), "")
 
-    inc_raw = trial.get("inclusion_criteria") or trial.get("inclusion") or ""
-    exc_raw = trial.get("exclusion_criteria") or trial.get("exclusion") or ""
+    inc_raw = trial.get("criteria_inclusion") or trial.get("inclusion_criteria") or ""
+    exc_raw = trial.get("criteria_exclusion") or trial.get("exclusion_criteria") or ""
     if not inc_raw and not exc_raw:
-        raw_block = trial.get("eligibility_criteria") or elig_mod.get("eligibilityCriteria") or ""
+        raw_block = trial.get("eligibility_criteria_raw") or trial.get("eligibility_criteria") or elig_mod.get("eligibilityCriteria") or ""
         inc_raw, exc_raw = _parse_elig(raw_block)
 
     # ── Render with native Streamlit widgets (no custom CSS classes) ─────────
@@ -190,28 +176,40 @@ if st.session_state.page == "trial":
     st.caption(f"Phase {phase}  •  {status}" + (f"  •  {nct_id}" if nct_id else ""))
     st.divider()
 
-    col1, col2, col3 = st.columns(3)
-    col1.metric("Min Age", min_age)
-    col2.metric("Max Age", max_age)
-    col3.metric("Sex", sex)
-
-    st.divider()
+    # Custom HTML for metrics so they are bright and clear (not grayed out)
+    st.markdown(f"""
+    <div style="display: flex; gap: 20px; margin-bottom: 20px;">
+        <div style="flex: 1; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 15px; text-align: center;">
+            <div style="color: #9ca3af; font-size: 14px; font-weight: 500; text-transform: uppercase; letter-spacing: 1px;">Min Age</div>
+            <div style="color: white; font-size: 28px; font-weight: 700; margin-top: 5px;">{min_age}</div>
+        </div>
+        <div style="flex: 1; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 15px; text-align: center;">
+            <div style="color: #9ca3af; font-size: 14px; font-weight: 500; text-transform: uppercase; letter-spacing: 1px;">Max Age</div>
+            <div style="color: white; font-size: 28px; font-weight: 700; margin-top: 5px;">{max_age}</div>
+        </div>
+        <div style="flex: 1; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 15px; text-align: center;">
+            <div style="color: #9ca3af; font-size: 14px; font-weight: 500; text-transform: uppercase; letter-spacing: 1px;">Sex</div>
+            <div style="color: white; font-size: 28px; font-weight: 700; margin-top: 5px;">{sex}</div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
 
     st.markdown("#### Summary")
     st.write(brief if brief else "N/A")
 
     st.divider()
 
-    st.markdown("#### Inclusion Criteria")
-    st.write(inc_raw if inc_raw else "N/A")
+    st.markdown("<h4 style='color: #e6edf3; margin-top: 30px; margin-bottom: 15px; font-weight: 600; font-size: 18px;'>Inclusion Criteria</h4>", unsafe_allow_html=True)
+    st.markdown(f"""
+    <div style='background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 20px; color: #b1bac4; font-size: 14px; line-height: 1.7; white-space: pre-wrap; font-family: "Inter", sans-serif;'>{inc_raw if inc_raw else 'N/A'}</div>
+    """, unsafe_allow_html=True)
 
-    st.divider()
+    st.markdown("<h4 style='color: #e6edf3; margin-top: 30px; margin-bottom: 15px; font-weight: 600; font-size: 18px;'>Exclusion Criteria</h4>", unsafe_allow_html=True)
+    st.markdown(f"""
+    <div style='background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 20px; color: #b1bac4; font-size: 14px; line-height: 1.7; white-space: pre-wrap; font-family: "Inter", sans-serif;'>{exc_raw if exc_raw else 'N/A'}</div>
+    """, unsafe_allow_html=True)
 
-    st.markdown("#### Exclusion Criteria")
-    st.write(exc_raw if exc_raw else "N/A")
-
-    st.divider()
-
+    st.markdown("<div style='margin-top: 30px;'></div>", unsafe_allow_html=True)
     st.markdown("#### Location(s)")
     locs_raw2 = trial.get("locations") or trial.get("location") or []
     loc_lines = []
@@ -248,7 +246,7 @@ if st.session_state.page == "trial":
 
 st.markdown("""
 <div class='google-title'>
-🧬 TrialMatch+
+TrialMatch+
 </div>
 
 <div class='subtitle'>
@@ -261,10 +259,14 @@ Find the most relevant trials in seconds
 # SEARCH BAR
 # ============================================
 
+def trigger_search_callback():
+    st.session_state.do_search = True
+
 condition_input = st.text_input(
     "",
     placeholder="Search Clinical Trials...",
-    label_visibility="collapsed"
+    label_visibility="collapsed",
+    on_change=trigger_search_callback
 )
 
 
@@ -281,6 +283,10 @@ with col_adv:
     if st.button("⚙ Advanced Search", use_container_width=True):
         st.session_state.show_advanced = not st.session_state.show_advanced
 
+if st.session_state.get("do_search", False):
+    search_clicked = True
+    st.session_state.do_search = False
+
 
 # ============================================
 # ADVANCED SEARCH PANEL
@@ -295,9 +301,9 @@ if st.session_state.show_advanced:
     # PATIENT DETAILS
     st.subheader("Patient Details")
 
-    age    = st.number_input("Age", min_value=1, max_value=120, value=50)
-    gender = st.radio("Gender", ["Male", "Female", "All"])
-    ecog   = st.selectbox("ECOG", [0, 1, 2, 3, 4], index=1)
+    age    = st.number_input("Age", min_value=1, max_value=120, value=None, placeholder="Enter age...")
+    gender = st.radio("Gender", ["Male", "Female", "All"], index=None)
+    ecog   = st.selectbox("ECOG", [0, 1, 2, 3, 4], index=None, placeholder="Select ECOG status...")
 
     # DIAGNOSIS
     st.subheader("Diagnosis & History")
@@ -307,17 +313,17 @@ if st.session_state.show_advanced:
         ["EGFR", "HER2", "ALK", "KRAS", "BRAF", "FLT3"]
     )
 
-    history_input          = st.text_area("History / Comorbidities")
-    prior_lines            = st.number_input("Prior Lines", min_value=0, value=0)
+    history_input          = st.text_area("History / Comorbidities", placeholder="e.g. Hypertension, previous stroke...")
+    prior_lines            = st.number_input("Prior Lines", min_value=0, value=None, placeholder="Number of prior treatments...")
     days_since_last_treatment = st.number_input(
-        "Days Since Last Treatment", min_value=0, value=30
+        "Days Since Last Treatment", min_value=0, value=None, placeholder="e.g. 30, 45, 90..."
     )
 
     # LAB VALUES
     st.subheader("Lab Values")
 
     if "lab_values_list" not in st.session_state:
-        st.session_state.lab_values_list = [{"lab": None, "value": 0.0}]
+        st.session_state.lab_values_list = [{"lab": None, "value": None}]
 
     LAB_OPTIONS = [
         "Creatinine_Level", "ALT_Level", "AST_Level", "Bilirubin_Level",
@@ -328,19 +334,20 @@ if st.session_state.show_advanced:
     for i, entry in enumerate(st.session_state.lab_values_list):
         col_lab, col_val = st.columns([3, 1])
         with col_lab:
-            selected_lab = st.selectbox("Lab", LAB_OPTIONS, key=f"lab_name_{i}")
+            selected_lab = st.selectbox("Lab", LAB_OPTIONS, index=None, placeholder="Select a Lab...", key=f"lab_name_{i}")
             st.session_state.lab_values_list[i]["lab"] = selected_lab
         with col_val:
-            val = st.number_input("Value", value=entry.get("value", 0.0), key=f"lab_val_{i}")
+            val = st.number_input("Value", value=entry.get("value", None), placeholder="0.00", key=f"lab_val_{i}")
             st.session_state.lab_values_list[i]["value"] = val
 
     if st.button("Add Another Lab"):
-        st.session_state.lab_values_list.append({"lab": None, "value": 0.0})
+        st.session_state.lab_values_list.append({"lab": None, "value": None})
+        st.rerun()
 
     labs = {
         lv["lab"]: lv["value"]
         for lv in st.session_state.lab_values_list
-        if lv["lab"]
+        if lv["lab"] is not None and lv["value"] is not None
     }
 
     st.markdown("---")
