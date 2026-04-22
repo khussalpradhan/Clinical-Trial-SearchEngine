@@ -157,10 +157,6 @@ if st.session_state.page == "trial":
     st.stop()
 
 
-# ============================================
-# HEADER
-# ============================================
-
 st.markdown("""
 <div class='google-title'>
 🧬 TrialMatch+
