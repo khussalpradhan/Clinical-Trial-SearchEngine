@@ -146,8 +146,6 @@ if st.session_state.page == "trial":
         st.button("Back", on_click=lambda: st.session_state.update(page="main"))
         st.stop()
 
-    st.button("⬅ Back to Search", on_click=lambda: st.session_state.update(page="main"))
-
     # ── Helpers ──────────────────────────────────────────────────────────────
     def _v(v, fallback="N/A"):
         return v if v not in (None, "", [], {}) else fallback
@@ -186,10 +184,39 @@ if st.session_state.page == "trial":
         raw_block = trial.get("eligibility_criteria") or elig_mod.get("eligibilityCriteria") or ""
         inc_raw, exc_raw = _parse_elig(raw_block)
 
-    locs_raw = trial.get("locations") or trial.get("location") or []
-    if isinstance(locs_raw, list):
-        loc_parts = []
-        for loc in locs_raw[:5]:
+    # ── Render with native Streamlit widgets (no custom CSS classes) ─────────
+
+    st.markdown(f"## {title}")
+    st.caption(f"Phase {phase}  •  {status}" + (f"  •  {nct_id}" if nct_id else ""))
+    st.divider()
+
+    col1, col2, col3 = st.columns(3)
+    col1.metric("Min Age", min_age)
+    col2.metric("Max Age", max_age)
+    col3.metric("Sex", sex)
+
+    st.divider()
+
+    st.markdown("#### Summary")
+    st.write(brief if brief else "N/A")
+
+    st.divider()
+
+    st.markdown("#### Inclusion Criteria")
+    st.write(inc_raw if inc_raw else "N/A")
+
+    st.divider()
+
+    st.markdown("#### Exclusion Criteria")
+    st.write(exc_raw if exc_raw else "N/A")
+
+    st.divider()
+
+    st.markdown("#### Location(s)")
+    locs_raw2 = trial.get("locations") or trial.get("location") or []
+    loc_lines = []
+    if isinstance(locs_raw2, list):
+        for loc in locs_raw2[:5]:
             if isinstance(loc, dict):
                 chunk = ", ".join(filter(None, [
                     loc.get("facility") or loc.get("name"),
@@ -197,60 +224,20 @@ if st.session_state.page == "trial":
                     loc.get("country"),
                 ]))
                 if chunk:
-                    loc_parts.append(chunk)
+                    loc_lines.append(chunk)
             elif isinstance(loc, str):
-                loc_parts.append(loc)
-        location_lines = "\n".join(f"• {p}" for p in loc_parts) if loc_parts else "N/A"
+                loc_lines.append(loc)
+    elif locs_raw2:
+        loc_lines.append(str(locs_raw2))
+
+    if loc_lines:
+        for line in loc_lines:
+            st.write(f"• {line}")
     else:
-        location_lines = str(locs_raw) if locs_raw else "N/A"
+        st.write("N/A")
 
-    # ── Render ────────────────────────────────────────────────────────────────
-    st.markdown("""
-    <style>
-    .detail-card {
-        background:#111; border:1px solid #2a2a3a;
-        border-radius:18px; padding:32px 36px; margin-top:8px;
-    }
-    .d-title  { color:#fff; font-size:1.3rem; font-weight:700; margin:0 0 8px 0; line-height:1.4; }
-    .d-badges { color:#9ca3af; font-size:14px; margin-bottom:0; }
-    .d-accent { color:#818cf8; font-family:monospace; }
-    .d-label  { color:#6366f1; font-size:11px; font-weight:700;
-                text-transform:uppercase; letter-spacing:.08em; margin:22px 0 5px 0; }
-    .d-text   { color:#cbd5e1; font-size:14px; line-height:1.75; margin:0; }
-    .d-hr     { border:none; border-top:1px solid #1e2330; margin:20px 0; }
-    </style>
-    """, unsafe_allow_html=True)
-
-    nct_badge = f"&nbsp;•&nbsp;<span class='d-accent'>{nct_id}</span>" if nct_id else ""
-
-    st.markdown(f"""
-    <div class="detail-card">
-        <p class="d-title">{title}</p>
-        <p class="d-badges">Phase {phase} &nbsp;•&nbsp; {status}{nct_badge}</p>
-        <hr class="d-hr">
-
-        <p class="d-label">Eligibility</p>
-        <p class="d-text">
-            Min Age: <b style="color:#e2e8f0">{min_age}</b>
-            &nbsp;&nbsp;|&nbsp;&nbsp;
-            Max Age: <b style="color:#e2e8f0">{max_age}</b>
-            &nbsp;&nbsp;|&nbsp;&nbsp;
-            Sex: <b style="color:#e2e8f0">{sex}</b>
-        </p>
-
-        <p class="d-label">Summary</p>
-        <p class="d-text">{brief}</p>
-
-        <p class="d-label">Inclusion Criteria</p>
-        <p class="d-text" style="white-space:pre-wrap">{inc_raw or "N/A"}</p>
-
-        <p class="d-label">Exclusion Criteria</p>
-        <p class="d-text" style="white-space:pre-wrap">{exc_raw or "N/A"}</p>
-
-        <p class="d-label">Location(s)</p>
-        <p class="d-text" style="white-space:pre-wrap">{location_lines}</p>
-    </div>
-    """, unsafe_allow_html=True)
+    st.divider()
+    st.button("⬅ Back to Search", on_click=lambda: st.session_state.update(page="main"), key="back_bottom")
 
     st.stop()
 
