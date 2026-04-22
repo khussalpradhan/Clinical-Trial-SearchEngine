@@ -375,7 +375,7 @@ else:
 if st.session_state.show_advanced:
     profile_payload = {
         "age":                      age,
-        "gender":                   gender.lower(),
+        "gender":                   gender.lower() if gender else None,
         "conditions":               [condition_input] if condition_input else [],
         "ecog":                     ecog,
         "biomarkers":               biomarkers,
