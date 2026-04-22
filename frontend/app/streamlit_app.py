@@ -148,77 +148,109 @@ if st.session_state.page == "trial":
 
     st.button("⬅ Back to Search", on_click=lambda: st.session_state.update(page="main"))
 
-    st.markdown(f"<h1 style='color:white;'>{trial.get('official_title') or trial.get('title', 'Untitled Study')}</h1>", unsafe_allow_html=True)
+    # ── Helpers ──────────────────────────────────────────────────────────────
+    def _v(v, fallback="N/A"):
+        return v if v not in (None, "", [], {}) else fallback
 
-    # ── Status / Phase / NCT ID badges ──────────────────────────────────────
+    def _parse_elig(raw):
+        if not raw:
+            return "", ""
+        rl = raw.lower()
+        ii, ei = rl.find("inclusion criteria"), rl.find("exclusion criteria")
+        if ii == -1 and ei == -1:
+            return raw.strip(), ""
+        if ii != -1 and ei != -1:
+            return raw[ii:ei].strip(), raw[ei:].strip()
+        if ii != -1:
+            return raw[ii:].strip(), ""
+        return "", raw[ei:].strip()
+
+    # ── Extract fields ────────────────────────────────────────────────────────
+    elig_mod = trial.get("eligibility") or {}
+    if not isinstance(elig_mod, dict):
+        elig_mod = {}
+
+    title   = _v(trial.get("official_title") or trial.get("title"))
+    phase   = _v(trial.get("phase"))
+    status  = _v(trial.get("overall_status"))
     nct_id  = trial.get("nct_id", "")
-    phase   = trial.get("phase", "N/A")
-    status  = trial.get("overall_status", "N/A")
 
-    st.markdown(
-        f"<p style='color:#aaa; font-size:15px;'>NCT ID: <b style='color:white'>{nct_id}</b> &nbsp;|&nbsp; "
-        f"Phase: <b style='color:white'>{phase}</b> &nbsp;|&nbsp; "
-        f"Status: <b style='color:white'>{status}</b></p>",
-        unsafe_allow_html=True,
-    )
+    min_age = _v(trial.get("minimum_age") or trial.get("min_age") or elig_mod.get("minimumAge"))
+    max_age = _v(trial.get("maximum_age") or trial.get("max_age") or elig_mod.get("maximumAge"))
+    sex     = _v(trial.get("sex") or trial.get("gender") or elig_mod.get("sex"))
+    brief   = _v(trial.get("brief_summary") or trial.get("description"), "")
 
-    st.markdown("---")
+    inc_raw = trial.get("inclusion_criteria") or trial.get("inclusion") or ""
+    exc_raw = trial.get("exclusion_criteria") or trial.get("exclusion") or ""
+    if not inc_raw and not exc_raw:
+        raw_block = trial.get("eligibility_criteria") or elig_mod.get("eligibilityCriteria") or ""
+        inc_raw, exc_raw = _parse_elig(raw_block)
 
-    # ── Brief Summary ────────────────────────────────────────────────────────
-    brief = trial.get("brief_summary") or trial.get("description", "")
-    if brief:
-        st.markdown("### Summary")
-        st.markdown(f"<p style='color:#ccc; line-height:1.7'>{brief}</p>", unsafe_allow_html=True)
-
-    # ── Detailed Description ─────────────────────────────────────────────────
-    detailed = trial.get("detailed_description", "")
-    if detailed:
-        with st.expander("Detailed Description"):
-            st.markdown(f"<p style='color:#ccc; line-height:1.7'>{detailed}</p>", unsafe_allow_html=True)
-
-    # ── Eligibility ──────────────────────────────────────────────────────────
-    eligibility = trial.get("eligibility_criteria") or trial.get("eligibility", "")
-    if eligibility:
-        st.markdown("### Eligibility Criteria")
-        st.markdown(f"<p style='color:#ccc; line-height:1.7; white-space:pre-wrap'>{eligibility}</p>", unsafe_allow_html=True)
-
-    # ── Locations ────────────────────────────────────────────────────────────
-    locations = trial.get("locations", [])
-    if locations:
-        st.markdown("### Locations")
-        for loc in locations[:10]:
+    locs_raw = trial.get("locations") or trial.get("location") or []
+    if isinstance(locs_raw, list):
+        loc_parts = []
+        for loc in locs_raw[:5]:
             if isinstance(loc, dict):
-                facility = loc.get("facility", "")
-                city     = loc.get("city", "")
-                country  = loc.get("country", "")
-                st.markdown(f"- **{facility}** — {city}, {country}")
-            else:
-                st.markdown(f"- {loc}")
+                chunk = ", ".join(filter(None, [
+                    loc.get("facility") or loc.get("name"),
+                    loc.get("city"),
+                    loc.get("country"),
+                ]))
+                if chunk:
+                    loc_parts.append(chunk)
+            elif isinstance(loc, str):
+                loc_parts.append(loc)
+        location_lines = "\n".join(f"• {p}" for p in loc_parts) if loc_parts else "N/A"
+    else:
+        location_lines = str(locs_raw) if locs_raw else "N/A"
 
-    # ── Interventions ────────────────────────────────────────────────────────
-    interventions = trial.get("interventions", [])
-    if interventions:
-        st.markdown("### Interventions")
-        for iv in interventions:
-            if isinstance(iv, dict):
-                st.markdown(f"- **{iv.get('type','')}**: {iv.get('name','')}")
-            else:
-                st.markdown(f"- {iv}")
+    # ── Render ────────────────────────────────────────────────────────────────
+    st.markdown("""
+    <style>
+    .detail-card {
+        background:#111; border:1px solid #2a2a3a;
+        border-radius:18px; padding:32px 36px; margin-top:8px;
+    }
+    .d-title  { color:#fff; font-size:1.3rem; font-weight:700; margin:0 0 8px 0; line-height:1.4; }
+    .d-badges { color:#9ca3af; font-size:14px; margin-bottom:0; }
+    .d-accent { color:#818cf8; font-family:monospace; }
+    .d-label  { color:#6366f1; font-size:11px; font-weight:700;
+                text-transform:uppercase; letter-spacing:.08em; margin:22px 0 5px 0; }
+    .d-text   { color:#cbd5e1; font-size:14px; line-height:1.75; margin:0; }
+    .d-hr     { border:none; border-top:1px solid #1e2330; margin:20px 0; }
+    </style>
+    """, unsafe_allow_html=True)
 
-    # ── Contact ──────────────────────────────────────────────────────────────
-    contact = trial.get("contact") or {}
-    if contact:
-        st.markdown("### Contact")
-        name  = contact.get("name", "")
-        email = contact.get("email", "")
-        phone = contact.get("phone", "")
-        if name:  st.markdown(f"**Name:** {name}")
-        if email: st.markdown(f"**Email:** {email}")
-        if phone: st.markdown(f"**Phone:** {phone}")
+    nct_badge = f"&nbsp;•&nbsp;<span class='d-accent'>{nct_id}</span>" if nct_id else ""
 
-    # ── Raw dump fallback (dev helper) ───────────────────────────────────────
-    with st.expander("Raw trial data (debug)"):
-        st.json(trial)
+    st.markdown(f"""
+    <div class="detail-card">
+        <p class="d-title">{title}</p>
+        <p class="d-badges">Phase {phase} &nbsp;•&nbsp; {status}{nct_badge}</p>
+        <hr class="d-hr">
+
+        <p class="d-label">Eligibility</p>
+        <p class="d-text">
+            Min Age: <b style="color:#e2e8f0">{min_age}</b>
+            &nbsp;&nbsp;|&nbsp;&nbsp;
+            Max Age: <b style="color:#e2e8f0">{max_age}</b>
+            &nbsp;&nbsp;|&nbsp;&nbsp;
+            Sex: <b style="color:#e2e8f0">{sex}</b>
+        </p>
+
+        <p class="d-label">Summary</p>
+        <p class="d-text">{brief}</p>
+
+        <p class="d-label">Inclusion Criteria</p>
+        <p class="d-text" style="white-space:pre-wrap">{inc_raw or "N/A"}</p>
+
+        <p class="d-label">Exclusion Criteria</p>
+        <p class="d-text" style="white-space:pre-wrap">{exc_raw or "N/A"}</p>
+
+        <p class="d-label">Location(s)</p>
+        <p class="d-text" style="white-space:pre-wrap">{location_lines}</p>
+    </div>
+    """, unsafe_allow_html=True)
 
     st.stop()
 
