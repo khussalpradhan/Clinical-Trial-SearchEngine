@@ -15,7 +15,7 @@ from app.ui.results_panel import render_results
 # ============================================
 
 st.set_page_config(
-    page_title="Clinical Trial Engine",
+    page_title="TrialMatch+",
     layout="wide",
     initial_sidebar_state="collapsed"
 )
@@ -163,7 +163,7 @@ if st.session_state.page == "trial":
 
 st.markdown("""
 <div class='google-title'>
-🧬 Clinical Trial Engine
+🧬 TrialMatch+
 </div>
 
 <div class='subtitle'>
@@ -176,17 +176,15 @@ Find the most relevant trials in seconds
 # SEARCH BAR
 # ============================================
 
-col1, col2 = st.columns([10,1])
+condition_input = st.text_input(
+    "",
+    placeholder="Search Clinical Trials...",
+    label_visibility="collapsed"
+)
 
-with col1:
-    condition_input = st.text_input(
-        "",
-        placeholder="Search Clinical Trials...",
-        label_visibility="collapsed"
-    )
-
-with col2:
-    search_clicked = st.button("🔍", use_container_width=True)
+search_clicked = condition_input and st.session_state.get("_last_query") != condition_input
+if search_clicked:
+    st.session_state["_last_query"] = condition_input
 
 
 # ============================================
@@ -196,7 +194,7 @@ with col2:
 colA, colB, colC = st.columns([2,2,2])
 
 with colB:
-    if st.button("Advanced Search", use_container_width=True):
+    if st.button("Search", use_container_width=True):
         st.session_state.advanced = not st.session_state.advanced
 
 
